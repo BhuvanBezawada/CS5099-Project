@@ -8,14 +8,39 @@ import java.awt.*;
 public class FeedbackScreen {
 
     private JFrame feedbackScreen;
-
     private JPanel feedbackScreenPanel;
-    private JEditorPane editorPane;
 
     private JSplitPane documentsAndEditorSplitPane;
-    private JPanel rightPanel;
-
+    private JEditorPane editorPane;
     private JList feedbackDocsList;
+
+    private JSplitPane suggestionsAndControlsSplitPane;
+    private JPanel suggestionsPanel;
+    private JPanel controlPanel;
+
+    private JMenuBar menuBar;
+    private JMenu fileMenu;
+    private JMenuItem saveOption;
+    private JMenuItem loadOption;
+    private JMenuItem exportOption;
+
+
+    private void setupMenuBar() {
+        menuBar = new JMenuBar();
+        fileMenu = new JMenu("File");
+        saveOption = new JMenuItem("Save");
+        loadOption = new JMenuItem("Load");
+        exportOption = new JMenuItem("Export");
+
+        fileMenu.add(saveOption);
+        fileMenu.add(loadOption);
+        fileMenu.add(exportOption);
+
+        menuBar.add(fileMenu);
+
+        feedbackScreenPanel.add(menuBar, BorderLayout.PAGE_START);
+    }
+
 
     public FeedbackScreen() {
         feedbackScreen = new JFrame("Feedback Composition");
@@ -46,7 +71,7 @@ public class FeedbackScreen {
 
     public void setupFeedbackScreenComponents() {
         setupPanels();
-        //setupLeftPanel();
+        setupMenuBar();
     }
 
     public void displayFeedbackScreen() {
@@ -75,14 +100,6 @@ public class FeedbackScreen {
         feedbackScreenPanel.setLayout(new BorderLayout());
 
         editorPane = new JEditorPane();
-//        leftPanel = new JPanel();
-//        leftPanel.setPreferredSize(new Dimension(280, 740));
-//        leftPanel.setBackground(Color.CYAN);
-//
-//        centerPanel = new JPanel();
-//        centerPanel.setPreferredSize(new Dimension(600, 740));
-//        centerPanel.setBackground(Color.WHITE);
-
 
         JScrollPane listScrollPane = new JScrollPane(feedbackDocsList);
         JScrollPane editorScrollPane = new JScrollPane(editorPane);
@@ -96,14 +113,41 @@ public class FeedbackScreen {
         documentsAndEditorSplitPane.setPreferredSize(new Dimension(900, 800));
 
 
-        rightPanel = new JPanel();
-        rightPanel.setPreferredSize(new Dimension(280, 740));
-        rightPanel.setBackground(Color.CYAN);
+        controlPanel = new JPanel();
+        controlPanel.setLayout(new GridLayout(3, 1, 20, 20));
+        JLabel phraseEntryLabel = new JLabel("Enter a phrase to store:");
+        JTextArea phraseEntryArea = new JTextArea();
+        JButton phraseSubmitButton = new JButton("Submit Phrase");
+        phraseEntryArea.setSize(new Dimension(200, 100));
+        controlPanel.add(phraseEntryLabel);
+        controlPanel.add(phraseEntryArea);
+        controlPanel.add(phraseSubmitButton);
 
-//        feedbackScreenPanel.add(leftPanel, BorderLayout.LINE_START);
-//        feedbackScreenPanel.add(centerPanel, BorderLayout.CENTER);
-        feedbackScreenPanel.add(documentsAndEditorSplitPane, BorderLayout.LINE_START);
-        feedbackScreenPanel.add(rightPanel, BorderLayout.LINE_END);
+        suggestionsPanel = new JPanel();
+        suggestionsPanel.setLayout(new BoxLayout(suggestionsPanel, BoxLayout.PAGE_AXIS));
+
+        phraseSubmitButton.addActionListener(e -> {
+            suggestionsPanel.add(new JLabel(phraseEntryArea.getText()));
+            suggestionsPanel.add(new JSeparator());
+            feedbackScreen.revalidate();
+            feedbackScreen.repaint();
+        });
+
+
+
+
+
+        JScrollPane suggestionsScrollPane = new JScrollPane(suggestionsPanel);
+        suggestionsScrollPane.setViewportView(suggestionsPanel);
+        suggestionsAndControlsSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, controlPanel, suggestionsScrollPane);
+        suggestionsAndControlsSplitPane.setOneTouchExpandable(true);
+        suggestionsAndControlsSplitPane.setDividerLocation(0.33);
+        controlPanel.setMinimumSize(new Dimension(250, 300));
+        suggestionsScrollPane.setMinimumSize(new Dimension(250, 300));
+        suggestionsAndControlsSplitPane.setPreferredSize(new Dimension(300, 800));
+
+        feedbackScreenPanel.add(documentsAndEditorSplitPane, BorderLayout.CENTER);
+        feedbackScreenPanel.add(suggestionsAndControlsSplitPane, BorderLayout.LINE_END);
         feedbackScreen.add(feedbackScreenPanel);
     }
 }
