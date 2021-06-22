@@ -63,7 +63,8 @@ public class HomeScreen {
             JOptionPane.showMessageDialog(homeScreen, "Starting new assignment!");
             homeScreen.dispose();
 
-            FeedbackScreen feedbackScreen = new FeedbackScreen();
+//            FeedbackScreen feedbackScreen = new FeedbackScreen();
+            CreateAssignmentScreen createAssignmentScreen = new CreateAssignmentScreen();
         });
 
         loadButton = new JButton("Resume Assignment");
