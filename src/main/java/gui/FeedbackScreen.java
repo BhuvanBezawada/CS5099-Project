@@ -15,7 +15,14 @@ public class FeedbackScreen {
     private JList feedbackDocsList;
 
     private JSplitPane suggestionsAndControlsSplitPane;
-    private JPanel suggestionsPanel;
+
+    private JTabbedPane suggestionsPanel;
+
+    private JScrollPane customPanelScrollPane;
+    private JPanel customPanel;
+    private JPanel frequentlyUsedPanel;
+    private JPanel insightsPanel;
+
     private JPanel controlPanel;
 
     private JMenuBar menuBar;
@@ -101,6 +108,9 @@ public class FeedbackScreen {
 
         editorPane = new JEditorPane();
 
+        suggestionsPanel = new JTabbedPane();
+
+
         JScrollPane listScrollPane = new JScrollPane(feedbackDocsList);
         JScrollPane editorScrollPane = new JScrollPane(editorPane);
 
@@ -123,12 +133,33 @@ public class FeedbackScreen {
         controlPanel.add(phraseEntryArea);
         controlPanel.add(phraseSubmitButton);
 
-        suggestionsPanel = new JPanel();
-        suggestionsPanel.setLayout(new BoxLayout(suggestionsPanel, BoxLayout.PAGE_AXIS));
+
+        customPanel = new JPanel();
+        customPanelScrollPane = new JScrollPane(customPanel);
+        customPanelScrollPane.setPreferredSize(new Dimension(280, 300));
+        frequentlyUsedPanel = new JPanel();
+        insightsPanel = new JPanel();
+
+        suggestionsPanel.addTab("Custom", customPanelScrollPane);
+        suggestionsPanel.addTab("Frequently used", frequentlyUsedPanel);
+        suggestionsPanel.addTab("Insights", insightsPanel);
+
+        customPanel.setLayout(new BoxLayout(customPanel, BoxLayout.PAGE_AXIS));
 
         phraseSubmitButton.addActionListener(e -> {
-            suggestionsPanel.add(new JLabel(phraseEntryArea.getText()));
-            suggestionsPanel.add(new JSeparator());
+            JTextArea addedPhrase = new JTextArea(phraseEntryArea.getText());
+            addedPhrase.setEditable(false);
+            //addedPhrase.setRows(3);
+            addedPhrase.setMaximumSize(new Dimension(250, 100));
+            addedPhrase.setMinimumSize(new Dimension(250, 100));
+            addedPhrase.setPreferredSize(new Dimension(250, 100));
+
+            customPanel.add(addedPhrase);
+
+            JSeparator separator = new JSeparator();
+            separator.setMaximumSize(new Dimension(250, 10));
+            customPanel.add(separator);
+
             feedbackScreen.revalidate();
             feedbackScreen.repaint();
         });
@@ -142,9 +173,22 @@ public class FeedbackScreen {
         suggestionsAndControlsSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, controlPanel, suggestionsScrollPane);
         suggestionsAndControlsSplitPane.setOneTouchExpandable(true);
         suggestionsAndControlsSplitPane.setDividerLocation(0.33);
+
+
+
         controlPanel.setMinimumSize(new Dimension(250, 300));
         suggestionsScrollPane.setMinimumSize(new Dimension(250, 300));
         suggestionsAndControlsSplitPane.setPreferredSize(new Dimension(300, 800));
+        suggestionsAndControlsSplitPane.setMaximumSize(new Dimension(600, 800));
+
+        suggestionsPanel.setForeground(Color.BLACK);
+        suggestionsPanel.setBackgroundAt(0, Color.BLUE);
+        suggestionsPanel.addChangeListener(e -> {
+            for (int i = 0; i< suggestionsPanel.getTabCount(); i++) {
+                suggestionsPanel.setBackgroundAt(i, Color.LIGHT_GRAY);
+            }
+            suggestionsPanel.setBackgroundAt(suggestionsPanel.getSelectedIndex(), Color.BLUE);
+        });
 
         feedbackScreenPanel.add(documentsAndEditorSplitPane, BorderLayout.CENTER);
         feedbackScreenPanel.add(suggestionsAndControlsSplitPane, BorderLayout.LINE_END);
