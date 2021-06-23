@@ -75,6 +75,16 @@ public class CreateAssignmentScreen {
         JButton backButton = new JButton("Back to Home");
         JButton confirmButton = new JButton("Confirm Selections");
 
+        confirmButton.addActionListener(e -> {
+            FeedbackScreen feedbackScreen = new FeedbackScreen();
+            createAssignmentScreen.dispose();
+        });
+
+        backButton.addActionListener(e -> {
+            HomeScreen homeScreen = new HomeScreen();
+            createAssignmentScreen.dispose();
+        });
+
 //        backButton.setHorizontalAlignment(SwingConstants.RIGHT);
 //        confirmButton.setHorizontalAlignment(SwingConstants.RIGHT);
 
