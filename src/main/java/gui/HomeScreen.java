@@ -16,16 +16,18 @@ public class HomeScreen {
     private JTextPane descriptionLabel;
     private JButton loadButton;
     private JButton helpButton;
-    private JTextPane welcomeText;
 
     public static void main(String[] args) {
         HomeScreen mainHomeScreen = new HomeScreen();
     }
 
     public HomeScreen() {
+        // Create the home screen jFrame
         homeScreen = new JFrame("Feedback Helper Tool");
         homeScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         homeScreen.setSize(800, 600);
+
+        // Setup the components and display the screen
         createHomeScreenComponents();
         displayHomeScreen();
     }
@@ -90,8 +92,6 @@ public class HomeScreen {
         startNewButton.addActionListener(e -> {
             JOptionPane.showMessageDialog(homeScreen, "Starting new assignment!");
             homeScreen.dispose();
-
-//            FeedbackScreen feedbackScreen = new FeedbackScreen();
             CreateAssignmentScreen createAssignmentScreen = new CreateAssignmentScreen();
         });
         startNewButton.setAlignmentX(Component.CENTER_ALIGNMENT);

@@ -9,7 +9,7 @@ public class TokeniseExample {
 
     public static void main(String[] args) {
         StanfordCoreNLP stanfordCoreNLP = BasicPipelineExample.getPipeline();
-        String text = "This is an example sentence. Another sentence for testing!";
+        String text = "This is an excellent piece of work. This is a good piece of work. Your work can be improved. The code needs some improvement. This is not a good quality piece of work.";
 
         CoreDocument coreDocument = new CoreDocument(text);
         stanfordCoreNLP.annotate(coreDocument);
@@ -23,7 +23,7 @@ public class TokeniseExample {
 
         // Sentence and sentiment
         List<CoreSentence> sentenceList = coreDocument.sentences();
-        sentenceList.forEach(e -> System.out.println(e.sentiment()));
+        sentenceList.forEach(e -> System.out.println( e + " - " + e.sentiment()));
 
     }
 }
