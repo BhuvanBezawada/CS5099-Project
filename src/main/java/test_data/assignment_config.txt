@@ -1,0 +1,2 @@
+assignment-title: "Databases Practical"
+assignment-headings: "Database creation, SQL queries, Constraints, Procedure, GUI, Report, Overall comments"

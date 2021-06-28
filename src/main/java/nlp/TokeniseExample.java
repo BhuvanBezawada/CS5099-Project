@@ -1,4 +1,5 @@
-import edu.stanford.nlp.ling.CoreLabel;
+package nlp;
+
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.CoreSentence;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
