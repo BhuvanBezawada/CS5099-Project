@@ -1,0 +1,35 @@
+Database creation
+- Correct table definitions
+- Correct fields
+- You should really use the same attribute names as in the provided relational model (but this isn't a big problem)
+- Appropriate choice of types
+- Some missing primary keys
+- Good foreign key constraints, though not completely ideal
+- Remember, one foreign key constraint can include several attributes: league_player(league_name, league_year) references league(name, year) is a better constraint than the 2 separate ones you've included
+- Why not have a single FOREIGN KEY (court_number, venue_name) in played_match?
+- match_played should be played_match
+
+SQL queries
+- view_win_count working correctly, but should be sorted by email
+- view_win_count isn't quite right: we want *matches* won, not *games* won
+- view_contact_details working correctly, implemented as a view, with correct columns and rows
+
+Constraints
+- No attempt at any of the stated constraints
+
+Procedure
+- No attempt at proc_add_venue
+
+GUI
+- No attempt
+
+Report
+- Clear summary of functionality
+- No compilation and usage instructions
+- A little brief, not discussing missing features much - remember, there's some credit for showing understanding of advanced concepts!
+
+Overall comments
+- A coding practical containing code achieving some of the required functionality, adequately documented or reported.
+- Please see me if you're having problems understanding the course.
+
+9

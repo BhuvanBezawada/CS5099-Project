@@ -1,0 +1,52 @@
+Database creation
+- Correct table definitions
+- Correct fields
+- Appropriate choice of types
+- Correct primary keys, but did you think about writing this in-line instead of at the end?
+- Correct foreign key constraints
+- Nice use of AUTO_INCREMENT for artificial ID
+- Nice use of delete actions
+- FOREIGN KEY (`p1_email`, `league_name`, `league_year`) REFERENCES `league_player` is a nice touch, handling an additional constraint elegantly
+
+SQL queries
+- view_never_played working correctly, implemented as a view, with correct columns and rows
+- view_win_count working correctly, implemented as a view, with correct columns and rows
+- view_contact_details working correctly, implemented as a view, with correct columns and rows
+- Appropriate extra views for the GUI
+
+Constraints
+- phone_type constrained to the correct 3 values
+- Email address format checked correctly
+- Matches are validated with respect to scores and valid players
+- Missing constraint: It should not be possible to create a match including a player that is not in the specified league
+
+Procedure
+- proc_add_venue included and working correctly
+- Negative number of courts throws an error as expected
+
+GUI
+- Node.js used
+- Compiles and runs correctly
+- Code is neat and easy to follow
+- Could use more comments
+- Seeing all matches from a league: data presented clearly, with appropriate columns and good look-and-feel
+- Entering a new match: clear data input for appropriate fields
+- Almost no typing required, making things easy for the user at every step!
+- Good problem-specific inputs: dropdowns for leagues etc.
+- Superb error checking
+
+Report
+- Clear compilation and usage instructions
+- Good summary of functionality
+- Extensions and interesting features explained well
+- Nice explanation of your tables and queries
+- Appropriate output shown in the form of screenshots
+
+Extensions
+- Several extra views showing good understanding and providing nice functionality
+- What is "Club sessions"?  I think this is an extension attempt, but I can't understand it.
+
+Overall comments
+- A coding practical containing code achieving all specified functionality plus appropriate exceptional features, with unusual clarity of design and implementation, together with an outstandingly well-written report showing evidence of extensive background reading, a full knowledge of the subject and insight into the problem.
+
+19

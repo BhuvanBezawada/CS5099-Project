@@ -3,6 +3,8 @@ package model;
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AssignmentConfig implements Serializable {
 
@@ -39,6 +41,8 @@ public class AssignmentConfig implements Serializable {
                                     .substring(1, assignmentHeadingsString.length()-1)
                                     .split(",")
                     );
+
+                    assignmentHeadings = assignmentHeadings.stream().map(String::trim).collect(Collectors.toList());
                 }
             }
         } catch (IOException e) {

@@ -1,0 +1,49 @@
+Database creation
+- Correct table definitions
+- Correct fields
+- Appropriate choice of types
+- Correct primary keys
+- Correct foreign key constraints
+- Nice use of AUTO_INCREMENT for artificial ID
+- Nice use of delete/update actions
+- Why not have a single FOREIGN KEY (court_number, venue_name) in played_match?
+- match_played should be played_match
+
+SQL queries
+- view_never_played working correctly, implemented as a view, with correct columns and rows
+- view_win_count working correctly, implemented as a view, with correct columns and rows
+- view_contact_details implemented, but phone numbers are not grouped up and comma-separated as they should be
+
+Constraints
+- phone_type constrained to the correct 3 values
+- Email address format checked correctly
+- Matches are validated with respect to scores and league years
+- Missing constraint: It should not be possible to create a match including a player that is not in the specified league
+
+Procedure
+- proc_add_venue included and working correctly
+- Negative number of courts throws an error as expected
+
+GUI
+- Java used
+- Compiles and runs correctly
+- Code is neat and easy to follow
+- Seeing all matches from a league: data presented clearly, with appropriate columns and good look-and-feel
+- Almost no typing required, making things easy for the user at every step!
+- Good problem-specific inputs: dropdowns for leagues etc.
+- Superb error checking
+
+Report
+- Clear compilation and usage instructions
+- Good summary of functionality
+- Extensions and interesting features explained well
+- Nice explanation of your tables and queries
+- Appropriate output shown in the form of screenshots
+- Please avoid screenshots of your program code
+- Screenshots of your GUI running would be good
+- Rather long at over 3100 words; more detail than needed
+
+Overall comments
+- A coding practical containing clear, well-designed code achieving full required functionality, although no extension elements, written in good style, together with a clear and well-written report showing real insight into the subject matter.
+
+18

@@ -16,6 +16,14 @@ public class DocumentDatabaseManager implements DocumentDatabaseInterface {
 
     private Nitrite databaseConnection;
 
+    public NitriteCollection createCollection(String collectionName) {
+        return databaseConnection.getCollection(collectionName);
+    }
+
+    public void saveChanges() {
+        databaseConnection.commit();
+    }
+
     @Override
     public boolean documentDatabaseIsReady() {
         return !databaseConnection.isClosed();
