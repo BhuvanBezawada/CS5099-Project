@@ -40,6 +40,7 @@ public class DatabaseLoader {
         // Assignment and student manifest
         AssignmentConfig assignmentConfig = new AssignmentConfig("/Users/bhuvan/Desktop/CS5099-Project/src/main/java/test_data/assignment_config.txt");
         Assignment assignment = new Assignment("db-assignment", assignmentConfig);
+        assignment.saveAssignmentDetails(assignment.getAssignmentName() + ".fht");
         File studentManifestFile = new File("/Users/bhuvan/Desktop/CS5099-Project/src/main/java/test_data/student_manifest.txt");
 
         // Open connection to the database

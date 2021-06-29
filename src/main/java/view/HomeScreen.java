@@ -2,6 +2,7 @@ package view;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 
 public class HomeScreen {
@@ -98,6 +99,26 @@ public class HomeScreen {
         loadButton.setPreferredSize(new Dimension(300, 50));
         loadButton.setMinimumSize(new Dimension(300, 50));
         loadButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        loadButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Choose an assignment to resume");
+
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("Assignment Files", "fht");
+            fileChooser.addChoosableFileFilter(filter);
+
+            int returnValue = fileChooser.showDialog(this.homeScreen, "Resume this assignment");
+            String assignmentFilePath = null;
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                assignmentFilePath = fileChooser.getSelectedFile().getPath();
+                System.out.println("Assignment file path: " + assignmentFilePath);
+            }
+
+            homeScreen.dispose();
+            if (assignmentFilePath != null) {
+                FeedbackScreen feedbackScreen = new FeedbackScreen(assignmentFilePath);
+            }
+        });
 
         helpButton = new JButton("Help");
         helpButton.setMaximumSize(new Dimension(300, 50));

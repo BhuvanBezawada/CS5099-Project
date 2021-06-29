@@ -1,7 +1,14 @@
 package view;
 
+import database.DocumentDatabaseInterface;
+import database.DocumentDatabaseManager;
+import model.Assignment;
+import org.dizitart.no2.Document;
+
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FeedbackScreen {
 
@@ -30,6 +37,15 @@ public class FeedbackScreen {
     private JMenuItem exportOption;
 
 
+
+
+    // Should be moved to model?
+    Assignment assignment;
+    DocumentDatabaseInterface database;
+    List<Document> documents;
+    List<String> docNames;
+
+
     private void setupMenuBar() {
         menuBar = new JMenuBar();
         fileMenu = new JMenu("File");
@@ -56,6 +72,63 @@ public class FeedbackScreen {
         setupFeedbackScreenComponents();
         displayFeedbackScreen();
     }
+
+    public FeedbackScreen(String assignmentFilePath) {
+        feedbackScreen = new JFrame("Feedback Composition");
+        feedbackScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        feedbackScreen.setSize(1200, 800);
+
+        assignment = Assignment.loadAssignment(assignmentFilePath);
+        System.out.println("Assignment object: " + assignment);
+        System.out.println(assignment.getAssignmentName());
+
+        database = new DocumentDatabaseManager();
+
+        loadFeedbackDocs();
+        setupFeedbackScreenComponents();
+        displayFeedbackScreen();
+//        createEmptyFeedbackDocs();
+//        setupFeedbackScreenComponents();
+//        displayFeedbackScreen();
+    }
+
+
+    public void loadFeedbackDocs() {
+        database.openDocumentDatabaseConnection("./assignments.db");
+
+        documents = database.loadFeedbackDocumentsForAssignment(assignment);
+        docNames = new ArrayList<>();
+        documents.forEach(document -> {
+            docNames.add((String) document.get("studentId"));
+        });
+
+        feedbackDocsList = new JList(docNames.toArray());
+        feedbackDocsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        feedbackDocsList.setSelectedIndex(0);
+
+        feedbackDocsList.addListSelectionListener(e -> {
+            String selectedDoc = feedbackDocsList.getSelectedValue().toString();
+            System.out.println("New doc selected! " + selectedDoc);
+
+            StringBuilder studentFeedbackData = new StringBuilder();
+
+            Document selectedDocument = documents.get(docNames.indexOf(selectedDoc));
+            assignment.getAssignmentConfig().getAssignmentHeadings().forEach( heading -> {
+                studentFeedbackData.append(heading);
+                studentFeedbackData.append("\n");
+
+                ((ArrayList<String>) selectedDocument.get(heading)).forEach(line -> {
+                    studentFeedbackData.append(line);
+                    studentFeedbackData.append("\n");
+                });
+
+                studentFeedbackData.append("\n\n");
+            });
+
+            editorPane.setText(studentFeedbackData.toString());
+        });
+    }
+
 
     public void createEmptyFeedbackDocs() {
 
