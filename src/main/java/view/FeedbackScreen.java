@@ -6,8 +6,19 @@ import model.Assignment;
 import org.dizitart.no2.Document;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.*;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.parser.ParserDelegator;
 import java.awt.*;
-import java.util.ArrayList;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.util.*;
 import java.util.List;
 
 public class FeedbackScreen {
@@ -36,6 +47,8 @@ public class FeedbackScreen {
     private JMenuItem loadOption;
     private JMenuItem exportOption;
 
+    private JPopupMenu editorPopupMenu;
+    private String selectedText;
 
 
 
@@ -44,6 +57,8 @@ public class FeedbackScreen {
     DocumentDatabaseInterface database;
     List<Document> documents;
     List<String> docNames;
+
+    Map<String, Position> headingAndPosition;
 
 
     private void setupMenuBar() {
@@ -94,6 +109,8 @@ public class FeedbackScreen {
 
 
     public void loadFeedbackDocs() {
+        headingAndPosition = new HashMap<String, Position>();
+
         database.openDocumentDatabaseConnection("./assignments.db");
 
         documents = database.loadFeedbackDocumentsForAssignment(assignment);
@@ -105,6 +122,7 @@ public class FeedbackScreen {
         feedbackDocsList = new JList(docNames.toArray());
         feedbackDocsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         feedbackDocsList.setSelectedIndex(0);
+
 
         feedbackDocsList.addListSelectionListener(e -> {
             String selectedDoc = feedbackDocsList.getSelectedValue().toString();
@@ -126,6 +144,54 @@ public class FeedbackScreen {
             });
 
             editorPane.setText(studentFeedbackData.toString());
+
+
+
+
+//            editorPane.setContentType("text/html");
+//            editorPane.setText(
+//                    "<html> " +
+//                        "<head> </head>" +
+//                        "<body id='body'>" +
+//                            "<h1 id='title'> Title </h1>" +
+//                            "<h2 id='heading-1'> Heading </h2>" +
+//                            "<p> Some text here... </p>" +
+//                            "<h2 id='heading-1'> Heading </h2>" +
+//                            "<h2 id='heading-1'> Heading </h2>" +
+//                        "</body>" +
+//                    " </html>");
+//            HTMLDocument document = (HTMLDocument) editorPane.getDocument();
+//            document.addDocumentListener(new DocumentListener() {
+//                @Override
+//                public void insertUpdate(DocumentEvent e) {
+//                    DocumentEvent.ElementChange elementChange = e.getChange(document.getElement("body"));
+//                    if (elementChange != null) {
+//                        Element[] childrenAdded = elementChange.getChildrenAdded();
+//                        if (childrenAdded != null) {
+//                            System.out.println("Changes: " + Arrays.toString(childrenAdded));
+//                        } else {
+//                            System.out.println("No changes");
+//                        }
+//                    }
+//                }
+//
+//                @Override
+//                public void removeUpdate(DocumentEvent e) {
+//
+//                }
+//
+//                @Override
+//                public void changedUpdate(DocumentEvent e) {
+//
+//                }
+//            });
+//            System.out.println("Text from editor: " + document.getElement("body").getElementCount());
+
+//            editorPane.setText(studentFeedbackData.toString());
+//            Element defaultRootElement = editorPane.getDocument().getDefaultRootElement();
+//            System.out.println("Root element: " + defaultRootElement.toString());
+//            System.out.println("Root has " + defaultRootElement.getElementCount() + " elements");
+
         });
     }
 
@@ -264,5 +330,75 @@ public class FeedbackScreen {
         feedbackScreenPanel.add(documentsAndEditorSplitPane, BorderLayout.CENTER);
         feedbackScreenPanel.add(suggestionsAndControlsSplitPane, BorderLayout.LINE_END);
         feedbackScreen.add(feedbackScreenPanel);
+
+
+
+
+        editorPopupMenu = new JPopupMenu();
+        JMenuItem cut = new JMenuItem("Cut");
+        JMenuItem copy = new JMenuItem("Copy");
+        JMenuItem paste = new JMenuItem("Paste");
+        JMenuItem addPhrase = new JMenuItem("Add phrase to bank");
+        JMenuItem excludePhrase = new JMenuItem("Exclude phrase from bank");
+
+        editorPopupMenu.add(cut);
+        editorPopupMenu.add(copy);
+        editorPopupMenu.add(paste);
+        editorPopupMenu.add(new JSeparator());
+        editorPopupMenu.add(addPhrase);
+        editorPopupMenu.add(excludePhrase);
+
+        editorPane.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    editorPopupMenu.show(editorPane, e.getX(), e.getY());
+                }
+            }
+        });
+
+        copy.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selectedText = editorPane.getSelectedText();
+                System.out.println("Copied text: " + selectedText);
+            }
+        });
+
+        paste.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    editorPane.getDocument().insertString(editorPane.getCaretPosition(), selectedText, null);
+                } catch (BadLocationException badLocationException) {
+                    badLocationException.printStackTrace();
+                }
+            }
+        });
+
+        addPhrase.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selectedText = editorPane.getSelectedText();
+                JTextArea addedPhrase = new JTextArea(selectedText);
+                addedPhrase.setEditable(false);
+                addedPhrase.setLineWrap(true);
+                addedPhrase.setWrapStyleWord(true);
+                //addedPhrase.setRows(3);
+                addedPhrase.setMaximumSize(new Dimension(250, 100));
+                addedPhrase.setMinimumSize(new Dimension(250, 100));
+                addedPhrase.setPreferredSize(new Dimension(250, 100));
+
+                customPanel.add(addedPhrase);
+
+                JSeparator separator = new JSeparator();
+                separator.setMaximumSize(new Dimension(250, 10));
+                customPanel.add(separator);
+
+                feedbackScreen.revalidate();
+                feedbackScreen.repaint();
+            }
+        });
+
     }
 }
