@@ -13,10 +13,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.parser.ParserDelegator;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
@@ -248,15 +245,52 @@ public class FeedbackScreen {
         suggestionsPanel = new JTabbedPane();
 
 
-        JScrollPane listScrollPane = new JScrollPane(feedbackDocsList);
-        JScrollPane editorScrollPane = new JScrollPane(editorPane);
+        JScrollPane listScrollPane = new JScrollPane();
+        JPanel previewPanel = new JPanel();
+        previewPanel.setLayout(new BoxLayout(previewPanel, BoxLayout.PAGE_AXIS));
+        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+
+        listScrollPane.add(previewPanel);
+        listScrollPane.getViewport().setView(previewPanel);
+
+
+        JScrollPane editorScrollPane = new JScrollPane();
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+        mainPanel.add(new FeedbackBox("Heading 1"));
+        mainPanel.add(new FeedbackBox("Heading 2"));
+        mainPanel.add(new FeedbackBox("Heading 3"));
+        mainPanel.add(new FeedbackBox("Heading 4"));
+        mainPanel.add(new FeedbackBox("Heading 5"));
+        mainPanel.add(new FeedbackBox("Heading 5"));
+        mainPanel.add(new FeedbackBox("Heading 5"));
+        mainPanel.add(new FeedbackBox("Heading 5"));
+        mainPanel.add(new FeedbackBox("Heading 5"));
+        mainPanel.add(new FeedbackBox("Heading 5"));
+
+        editorScrollPane.add(mainPanel);
+        editorScrollPane.getViewport().setView(mainPanel);
+
+
 
         documentsAndEditorSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, listScrollPane, editorScrollPane);
         documentsAndEditorSplitPane.setOneTouchExpandable(true);
         documentsAndEditorSplitPane.setDividerLocation(0.33);
 
         listScrollPane.setMinimumSize(new Dimension(250, 700));
+        listScrollPane.setMaximumSize(new Dimension(feedbackScreen.getWidth()/3, feedbackScreen.getHeight()));
+        System.out.println("Width: " + feedbackScreen.getWidth() + " Height" + feedbackScreen.getHeight());
         editorScrollPane.setMinimumSize(new Dimension(600, 700));
+//        editorScrollPane.setSize(600, 700);
         documentsAndEditorSplitPane.setPreferredSize(new Dimension(900, 800));
 
 
