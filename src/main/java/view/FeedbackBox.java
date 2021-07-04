@@ -2,6 +2,8 @@ package view;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
 import java.awt.*;
 
 public class FeedbackBox extends JPanel {
@@ -9,6 +11,7 @@ public class FeedbackBox extends JPanel {
     private String heading;
     private JLabel headingLabel;
     private JTextArea textPane;
+    private EditingPopupMenu editingPopupMenu;
 
     public FeedbackBox(String heading) {
         // Store heading
@@ -41,5 +44,13 @@ public class FeedbackBox extends JPanel {
         this.textPane.setBackground(Color.WHITE);
         this.textPane.setEditable(true);
         this.textPane.setLineWrap(true);
+    }
+
+    public JTextArea getTextPane() {
+        return this.textPane;
+    }
+
+    public void registerPopupMenu(EditingPopupMenu editingPopupMenu) {
+        editingPopupMenu.registerFeedbackBox(this);
     }
 }

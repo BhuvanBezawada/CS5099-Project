@@ -52,4 +52,8 @@ public class EditorPanel extends JPanel {
         feedbackBoxesPanel.setVisible(true);
         this.add(feedbackBoxesPanel, BorderLayout.CENTER);
     }
+
+    public void registerPopupMenu(EditingPopupMenu editingPopupMenu) {
+        feedbackBoxes.forEach(feedbackBox -> feedbackBox.registerPopupMenu(editingPopupMenu));
+    }
 }
