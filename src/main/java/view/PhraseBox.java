@@ -22,10 +22,10 @@ public class PhraseBox extends JPanel {
     private void setupPhraseTextArea() {
         phraseTextArea.setRows(5);
         phraseTextArea.setColumns(10);
-        phraseTextArea.setBorder(new EmptyBorder(10, 10, 10, 10));
+        phraseTextArea.setBorder(BorderCreator.createEmptyBorder(BorderCreator.PADDING_10_PIXELS));
         phraseTextArea.setText(phrase);
         this.add(phraseTextArea, BorderLayout.CENTER);
         // Add some padding to the bottom on the panel and make it visible
-        this.setBorder(new EmptyBorder(20, 20, 0, 20));
+        this.setBorder(BorderCreator.createEmptyBorder(BorderCreator.PADDING_20_PIXELS));
     }
 }

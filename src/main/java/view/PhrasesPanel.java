@@ -6,11 +6,15 @@ import java.util.List;
 
 public class PhrasesPanel extends JPanel {
 
-    private String panelName;
+    public PhraseType getPhraseType() {
+        return phraseType;
+    }
+
+    private PhraseType phraseType;
     private List<PhraseBox> phraseBoxes;
 
-    public PhrasesPanel(String panelName) {
-        this.panelName = panelName;
+    public PhrasesPanel(PhraseType phraseType) {
+        this.phraseType = phraseType;
         this.phraseBoxes = new ArrayList<PhraseBox>();
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         this.setVisible(true);
