@@ -32,9 +32,9 @@ public class FeedbackScreen {
     private JTabbedPane suggestionsPanel;
 
     private JScrollPane customPanelScrollPane;
-    private JPanel customPanel;
-    private JPanel frequentlyUsedPanel;
-    private JPanel insightsPanel;
+    private PhrasesPanel customPanel;
+    private PhrasesPanel frequentlyUsedPanel;
+    private PhrasesPanel insightsPanel;
 
     private JPanel controlPanel;
 
@@ -244,38 +244,43 @@ public class FeedbackScreen {
 
         suggestionsPanel = new JTabbedPane();
 
+        List<PreviewBox> previewBoxes = new ArrayList<PreviewBox>();
+        previewBoxes.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewBoxes.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewBoxes.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewBoxes.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewBoxes.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewBoxes.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewBoxes.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewBoxes.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewBoxes.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+        previewBoxes.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
+
 
         JScrollPane listScrollPane = new JScrollPane();
-        JPanel previewPanel = new JPanel();
-        previewPanel.setLayout(new BoxLayout(previewPanel, BoxLayout.PAGE_AXIS));
-        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
-        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
-        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
-        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
-        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
-        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
-        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
-        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
-        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
-        previewPanel.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
-
+        PreviewPanel previewPanel = new PreviewPanel(previewBoxes);
         listScrollPane.add(previewPanel);
         listScrollPane.getViewport().setView(previewPanel);
 
+        // The following line is adapted from: https://stackoverflow.com/questions/1166072/setting-scroll-bar-on-a-jscrollpane
+        SwingUtilities.invokeLater(() -> listScrollPane.getVerticalScrollBar().setValue(0));
+
 
         JScrollPane editorScrollPane = new JScrollPane();
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
-        mainPanel.add(new FeedbackBox("Heading 1"));
-        mainPanel.add(new FeedbackBox("Heading 2"));
-        mainPanel.add(new FeedbackBox("Heading 3"));
-        mainPanel.add(new FeedbackBox("Heading 4"));
-        mainPanel.add(new FeedbackBox("Heading 5"));
-        mainPanel.add(new FeedbackBox("Heading 5"));
-        mainPanel.add(new FeedbackBox("Heading 5"));
-        mainPanel.add(new FeedbackBox("Heading 5"));
-        mainPanel.add(new FeedbackBox("Heading 5"));
-        mainPanel.add(new FeedbackBox("Heading 5"));
+        EditorPanel mainPanel = new EditorPanel("Student Id: 1234567890",
+                new ArrayList<String>(Arrays.asList("Heading 1", "Heading 2", "Heading 3", "Heading 4", "Heading 5")));
+
+//        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+//        mainPanel.add(new FeedbackBox("Heading 1"));
+//        mainPanel.add(new FeedbackBox("Heading 2"));
+//        mainPanel.add(new FeedbackBox("Heading 3"));
+//        mainPanel.add(new FeedbackBox("Heading 4"));
+//        mainPanel.add(new FeedbackBox("Heading 5"));
+//        mainPanel.add(new FeedbackBox("Heading 5"));
+//        mainPanel.add(new FeedbackBox("Heading 5"));
+//        mainPanel.add(new FeedbackBox("Heading 5"));
+//        mainPanel.add(new FeedbackBox("Heading 5"));
+//        mainPanel.add(new FeedbackBox("Heading 5"));
 
         editorScrollPane.add(mainPanel);
         editorScrollPane.getViewport().setView(mainPanel);
@@ -305,11 +310,12 @@ public class FeedbackScreen {
         controlPanel.add(phraseSubmitButton);
 
 
-        customPanel = new JPanel();
+        customPanel = new PhrasesPanel("Custom");
+        frequentlyUsedPanel = new PhrasesPanel("Frequently used");
+        insightsPanel = new PhrasesPanel("Insights");
+
         customPanelScrollPane = new JScrollPane(customPanel);
         customPanelScrollPane.setPreferredSize(new Dimension(280, 300));
-        frequentlyUsedPanel = new JPanel();
-        insightsPanel = new JPanel();
 
         suggestionsPanel.addTab("Custom", customPanelScrollPane);
         suggestionsPanel.addTab("Frequently used", frequentlyUsedPanel);
@@ -318,21 +324,21 @@ public class FeedbackScreen {
         customPanel.setLayout(new BoxLayout(customPanel, BoxLayout.PAGE_AXIS));
 
         phraseSubmitButton.addActionListener(e -> {
-            JTextArea addedPhrase = new JTextArea(phraseEntryArea.getText());
-            addedPhrase.setEditable(false);
-            //addedPhrase.setRows(3);
-            addedPhrase.setMaximumSize(new Dimension(250, 100));
-            addedPhrase.setMinimumSize(new Dimension(250, 100));
-            addedPhrase.setPreferredSize(new Dimension(250, 100));
+            customPanel.addPhrase(phraseEntryArea.getText());//);
+//            addedPhrase.setEditable(false);
+//            //addedPhrase.setRows(3);
+//            addedPhrase.setMaximumSize(new Dimension(250, 100));
+//            addedPhrase.setMinimumSize(new Dimension(250, 100));
+//            addedPhrase.setPreferredSize(new Dimension(250, 100));
 
-            customPanel.add(addedPhrase);
+//            customPanel.add(addedPhrase);
 
-            JSeparator separator = new JSeparator();
-            separator.setMaximumSize(new Dimension(250, 10));
-            customPanel.add(separator);
-
-            feedbackScreen.revalidate();
-            feedbackScreen.repaint();
+//            JSeparator separator = new JSeparator();
+//            separator.setMaximumSize(new Dimension(250, 10));
+//            customPanel.add(separator);
+//
+//            feedbackScreen.revalidate();
+//            feedbackScreen.repaint();
         });
 
 

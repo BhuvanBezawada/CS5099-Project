@@ -36,7 +36,7 @@ public class PreviewBox extends JPanel {
         this.add(textPane, BorderLayout.CENTER);
 
         // Add some padding to the bottom on the panel and make it visible
-        this.setBorder(new EmptyBorder(0, 20, 20, 20));
+        this.setBorder(new EmptyBorder(20, 20, 0, 20));
         this.setVisible(true);
     }
 
