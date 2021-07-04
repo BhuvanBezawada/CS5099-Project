@@ -6,15 +6,9 @@ import model.Assignment;
 import org.dizitart.no2.Document;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.*;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.parser.ParserDelegator;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
@@ -29,7 +23,7 @@ public class FeedbackScreen {
 
     private JSplitPane suggestionsAndControlsSplitPane;
 
-    private JTabbedPane suggestionsPanel;
+    private PhrasesSection phrasesSection;
 
     private JScrollPane customPanelScrollPane;
     private PhrasesPanel customPanel;
@@ -237,12 +231,14 @@ public class FeedbackScreen {
 //    }
 
     public void setupPanels() {
+
+        EditingPopupMenu popupMenu = new EditingPopupMenu();
         feedbackScreenPanel = new JPanel();
         feedbackScreenPanel.setLayout(new BorderLayout());
 
         editorPane = new JEditorPane();
 
-        suggestionsPanel = new JTabbedPane();
+        phrasesSection = new PhrasesSection();
 
         List<PreviewBox> previewBoxes = new ArrayList<PreviewBox>();
         previewBoxes.add(new PreviewBox("1234567890", 20, "This was an excellent practical!"));
@@ -269,6 +265,7 @@ public class FeedbackScreen {
         JScrollPane editorScrollPane = new JScrollPane();
         EditorPanel mainPanel = new EditorPanel("Student Id: 1234567890",
                 new ArrayList<String>(Arrays.asList("Heading 1", "Heading 2", "Heading 3", "Heading 4", "Heading 5")));
+        mainPanel.registerPopupMenu(popupMenu);
 
 //        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 //        mainPanel.add(new FeedbackBox("Heading 1"));
@@ -310,18 +307,19 @@ public class FeedbackScreen {
         controlPanel.add(phraseSubmitButton);
 
 
-        customPanel = new PhrasesPanel("Custom");
-        frequentlyUsedPanel = new PhrasesPanel("Frequently used");
-        insightsPanel = new PhrasesPanel("Insights");
+        customPanel = new PhrasesPanel(PhraseType.CUSTOM);
+        frequentlyUsedPanel = new PhrasesPanel(PhraseType.FREQUENTLY_USED);
+        insightsPanel = new PhrasesPanel(PhraseType.INSIGHTS);
 
         customPanelScrollPane = new JScrollPane(customPanel);
         customPanelScrollPane.setPreferredSize(new Dimension(280, 300));
 
-        suggestionsPanel.addTab("Custom", customPanelScrollPane);
-        suggestionsPanel.addTab("Frequently used", frequentlyUsedPanel);
-        suggestionsPanel.addTab("Insights", insightsPanel);
+        phrasesSection.addPhrasesPanel(customPanel);
+        phrasesSection.addPhrasesPanel(frequentlyUsedPanel);
+        phrasesSection.addPhrasesPanel(insightsPanel);
+        popupMenu.registerPhrasesPanel(customPanel);
 
-        customPanel.setLayout(new BoxLayout(customPanel, BoxLayout.PAGE_AXIS));
+        //customPanel.setLayout(new BoxLayout(customPanel, BoxLayout.PAGE_AXIS));
 
         phraseSubmitButton.addActionListener(e -> {
             customPanel.addPhrase(phraseEntryArea.getText());//);
@@ -345,8 +343,8 @@ public class FeedbackScreen {
 
 
 
-        JScrollPane suggestionsScrollPane = new JScrollPane(suggestionsPanel);
-        suggestionsScrollPane.setViewportView(suggestionsPanel);
+        JScrollPane suggestionsScrollPane = new JScrollPane(phrasesSection);
+        suggestionsScrollPane.setViewportView(phrasesSection);
         suggestionsAndControlsSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, controlPanel, suggestionsScrollPane);
         suggestionsAndControlsSplitPane.setOneTouchExpandable(true);
         suggestionsAndControlsSplitPane.setDividerLocation(0.33);
@@ -358,14 +356,14 @@ public class FeedbackScreen {
         suggestionsAndControlsSplitPane.setPreferredSize(new Dimension(300, 800));
         suggestionsAndControlsSplitPane.setMaximumSize(new Dimension(600, 800));
 
-        suggestionsPanel.setForeground(Color.BLACK);
-        suggestionsPanel.setBackgroundAt(0, Color.BLUE);
-        suggestionsPanel.addChangeListener(e -> {
-            for (int i = 0; i< suggestionsPanel.getTabCount(); i++) {
-                suggestionsPanel.setBackgroundAt(i, Color.LIGHT_GRAY);
-            }
-            suggestionsPanel.setBackgroundAt(suggestionsPanel.getSelectedIndex(), Color.BLUE);
-        });
+//        phrasesSection.setForeground(Color.BLACK);
+//        phrasesSection.setBackgroundAt(0, Color.BLUE);
+//        phrasesSection.addChangeListener(e -> {
+//            for (int i = 0; i< phrasesSection.getTabCount(); i++) {
+//                phrasesSection.setBackgroundAt(i, Color.LIGHT_GRAY);
+//            }
+//            phrasesSection.setBackgroundAt(phrasesSection.getSelectedIndex(), Color.BLUE);
+//        });
 
         feedbackScreenPanel.add(documentsAndEditorSplitPane, BorderLayout.CENTER);
         feedbackScreenPanel.add(suggestionsAndControlsSplitPane, BorderLayout.LINE_END);
@@ -374,71 +372,71 @@ public class FeedbackScreen {
 
 
 
-        editorPopupMenu = new JPopupMenu();
-        JMenuItem cut = new JMenuItem("Cut");
-        JMenuItem copy = new JMenuItem("Copy");
-        JMenuItem paste = new JMenuItem("Paste");
-        JMenuItem addPhrase = new JMenuItem("Add phrase to bank");
-        JMenuItem excludePhrase = new JMenuItem("Exclude phrase from bank");
-
-        editorPopupMenu.add(cut);
-        editorPopupMenu.add(copy);
-        editorPopupMenu.add(paste);
-        editorPopupMenu.add(new JSeparator());
-        editorPopupMenu.add(addPhrase);
-        editorPopupMenu.add(excludePhrase);
-
-        editorPane.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (SwingUtilities.isRightMouseButton(e)) {
-                    editorPopupMenu.show(editorPane, e.getX(), e.getY());
-                }
-            }
-        });
-
-        copy.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                selectedText = editorPane.getSelectedText();
-                System.out.println("Copied text: " + selectedText);
-            }
-        });
-
-        paste.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    editorPane.getDocument().insertString(editorPane.getCaretPosition(), selectedText, null);
-                } catch (BadLocationException badLocationException) {
-                    badLocationException.printStackTrace();
-                }
-            }
-        });
-
-        addPhrase.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                selectedText = editorPane.getSelectedText();
-                JTextArea addedPhrase = new JTextArea(selectedText);
-                addedPhrase.setEditable(false);
-                addedPhrase.setLineWrap(true);
-                addedPhrase.setWrapStyleWord(true);
-                //addedPhrase.setRows(3);
-                addedPhrase.setMaximumSize(new Dimension(250, 100));
-                addedPhrase.setMinimumSize(new Dimension(250, 100));
-                addedPhrase.setPreferredSize(new Dimension(250, 100));
-
-                customPanel.add(addedPhrase);
-
-                JSeparator separator = new JSeparator();
-                separator.setMaximumSize(new Dimension(250, 10));
-                customPanel.add(separator);
-
-                feedbackScreen.revalidate();
-                feedbackScreen.repaint();
-            }
-        });
+//        editorPopupMenu = new JPopupMenu();
+//        JMenuItem cut = new JMenuItem("Cut");
+//        JMenuItem copy = new JMenuItem("Copy");
+//        JMenuItem paste = new JMenuItem("Paste");
+//        JMenuItem addPhrase = new JMenuItem("Add phrase to bank");
+//        JMenuItem excludePhrase = new JMenuItem("Exclude phrase from bank");
+//
+//        editorPopupMenu.add(cut);
+//        editorPopupMenu.add(copy);
+//        editorPopupMenu.add(paste);
+//        editorPopupMenu.add(new JSeparator());
+//        editorPopupMenu.add(addPhrase);
+//        editorPopupMenu.add(excludePhrase);
+//
+//        editorPane.addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mouseClicked(MouseEvent e) {
+//                if (SwingUtilities.isRightMouseButton(e)) {
+//                    editorPopupMenu.show(editorPane, e.getX(), e.getY());
+//                }
+//            }
+//        });
+//
+//        copy.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                selectedText = editorPane.getSelectedText();
+//                System.out.println("Copied text: " + selectedText);
+//            }
+//        });
+//
+//        paste.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                try {
+//                    editorPane.getDocument().insertString(editorPane.getCaretPosition(), selectedText, null);
+//                } catch (BadLocationException badLocationException) {
+//                    badLocationException.printStackTrace();
+//                }
+//            }
+//        });
+//
+//        addPhrase.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                selectedText = editorPane.getSelectedText();
+//                JTextArea addedPhrase = new JTextArea(selectedText);
+//                addedPhrase.setEditable(false);
+//                addedPhrase.setLineWrap(true);
+//                addedPhrase.setWrapStyleWord(true);
+//                //addedPhrase.setRows(3);
+//                addedPhrase.setMaximumSize(new Dimension(250, 100));
+//                addedPhrase.setMinimumSize(new Dimension(250, 100));
+//                addedPhrase.setPreferredSize(new Dimension(250, 100));
+//
+//                customPanel.add(addedPhrase);
+//
+//                JSeparator separator = new JSeparator();
+//                separator.setMaximumSize(new Dimension(250, 10));
+//                customPanel.add(separator);
+//
+//                feedbackScreen.revalidate();
+//                feedbackScreen.repaint();
+//            }
+//        });
 
     }
 }
