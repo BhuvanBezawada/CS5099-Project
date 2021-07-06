@@ -1,5 +1,7 @@
 package view;
 
+import model.Assignment;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -116,7 +118,8 @@ public class HomeScreen {
 
             homeScreen.dispose();
             if (assignmentFilePath != null) {
-                FeedbackScreen feedbackScreen = new FeedbackScreen(assignmentFilePath);
+                Assignment assignment = Assignment.loadAssignment(assignmentFilePath);
+                FeedbackScreen feedbackScreen = new FeedbackScreen(assignment);
             }
         });
 

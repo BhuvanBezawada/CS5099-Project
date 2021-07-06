@@ -44,6 +44,8 @@ public class FeedbackBox extends JPanel {
         this.textPane.setBackground(Color.WHITE);
         this.textPane.setEditable(true);
         this.textPane.setLineWrap(true);
+
+        //this.setTransferHandler(new TransferHandler("text"));
     }
 
     public JTextArea getTextPane() {

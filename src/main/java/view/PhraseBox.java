@@ -25,6 +25,10 @@ public class PhraseBox extends JPanel {
         phraseTextArea.setBorder(BorderCreator.createEmptyBorder(BorderCreator.PADDING_10_PIXELS));
         phraseTextArea.setText(phrase);
         this.add(phraseTextArea, BorderLayout.CENTER);
+
+        //phraseTextArea.setDragEnabled(true);
+        //phraseTextArea.setFocusable(true);
+
         // Add some padding to the bottom on the panel and make it visible
         this.setBorder(BorderCreator.createEmptyBorder(BorderCreator.PADDING_20_PIXELS));
     }

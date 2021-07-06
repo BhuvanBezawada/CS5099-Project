@@ -35,6 +35,14 @@ public class EditorPanel extends JPanel {
     }
 
 
+    public void setTitleLabel(JLabel titleLabel) {
+        this.titleLabel = new JLabel(this.titleText);
+    }
+
+    public void setHeadings(List<String> headings) {
+        this.headings = headings;
+    }
+
     private void setupTitle() {
         titleLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 20));
         titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
