@@ -1,5 +1,6 @@
 package view;
 
+import controller.AppController;
 import model.Assignment;
 
 import javax.swing.*;
@@ -27,13 +28,16 @@ public class FeedbackScreen {
 
 
     private Assignment assignment;
+    private AppController controller;
 
-    public FeedbackScreen(Assignment assignment) {
+
+    public FeedbackScreen(AppController controller, Assignment assignment) {
         feedbackScreen = new JFrame("Feedback Composition");
         feedbackScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         feedbackScreen.setSize(1200, 800);
         feedbackScreen.setLayout(new BorderLayout());
 
+        this.controller = controller;
         this.assignment = assignment;
 
         feedbackScreenPanel = new JPanel(new GridBagLayout());
@@ -141,6 +145,12 @@ public class FeedbackScreen {
         JMenuItem saveOption = new JMenuItem("Save");
         JMenuItem loadOption = new JMenuItem("Load");
         JMenuItem exportOption = new JMenuItem("Export");
+
+        saveOption.addActionListener(l -> {
+            String filePath = assignment.getAssignmentTitle().toLowerCase().trim() + ".fht";
+            JOptionPane.showMessageDialog(feedbackScreen, "Saving assignment to file: " + filePath);
+            controller.saveAssignment(assignment, filePath);
+        });
 
         fileMenu.add(saveOption);
         fileMenu.add(loadOption);

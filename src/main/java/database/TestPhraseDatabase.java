@@ -20,8 +20,8 @@ public class TestPhraseDatabase {
 //        phraseDatabase.findVariations();
 //        phraseDatabase.findFollowedBy();
 //        phraseDatabase.findPairedWith();
-//        phraseDatabase.findMutuallyExclusive();
-        phraseDatabase.findPrecededBy();
+        phraseDatabase.findMutuallyExclusive();
+        // phraseDatabase.findPrecededBy();
     }
 
     private void setup() {

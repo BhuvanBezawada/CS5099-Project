@@ -1,5 +1,6 @@
 package view;
 
+import controller.AppController;
 import model.Assignment;
 
 import javax.swing.*;
@@ -17,11 +18,11 @@ public class HomeScreen {
     private JButton loadButton;
     private JButton helpButton;
 
-    public static void main(String[] args) {
-        HomeScreen mainHomeScreen = new HomeScreen();
-    }
+    private AppController controller;
 
-    public HomeScreen() {
+    public HomeScreen(AppController controller) {
+        this.controller = controller;
+
         // Create the home screen jFrame
         homeScreen = new JFrame("Feedback Helper Tool");
         homeScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -92,7 +93,7 @@ public class HomeScreen {
         startNewButton.addActionListener(e -> {
             JOptionPane.showMessageDialog(homeScreen, "Starting new assignment!");
             homeScreen.dispose();
-            CreateAssignmentScreen createAssignmentScreen = new CreateAssignmentScreen();
+            CreateAssignmentScreen createAssignmentScreen = new CreateAssignmentScreen(controller);
         });
         startNewButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -118,8 +119,8 @@ public class HomeScreen {
 
             homeScreen.dispose();
             if (assignmentFilePath != null) {
-                Assignment assignment = Assignment.loadAssignment(assignmentFilePath);
-                FeedbackScreen feedbackScreen = new FeedbackScreen(assignment);
+                Assignment assignment = controller.loadAssignment(assignmentFilePath);
+                FeedbackScreen feedbackScreen = new FeedbackScreen(controller, assignment);
             }
         });
 

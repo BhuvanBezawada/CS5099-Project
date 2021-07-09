@@ -1,16 +1,13 @@
 package main;
 
 
-import database.DocumentDatabaseInterface;
+import database.IDocumentDatabase;
 import database.DocumentDatabaseManager;
 import model.Assignment;
 import model.AssignmentConfig;
-import model.FeedbackDocument;
 import org.dizitart.no2.Document;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -26,23 +23,23 @@ public class Main {
     public void testDocumentDatabase() {
         // Assignment and student manifest
         AssignmentConfig assignmentConfig = new AssignmentConfig("/Users/bhuvan/Desktop/CS5099-Project/src/main/java/test_data/assignment_config.txt");
-        Assignment assignment = new Assignment("db-assignment", assignmentConfig);
+        Assignment assignment = new Assignment(); //"db-assignment", assignmentConfig);
         File studentManifestFile = new File("/Users/bhuvan/Desktop/CS5099-Project/src/main/java/test_data/student_manifest.txt");
 
         // Open connection to the database
-        DocumentDatabaseInterface documentDatabaseInterface = new DocumentDatabaseManager();
-        documentDatabaseInterface.openDocumentDatabaseConnection(ASSIGNMENTS_DATABASE);
+        DocumentDatabaseManager documentDatabase = new DocumentDatabaseManager();
+        documentDatabase.openDocumentDatabase(ASSIGNMENTS_DATABASE);
 
-        // Create a collection of feedback documents for the assignment
-        if (documentDatabaseInterface.documentDatabaseIsReady()){
-            documentDatabaseInterface.createFeedbackDocuments(assignment, studentManifestFile);
-//            feedbackDocuments.forEach(System.out::println);
-            //System.out.println("Created " + feedbackDocuments.size() + " feedback docs for " + assignment.getAssignmentName());
-
-            System.out.println("Retrieving data: ");
-            List<Document> docs = documentDatabaseInterface.loadFeedbackDocumentsForAssignment(assignment);
-            System.out.println(docs);
-        }
+//        // Create a collection of feedback documents for the assignment
+//        if (documentDatabase.documentDatabaseIsReady()){
+//            documentDatabase.createFeedbackDocuments(assignment, studentManifestFile);
+////            feedbackDocuments.forEach(System.out::println);
+//            //System.out.println("Created " + feedbackDocuments.size() + " feedback docs for " + assignment.getAssignmentName());
+//
+//            System.out.println("Retrieving data: ");
+//            List<Document> docs = documentDatabase.loadFeedbackDocumentsForAssignment(assignment);
+//            System.out.println(docs);
+//        }
     }
 
 }

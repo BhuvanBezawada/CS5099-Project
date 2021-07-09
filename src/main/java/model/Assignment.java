@@ -7,31 +7,33 @@ import java.util.List;
 
 public class Assignment implements Serializable {
 
-    private String assignmentName;
-    private AssignmentConfig assignmentConfig;
+    private static final long serialVersionUID = 1200109309800080026L;
 
-    private List<String> studentIds;
     private String assignmentTitle;
     private List<String> assignmentHeadings;
+    private List<String> studentIds;
+    private List<FeedbackDocument> feedbackDocuments;
+    private String databaseFilePath;
 
     public Assignment() {
         this.studentIds = new ArrayList<String>();
         this.assignmentHeadings = new ArrayList<String>();
     }
 
-    public void setStudentIds(File studentManifestFile) {
-        System.out.println("Loading file: " + studentManifestFile);
-        this.studentIds = new ArrayList<String>();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(studentManifestFile))) {
-            while (reader.ready()) {
-                this.studentIds.add(reader.readLine().trim());
-            }
-        } catch (IOException e) {
+    public static Assignment loadAssignment(String filePath) {
+        Assignment loadedAssignment = null;
+        try (FileInputStream fileInputStream = new FileInputStream(filePath);
+             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
+            loadedAssignment = (Assignment) objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
-        System.out.println("Student ids: " + studentIds);
+        return loadedAssignment;
+    }
+
+    public static String getAssignmentDatabaseName(String assignmentTitle) {
+        return assignmentTitle.replace(" ", "-").toLowerCase();
     }
 
     public String getAssignmentTitle() {
@@ -40,6 +42,7 @@ public class Assignment implements Serializable {
 
     public void setAssignmentTitle(String assignmentTitle) {
         this.assignmentTitle = assignmentTitle;
+        this.databaseFilePath = assignmentTitle.replace(" ", "-").toLowerCase();
     }
 
     public List<String> getAssignmentHeadings() {
@@ -51,25 +54,30 @@ public class Assignment implements Serializable {
         System.out.println("Converting to list: " + this.assignmentHeadings);
     }
 
-    private static final long serialVersionUID = 1200109309800080026L;
-
-    public Assignment(String assignmentName, AssignmentConfig assignmentConfig) {
-        this.assignmentName = assignmentName;
-        this.assignmentConfig = assignmentConfig;
-        this.studentIds = new ArrayList<String>();
-        this.studentIds = new ArrayList<String>();
-    }
-
     public List<String> getStudentIds() {
         return studentIds;
     }
 
-    public String getAssignmentName() {
-        return assignmentName;
+    public void setStudentIds(File studentManifestFile) {
+        System.out.println("Loading file: " + studentManifestFile);
+        this.studentIds = new ArrayList<String>();
+        this.feedbackDocuments = new ArrayList<FeedbackDocument>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(studentManifestFile))) {
+            while (reader.ready()) {
+                String studentId = reader.readLine().trim();
+                this.studentIds.add(studentId);
+                this.feedbackDocuments.add(new FeedbackDocument(this, studentId));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Student ids: " + studentIds);
     }
 
-    public AssignmentConfig getAssignmentConfig() {
-        return assignmentConfig;
+    public List<FeedbackDocument> getFeedbackDocuments() {
+        return this.feedbackDocuments;
     }
 
     public void saveAssignmentDetails(String fileName) {
@@ -81,15 +89,11 @@ public class Assignment implements Serializable {
         }
     }
 
-    public static Assignment loadAssignment(String filePath) {
-        Assignment loadedAssignment = null;
-        try (FileInputStream fileInputStream = new FileInputStream(filePath);
-             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
-             loadedAssignment = (Assignment) objectInputStream.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+    public String getDatabaseFilePath() {
+        return this.databaseFilePath;
+    }
 
-        return loadedAssignment;
+    public AssignmentConfig getAssignmentConfig() {
+        return null;
     }
 }

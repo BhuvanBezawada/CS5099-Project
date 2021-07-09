@@ -16,36 +16,36 @@ public class DatabaseLoader {
 
     public static void main(String[] args) {
         DatabaseLoader databaseLoader = new DatabaseLoader();
-        databaseLoader.saveSampleFilesIntoDatabase();
-        databaseLoader.loadSampleFilesFromDatabase();
+        //databaseLoader.saveSampleFilesIntoDatabase();
+        //databaseLoader.loadSampleFilesFromDatabase();
     }
 
-    private void loadSampleFilesFromDatabase() {
-        // Open connection to the database
-        DocumentDatabaseManager documentDatabaseInterface = new DocumentDatabaseManager();
-        documentDatabaseInterface.openDocumentDatabaseConnection(ASSIGNMENTS_DATABASE);
-
-        // Assignment Details
-        AssignmentConfig assignmentConfig = new AssignmentConfig("/Users/bhuvan/Desktop/CS5099-Project/src/main/java/test_data/assignment_config.txt");
-        Assignment assignment = new Assignment("db-assignment", assignmentConfig);
-
-        List<Document> documents = documentDatabaseInterface.loadFeedbackDocumentsForAssignment(assignment);
-        List<String> databaseCreationSection = (ArrayList<String>) documents.get(0).get("Database creation");
-        databaseCreationSection.forEach(System.out::println);
-
-        documentDatabaseInterface.closeDocumentDatabaseConnection();
-    }
+//    private void loadSampleFilesFromDatabase() {
+//        // Open connection to the database
+//        DocumentDatabaseManager documentDatabaseInterface = new DocumentDatabaseManager();
+//        documentDatabaseInterface.openDocumentDatabase(ASSIGNMENTS_DATABASE);
+//
+//        // Assignment Details
+//        AssignmentConfig assignmentConfig = new AssignmentConfig("/Users/bhuvan/Desktop/CS5099-Project/src/main/java/test_data/assignment_config.txt");
+//        Assignment assignment = new Assignment(); //"db-assignment", assignmentConfig);
+//
+//        List<Document> documents = documentDatabaseInterface.loadFeedbackDocumentsForAssignment(assignment);
+//        List<String> databaseCreationSection = (ArrayList<String>) documents.get(0).get("Database creation");
+//        databaseCreationSection.forEach(System.out::println);
+//
+//        documentDatabaseInterface.closeDocumentDatabaseConnection();
+//    }
 
     private void saveSampleFilesIntoDatabase() {
         // Assignment and student manifest
         AssignmentConfig assignmentConfig = new AssignmentConfig("/Users/bhuvan/Desktop/CS5099-Project/src/main/java/test_data/assignment_config.txt");
-        Assignment assignment = new Assignment("db-assignment", assignmentConfig);
-        assignment.saveAssignmentDetails(assignment.getAssignmentName() + ".fht");
+        Assignment assignment = new Assignment(); //"db-assignment", assignmentConfig);
+        assignment.saveAssignmentDetails(assignment.getDatabaseFilePath() + ".fht");
         File studentManifestFile = new File("/Users/bhuvan/Desktop/CS5099-Project/src/main/java/test_data/student_manifest.txt");
 
         // Open connection to the database
         DocumentDatabaseManager documentDatabaseInterface = new DocumentDatabaseManager();
-        documentDatabaseInterface.openDocumentDatabaseConnection(ASSIGNMENTS_DATABASE);
+        documentDatabaseInterface.openDocumentDatabase(ASSIGNMENTS_DATABASE);
 
         // Create a collection of feedback documents for the assignment
         if (documentDatabaseInterface.documentDatabaseIsReady()){
@@ -62,7 +62,7 @@ public class DatabaseLoader {
             System.out.println("Student Ids: " + studentIds);
 
             // Create a collection of the feedback documents
-            NitriteCollection feedbackDocsCollections = documentDatabaseInterface.createCollection(assignment.getAssignmentName());
+            NitriteCollection feedbackDocsCollections = documentDatabaseInterface.createCollection(assignment.getDatabaseFilePath());
 
             studentIds.forEach( studentId -> {
                 try (BufferedReader studentFileReader = new BufferedReader(new FileReader("/Users/bhuvan/Desktop/CS5099-Project/src/main/java/test_data/" + studentId + ".txt"))) {

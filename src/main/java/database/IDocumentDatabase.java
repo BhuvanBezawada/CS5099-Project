@@ -12,7 +12,7 @@ import java.util.List;
  * <p>
  * Allows application to open/close the embedded database and perform CRUD operations.
  */
-public interface DocumentDatabaseInterface {
+public interface IDocumentDatabase {
 
     boolean documentDatabaseIsReady();
 
@@ -22,7 +22,7 @@ public interface DocumentDatabaseInterface {
      * @param databasePath The path of the required database file.
      * @return True if connection was successful, False otherwise.
      */
-    boolean openDocumentDatabaseConnection(String databasePath);
+    boolean openDocumentDatabase(String databasePath);
 
     /**
      * Close a connection to the embedded document database.

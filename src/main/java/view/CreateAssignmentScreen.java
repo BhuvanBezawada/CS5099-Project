@@ -111,6 +111,7 @@ package view;//package view;
 //}
 
 
+import controller.AppController;
 import model.Assignment;
 
 import javax.swing.*;
@@ -133,9 +134,11 @@ public class CreateAssignmentScreen {
 
     private Map<String, Component> editableComponents;
 
-    private Assignment assignment;
+    private AppController controller;
 
-    public CreateAssignmentScreen() {
+    public CreateAssignmentScreen(AppController controller) {
+        this.controller = controller;
+
         createAssignmentScreen = new JFrame("Create Assignment");
         createAssignmentScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         createAssignmentScreen.setSize(1200, 800);
@@ -212,17 +215,20 @@ public class CreateAssignmentScreen {
         confirmationPanel.add(confirmButton);
 
         confirmButton.addActionListener(e -> {
-            Assignment assignment = new Assignment();
-            assignment.setAssignmentTitle(((JTextField) editableComponents.get("assignmentTitle")).getText());
-            assignment.setAssignmentHeadings(((JTextArea) editableComponents.get("assignmentHeadings")).getText());
-            assignment.setStudentIds(studentManifestFile);
 
-            FeedbackScreen feedbackScreen = new FeedbackScreen(assignment);
+            // Tell controller to create the assignment
+            String assignmentTitle = ((JTextField) editableComponents.get("assignmentTitle")).getText();
+            String assignmentHeadings = ((JTextArea) editableComponents.get("assignmentHeadings")).getText();
+
+            // Setup assignment and db for it
+            Assignment assignment = controller.createAssignment(assignmentTitle, assignmentHeadings, studentManifestFile);
+
+            FeedbackScreen feedbackScreen = new FeedbackScreen(controller, assignment);
             createAssignmentScreen.dispose();
         });
 
         backButton.addActionListener(e -> {
-            HomeScreen homeScreen = new HomeScreen();
+            HomeScreen homeScreen = new HomeScreen(controller);
             createAssignmentScreen.dispose();
         });
 

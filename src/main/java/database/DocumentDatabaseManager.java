@@ -6,13 +6,11 @@ import org.dizitart.no2.Cursor;
 import org.dizitart.no2.Document;
 import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.NitriteCollection;
-import org.dizitart.no2.objects.ObjectRepository;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DocumentDatabaseManager implements DocumentDatabaseInterface {
+public class DocumentDatabaseManager {//implements IDocumentDatabase {
 
     private Nitrite databaseConnection;
 
@@ -24,13 +22,12 @@ public class DocumentDatabaseManager implements DocumentDatabaseInterface {
         databaseConnection.commit();
     }
 
-    @Override
+
     public boolean documentDatabaseIsReady() {
         return !databaseConnection.isClosed();
     }
 
-    @Override
-    public boolean openDocumentDatabaseConnection(String databasePath) {
+    public boolean openDocumentDatabase(String databasePath) {
         databaseConnection = Nitrite.builder()
                 .compressed()
                 .filePath(databasePath) // "./test.db"
@@ -39,7 +36,10 @@ public class DocumentDatabaseManager implements DocumentDatabaseInterface {
         return !databaseConnection.isClosed();
     }
 
-    @Override
+    public boolean createDocumentDatabase(String databasePath) {
+        return openDocumentDatabase(databasePath + ".db");
+    }
+
     public boolean closeDocumentDatabaseConnection() {
         if (!databaseConnection.isClosed()) {
             databaseConnection.close();
@@ -47,58 +47,65 @@ public class DocumentDatabaseManager implements DocumentDatabaseInterface {
         return databaseConnection.isClosed();
     }
 
-    @Override
-    public boolean createFeedbackDocuments(Assignment assignment, File studentManifest) {
-        try (BufferedReader fileReader = new BufferedReader(new FileReader(studentManifest))){
-            // Read student data
-            List<String> studentIds = new ArrayList<String>();
-            while (fileReader.ready()) {
-                studentIds.add(fileReader.readLine().replace(".txt", "").trim());
+    public boolean createFeedbackDocuments(Assignment assignment) {
+
+        System.out.println("In createFeedbackDocuments: " + assignment.getDatabaseFilePath() + "-feedback-docs");
+
+        // Store the assignment's feedback documents into the database
+        NitriteCollection assignmentCollection = databaseConnection.getCollection(assignment.getDatabaseFilePath() + "-feedback-docs");
+
+        assignment.getFeedbackDocuments().forEach( feedbackDocument -> {
+            Document dbDoc = Document.createDocument("feedbackFor", feedbackDocument.getStudentId());
+            dbDoc.put("feedbackDocObject", feedbackDocument);
+
+            // Setup the headings of the document
+            for (String heading : assignment.getAssignmentHeadings()) {
+                dbDoc.put(heading, "");
             }
 
-            // Create feedback documents
-            List<FeedbackDocument> feedbackDocuments = new ArrayList<FeedbackDocument>();
-            studentIds.forEach( studentId -> feedbackDocuments.add(new FeedbackDocument(assignment, studentId)));
+            assignmentCollection.insert(dbDoc);
+        });
 
-            // Store them into the database
-            NitriteCollection assignmentCollection = databaseConnection.getCollection(assignment.getAssignmentName());
-            feedbackDocuments.forEach( feedbackDocument -> {
-                Document dbDoc = Document.createDocument("feedbackFor", feedbackDocument.getStudentId());
-                dbDoc.put("feedbackDocObject", feedbackDocument);
+        // Commit the created documents
+        databaseConnection.commit();
 
-                for (String heading : assignment.getAssignmentConfig().getAssignmentHeadings()) {
-                    dbDoc.put(heading, "");
-                }
-
-                assignmentCollection.insert(dbDoc);
-            });
-
-            // Commit the created documents
-            databaseConnection.commit();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return databaseConnection.hasCollection(assignment.getAssignmentName());
+        return databaseConnection.hasCollection(assignment.getDatabaseFilePath());
     }
 
-    @Override
-    public List<Document> loadFeedbackDocumentsForAssignment(Assignment assignment) {
+    public List<FeedbackDocument> loadFeedbackDocumentsForAssignment(Assignment assignment) {
+
         if (documentDatabaseIsReady()) {
-            NitriteCollection assignmentCollection = databaseConnection.getCollection(assignment.getAssignmentName());
-            Cursor results = assignmentCollection.find();
-            return results.toList();
+            String collectionName = assignment.getDatabaseFilePath() + "-feedback-docs";
+            if (databaseConnection.hasCollection(collectionName)) {
+                System.out.println("Found collection");
+                NitriteCollection assignmentCollection = databaseConnection.getCollection(collectionName);
+                Cursor results = assignmentCollection.find();
+
+                System.out.println("Found " + results.size() + " results");
+
+                List<FeedbackDocument> feedbackDocuments = new ArrayList<FeedbackDocument>();
+                results.forEach(result -> {
+                    FeedbackDocument feedbackDocument = (FeedbackDocument) result.get("feedbackDocObject");
+
+                    // Assign data into feedback doc
+                    assignment.getAssignmentHeadings().forEach(heading -> {
+                        feedbackDocument.setDataForHeading(heading, (String) result.get(heading));
+                    });
+
+                    feedbackDocuments.add(feedbackDocument);
+                });
+                return feedbackDocuments;
+            } else {
+                System.out.println("Collection not found :(");
+            }
         }
         return null;
     }
 
-    @Override
     public boolean saveFeedbackDocument(FeedbackDocument feedbackDocument) {
         return false;
     }
 
-    @Override
     public boolean updateFeedbackDocument(FeedbackDocument feedbackDocument) {
         return false;
     }
