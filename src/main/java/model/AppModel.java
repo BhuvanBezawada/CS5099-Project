@@ -7,6 +7,9 @@ import java.io.File;
 
 public class AppModel implements IAppModel {
 
+    private String currentStudentId;
+    private String lastStudentId;
+
     private PropertyChangeSupport subscribers;
 
     private Assignment assignment;
@@ -21,6 +24,7 @@ public class AppModel implements IAppModel {
 
     public void subscribe(PropertyChangeListener listener) {
         subscribers.addPropertyChangeListener(listener);
+        System.out.println("Got a new subscriber!");
     }
 
     public void unsubscribe(PropertyChangeListener listener) {
@@ -54,6 +58,20 @@ public class AppModel implements IAppModel {
 
     public String getAssignmentDatabaseName(String assignmentTitle) {
         return Assignment.getAssignmentDatabaseName(assignmentTitle);
+    }
+
+    public void setCurrentScreenView(String studentId) {
+        this.lastStudentId = this.currentStudentId;
+        this.currentStudentId = studentId;
+        notifySubscribers("docViewChange", studentId);
+    }
+
+    public String getLastScreenView() {
+        return lastStudentId;
+    }
+
+    public String getCurrentScreenView() {
+        return currentStudentId;
     }
 
 }

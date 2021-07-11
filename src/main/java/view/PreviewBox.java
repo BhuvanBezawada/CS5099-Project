@@ -1,5 +1,9 @@
 package view;
 
+import controller.AppController;
+import model.Assignment;
+import model.FeedbackDocument;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -19,7 +23,12 @@ public class PreviewBox extends JPanel {
     private Border unselectedBorder;
     private Border selectedBorder;
 
-    public PreviewBox(String heading, int grade, String uniqueLine) {
+    private AppController controller;
+    private Assignment assignment;
+
+    public PreviewBox(AppController controller, String heading, int grade, String uniqueLine) {
+        this.controller = controller;
+
         // Store variables
         this.heading = heading;
         this.uniqueLine = uniqueLine;
@@ -52,6 +61,10 @@ public class PreviewBox extends JPanel {
         );
     }
 
+    public void setAssignment(Assignment assignment) {
+        this.assignment = assignment;
+    }
+
     private void setupTextArea() {
         this.textPane = new JTextArea();
         this.textPane.setRows(5);
@@ -65,10 +78,12 @@ public class PreviewBox extends JPanel {
             @Override
             public void focusGained(FocusEvent e) {
                 textPane.setBorder(selectedBorder);
+                controller.displayNewDocument(assignment, heading);
             }
 
             @Override
             public void focusLost(FocusEvent e) {
+                //controller.saveFeedbackDocument(heading);
                 textPane.setBorder(unselectedBorder);
             }
         });

@@ -1,10 +1,17 @@
 package view;
 
+import controller.AppController;
+import model.FeedbackDocument;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EditorPanel extends JPanel {
 
@@ -17,10 +24,13 @@ public class EditorPanel extends JPanel {
     private JPanel feedbackBoxesPanel;
     private List<FeedbackBox> feedbackBoxes;
 
-    public EditorPanel(String titleText, List<String> headings) {
+    private AppController controller;
+
+    public EditorPanel(AppController controller, String titleText, List<String> headings) {
         // Set data variables
         this.titleText = titleText;
         this.headings = headings;
+        this.controller = controller;
 
         this.titleLabel = new JLabel(this.titleText);
         this.feedbackBoxesPanel = new JPanel();
@@ -35,8 +45,9 @@ public class EditorPanel extends JPanel {
     }
 
 
-    public void setTitleLabel(JLabel titleLabel) {
-        this.titleLabel = new JLabel(this.titleText);
+    public void setTitleLabel(String titleText) {
+//        this.titleLabel = new JLabel(titleText);
+        this.titleLabel.setText(titleText);
     }
 
     public void setHeadings(List<String> headings) {
@@ -52,7 +63,7 @@ public class EditorPanel extends JPanel {
 
     private void setupFeedbackBoxes(){
         headings.forEach(heading -> {
-            FeedbackBox feedbackBox = new FeedbackBox(heading);
+            FeedbackBox feedbackBox = new FeedbackBox(controller, heading);
             feedbackBoxes.add(feedbackBox);
             feedbackBoxesPanel.add(feedbackBox);
         });
@@ -63,5 +74,28 @@ public class EditorPanel extends JPanel {
 
     public void registerPopupMenu(EditingPopupMenu editingPopupMenu) {
         feedbackBoxes.forEach(feedbackBox -> feedbackBox.registerPopupMenu(editingPopupMenu));
+    }
+
+    public void setData(FeedbackDocument feedbackDocument) {
+        // Fill up the feedback boxes with the data
+        setTitleLabel("Document for: " + feedbackDocument.getStudentId());
+
+        feedbackBoxes.forEach(feedbackBox -> {
+            feedbackBox.setTextPaneText("");
+            feedbackBox.setTextPaneText(feedbackDocument.getHeadingData(feedbackBox.getHeading()));
+        });
+
+        revalidate();
+        repaint();
+    }
+
+
+    public Map<String, String> saveDataAsMap() {
+        Map<String, String> headingsAndData = new HashMap<String, String>();
+        feedbackBoxes.forEach(feedbackBox -> {
+            headingsAndData.put(feedbackBox.getHeading(), feedbackBox.getTextPane().getText());
+        });
+
+        return headingsAndData;
     }
 }

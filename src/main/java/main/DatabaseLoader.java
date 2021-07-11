@@ -40,7 +40,7 @@ public class DatabaseLoader {
         // Assignment and student manifest
         AssignmentConfig assignmentConfig = new AssignmentConfig("/Users/bhuvan/Desktop/CS5099-Project/src/main/java/test_data/assignment_config.txt");
         Assignment assignment = new Assignment(); //"db-assignment", assignmentConfig);
-        assignment.saveAssignmentDetails(assignment.getDatabaseFilePath() + ".fht");
+        assignment.saveAssignmentDetails(assignment.getDatabaseName() + ".fht");
         File studentManifestFile = new File("/Users/bhuvan/Desktop/CS5099-Project/src/main/java/test_data/student_manifest.txt");
 
         // Open connection to the database
@@ -62,7 +62,7 @@ public class DatabaseLoader {
             System.out.println("Student Ids: " + studentIds);
 
             // Create a collection of the feedback documents
-            NitriteCollection feedbackDocsCollections = documentDatabaseInterface.createCollection(assignment.getDatabaseFilePath());
+            NitriteCollection feedbackDocsCollections = documentDatabaseInterface.createCollection(assignment.getDatabaseName());
 
             studentIds.forEach( studentId -> {
                 try (BufferedReader studentFileReader = new BufferedReader(new FileReader("/Users/bhuvan/Desktop/CS5099-Project/src/main/java/test_data/" + studentId + ".txt"))) {

@@ -1,9 +1,7 @@
 package model;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class Assignment implements Serializable {
 
@@ -13,11 +11,23 @@ public class Assignment implements Serializable {
     private List<String> assignmentHeadings;
     private List<String> studentIds;
     private List<FeedbackDocument> feedbackDocuments;
-    private String databaseFilePath;
+    private Map<String, FeedbackDocument> studentIdAndFeedbackDocumentMap;
+
+    private String databaseName;
+    private String databaseCollectionName;
+
+    public String getDatabaseCollectionName() {
+        return this.databaseCollectionName;
+    }
 
     public Assignment() {
         this.studentIds = new ArrayList<String>();
         this.assignmentHeadings = new ArrayList<String>();
+        studentIdAndFeedbackDocumentMap = new HashMap<String, FeedbackDocument>();
+    }
+
+    public void setFeedbackDocument(String studentId, FeedbackDocument feedbackDocument) {
+        studentIdAndFeedbackDocumentMap.put(studentId, feedbackDocument);
     }
 
     public static Assignment loadAssignment(String filePath) {
@@ -42,7 +52,8 @@ public class Assignment implements Serializable {
 
     public void setAssignmentTitle(String assignmentTitle) {
         this.assignmentTitle = assignmentTitle;
-        this.databaseFilePath = assignmentTitle.replace(" ", "-").toLowerCase();
+        this.databaseName = assignmentTitle.replace(" ", "-").toLowerCase() + ".db";
+        this.databaseCollectionName = assignmentTitle.replace(" ", "-").toLowerCase() + "-feedback-docs";
     }
 
     public List<String> getAssignmentHeadings() {
@@ -66,8 +77,12 @@ public class Assignment implements Serializable {
         try (BufferedReader reader = new BufferedReader(new FileReader(studentManifestFile))) {
             while (reader.ready()) {
                 String studentId = reader.readLine().trim();
+                FeedbackDocument feedbackDocument = new FeedbackDocument(this, studentId);
+
                 this.studentIds.add(studentId);
-                this.feedbackDocuments.add(new FeedbackDocument(this, studentId));
+                this.feedbackDocuments.add(feedbackDocument);
+
+                this.studentIdAndFeedbackDocumentMap.put(studentId, feedbackDocument);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -88,12 +103,22 @@ public class Assignment implements Serializable {
             e.printStackTrace();
         }
     }
+    public void setFeedbackDocuments(List<FeedbackDocument> feedbackDocuments) {
+        this.feedbackDocuments = feedbackDocuments;
+        feedbackDocuments.forEach(feedbackDocument -> {
+            studentIdAndFeedbackDocumentMap.put(feedbackDocument.getStudentId(), feedbackDocument);
+        });
+    }
 
-    public String getDatabaseFilePath() {
-        return this.databaseFilePath;
+    public String getDatabaseName() {
+        return this.databaseName;
     }
 
     public AssignmentConfig getAssignmentConfig() {
         return null;
+    }
+
+    public FeedbackDocument getFeedbackDocumentForStudent(String studentId) {
+        return studentIdAndFeedbackDocumentMap.get(studentId);
     }
 }

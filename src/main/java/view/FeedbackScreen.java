@@ -2,13 +2,17 @@ package view;
 
 import controller.AppController;
 import model.Assignment;
+import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.Has;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.*;
 import java.util.List;
 
-public class FeedbackScreen {
+public class FeedbackScreen implements PropertyChangeListener {
 
     private JFrame feedbackScreen;
     private JPanel feedbackScreenPanel;
@@ -38,6 +42,7 @@ public class FeedbackScreen {
         feedbackScreen.setLayout(new BorderLayout());
 
         this.controller = controller;
+        this.controller.registerWithModel(this);
         this.assignment = assignment;
 
         feedbackScreenPanel = new JPanel(new GridBagLayout());
@@ -114,9 +119,13 @@ public class FeedbackScreen {
         editorPanelScrollPane = new JScrollPane();
 
         // Create editor panel with popup menu
-        editorPanel = new EditorPanel(assignment.getAssignmentTitle(), assignment.getAssignmentHeadings());
+        editorPanel = new EditorPanel(controller, assignment.getAssignmentTitle(), assignment.getAssignmentHeadings());
         editingPopupMenu = new EditingPopupMenu();
         editorPanel.registerPopupMenu(editingPopupMenu);
+
+        // Set the document data if it exists
+        editorPanel.setData(assignment.getFeedbackDocuments().get(0));
+        System.out.println("In Feedback Screen Class: " + assignment.getFeedbackDocuments().get(0).getHeadingData("1"));
 
         editorPanelScrollPane.add(editorPanel);
         editorPanelScrollPane.getViewport().setView(editorPanel);
@@ -127,9 +136,17 @@ public class FeedbackScreen {
 
         // Create preview boxes
         List<PreviewBox> previewBoxes = new ArrayList<PreviewBox>();
-        assignment.getStudentIds().forEach(studentId -> {
-            previewBoxes.add(new PreviewBox(studentId, -1, "<empty file>"));
+
+        assignment.getFeedbackDocuments().forEach(feedbackDocument -> {
+            PreviewBox previewBox = new PreviewBox(controller, feedbackDocument.getStudentId(), -1, "<empty file>");
+            previewBox.setAssignment(assignment);
+            previewBoxes.add(previewBox);
         });
+
+
+//        assignment.getStudentIds().forEach(studentId -> {
+//            previewBoxes.add(new PreviewBox(controller, studentId, -1, "<empty file>"));
+//        });
 
         previewPanel = new PreviewPanel(previewBoxes);
         previewPanelScrollPane.add(previewPanel);
@@ -147,7 +164,7 @@ public class FeedbackScreen {
         JMenuItem exportOption = new JMenuItem("Export");
 
         saveOption.addActionListener(l -> {
-            String filePath = assignment.getAssignmentTitle().toLowerCase().trim() + ".fht";
+            String filePath = assignment.getAssignmentTitle().toLowerCase().trim().replace(" ",  "-") + ".fht";
             JOptionPane.showMessageDialog(feedbackScreen, "Saving assignment to file: " + filePath);
             controller.saveAssignment(assignment, filePath);
         });
@@ -159,5 +176,36 @@ public class FeedbackScreen {
         menuBar.add(fileMenu);
 
         feedbackScreen.add(menuBar, BorderLayout.PAGE_START);
+    }
+
+    /**
+     * Listen for change messages from the model and perform appropriate
+     * action to the GUI to reflect the changes in the model.
+     * @param event The incoming message from the model.
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent event) {
+//        // Make sure event change is coming from model
+//        if (event.getSource() != model) {
+//            return;
+//        }
+
+        // Perform action based on the incoming message
+        switch (event.getPropertyName()) {
+            case "docViewChange":
+                System.out.println("Got event from model, will update editor...");
+                editorPanel.setData(assignment.getFeedbackDocumentForStudent((String) event.getNewValue()));
+                break;
+            case "saveDoc":
+                String studentId = (String) event.getNewValue();
+                System.out.println("Saving doc: " + studentId);
+                Map<String, String> headingsAndData = editorPanel.saveDataAsMap();
+                controller.saveFeedbackDocument(assignment, studentId, headingsAndData);
+                break;
+            default:
+                System.out.println("Received unknown message!");
+                System.out.println(event.getNewValue());
+                break;
+        }
     }
 }

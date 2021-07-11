@@ -36,13 +36,13 @@ public class FeedbackDocument implements Serializable {
     }
 
     public List<String> getHeadings() {
-        return assignment.getAssignmentConfig().getAssignmentHeadings();
+        return assignment.getAssignmentHeadings();
     }
 
     @Override
     public String toString() {
         return "FeedbackDocument{" +
-                "assignment=" + assignment.getDatabaseFilePath() +
+                "assignment=" + assignment.getDatabaseName() +
                 ", studentId='" + studentId + '\'' +
                 '}';
     }

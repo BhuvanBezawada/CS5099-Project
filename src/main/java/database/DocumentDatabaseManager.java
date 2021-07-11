@@ -6,9 +6,11 @@ import org.dizitart.no2.Cursor;
 import org.dizitart.no2.Document;
 import org.dizitart.no2.Nitrite;
 import org.dizitart.no2.NitriteCollection;
+import org.dizitart.no2.filters.Filters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class DocumentDatabaseManager {//implements IDocumentDatabase {
 
@@ -37,7 +39,7 @@ public class DocumentDatabaseManager {//implements IDocumentDatabase {
     }
 
     public boolean createDocumentDatabase(String databasePath) {
-        return openDocumentDatabase(databasePath + ".db");
+        return openDocumentDatabase(databasePath);
     }
 
     public boolean closeDocumentDatabaseConnection() {
@@ -49,10 +51,10 @@ public class DocumentDatabaseManager {//implements IDocumentDatabase {
 
     public boolean createFeedbackDocuments(Assignment assignment) {
 
-        System.out.println("In createFeedbackDocuments: " + assignment.getDatabaseFilePath() + "-feedback-docs");
+        System.out.println("In createFeedbackDocuments: " + assignment.getDatabaseName() + "-feedback-docs");
 
         // Store the assignment's feedback documents into the database
-        NitriteCollection assignmentCollection = databaseConnection.getCollection(assignment.getDatabaseFilePath() + "-feedback-docs");
+        NitriteCollection assignmentCollection = databaseConnection.getCollection(assignment.getDatabaseCollectionName());
 
         assignment.getFeedbackDocuments().forEach( feedbackDocument -> {
             Document dbDoc = Document.createDocument("feedbackFor", feedbackDocument.getStudentId());
@@ -69,13 +71,15 @@ public class DocumentDatabaseManager {//implements IDocumentDatabase {
         // Commit the created documents
         databaseConnection.commit();
 
-        return databaseConnection.hasCollection(assignment.getDatabaseFilePath());
+        return databaseConnection.hasCollection(assignment.getDatabaseName());
     }
 
     public List<FeedbackDocument> loadFeedbackDocumentsForAssignment(Assignment assignment) {
 
         if (documentDatabaseIsReady()) {
-            String collectionName = assignment.getDatabaseFilePath() + "-feedback-docs";
+            String collectionName = assignment.getDatabaseCollectionName();
+            System.out.println(databaseConnection.listCollectionNames());
+
             if (databaseConnection.hasCollection(collectionName)) {
                 System.out.println("Found collection");
                 NitriteCollection assignmentCollection = databaseConnection.getCollection(collectionName);
@@ -102,8 +106,44 @@ public class DocumentDatabaseManager {//implements IDocumentDatabase {
         return null;
     }
 
-    public boolean saveFeedbackDocument(FeedbackDocument feedbackDocument) {
+    public boolean saveFeedbackDocument(Assignment assignment, String studentId, Map<String, String> headingsAndData) {
+        if (databaseConnection.hasCollection(assignment.getDatabaseCollectionName())) {
+
+            NitriteCollection collection = databaseConnection.getCollection(assignment.getDatabaseCollectionName());
+            Cursor documents = collection.find(Filters.eq("feedbackFor", studentId));
+            Document document = documents.toList().get(0);
+
+            System.out.println("Doc found is: " + document);
+
+            System.out.println("Going to save data: " + headingsAndData.keySet());
+            System.out.println("Going to save data: " + headingsAndData.values());
+            headingsAndData.keySet().forEach(heading -> {
+                document.put(heading, headingsAndData.get(heading));
+            });
+
+            collection.update(document);
+            databaseConnection.commit();
+            return true;
+        }
         return false;
+    }
+
+    public void updateAndStoreFeedbackDocument(Assignment assignment, String studentId) {
+        if (databaseConnection.hasCollection(assignment.getDatabaseCollectionName())) {
+
+            NitriteCollection collection = databaseConnection.getCollection(assignment.getDatabaseCollectionName());
+            Cursor documents = collection.find(Filters.eq("feedbackFor", studentId));
+            Document document = documents.toList().get(0);
+
+            System.out.println("Doc found is: " + document);
+            FeedbackDocument feedbackDocument = (FeedbackDocument) document.get("feedbackDocObject");
+
+            feedbackDocument.getHeadings().forEach(heading -> {
+                feedbackDocument.setDataForHeading(heading, (String) document.get(heading));
+            });
+
+            assignment.setFeedbackDocument(studentId, feedbackDocument);
+        }
     }
 
     public boolean updateFeedbackDocument(FeedbackDocument feedbackDocument) {
