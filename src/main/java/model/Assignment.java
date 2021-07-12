@@ -92,7 +92,7 @@ public class Assignment implements Serializable {
     }
 
     public List<FeedbackDocument> getFeedbackDocuments() {
-        return this.feedbackDocuments;
+        return new ArrayList<FeedbackDocument>(this.studentIdAndFeedbackDocumentMap.values());
     }
 
     public void saveAssignmentDetails(String fileName) {

@@ -87,4 +87,12 @@ public class AppController {
         appModel.subscribe(propertyChangeListener);
     }
 
+
+    public void exportFeedbackDocuments(Assignment assignment) {
+        // Make sure feedback documents are updated
+        documentDatabase.loadFeedbackDocumentsForAssignment(assignment);
+        // Export them
+        appModel.exportFeedbackDocuments(assignment);
+    }
+
 }

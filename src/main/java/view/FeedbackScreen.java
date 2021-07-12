@@ -169,6 +169,11 @@ public class FeedbackScreen implements PropertyChangeListener {
             controller.saveAssignment(assignment, filePath);
         });
 
+        exportOption.addActionListener(l -> {
+            controller.exportFeedbackDocuments(assignment);
+            JOptionPane.showMessageDialog(feedbackScreen, "Exporting assignment...");
+        });
+
         fileMenu.add(saveOption);
         fileMenu.add(loadOption);
         fileMenu.add(exportOption);

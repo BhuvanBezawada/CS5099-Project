@@ -3,7 +3,10 @@ package model;
 import javax.swing.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class AppModel implements IAppModel {
 
@@ -72,6 +75,31 @@ public class AppModel implements IAppModel {
 
     public String getCurrentScreenView() {
         return currentStudentId;
+    }
+
+    public void exportFeedbackDocuments(Assignment assignment) {
+        File outputDirectory = new File(assignment.getAssignmentTitle().trim().replace(" ", "-"));
+        if (!outputDirectory.exists()) {
+            outputDirectory.mkdir();
+        }
+
+        assignment.getFeedbackDocuments().forEach(feedbackDocument -> {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputDirectory + "/" + feedbackDocument.getStudentId() + ".txt"))) {
+                feedbackDocument.getHeadings().forEach(heading -> {
+                    try {
+                        writer.write(heading);
+                        writer.newLine();
+                        writer.write(feedbackDocument.getHeadingData(heading));
+                        writer.newLine();
+                        writer.newLine();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
 }
