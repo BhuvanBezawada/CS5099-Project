@@ -95,4 +95,21 @@ public class AppController {
         appModel.exportFeedbackDocuments(assignment);
     }
 
+
+    public void updatePhrasePanel(String currentHeadingBeingEdited) {
+        appModel.setCurrentHeadingBeingEdited(currentHeadingBeingEdited);
+        appModel.updatePhrasesForCurrentHeading();
+    }
+
+    public void updateCurrentHeadingBeingEdited(String currentHeadingBeingEdited) {
+        appModel.setCurrentHeadingBeingEdited(currentHeadingBeingEdited);
+    }
+
+    public void insertPhraseIntoCurrentFeedbackBox(String phrase) {
+        appModel.insertPhraseIntoCurrentFeedbackBox(phrase);
+    }
+
+    public String getCurrentHeadingBeingEdited() {
+        return appModel.getCurrentHeadingBeingEdited();
+    }
 }

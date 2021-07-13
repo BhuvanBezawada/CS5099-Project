@@ -13,6 +13,8 @@ public class AppModel implements IAppModel {
     private String currentStudentId;
     private String lastStudentId;
 
+    private String currentHeadingBeingEdited;
+
     private PropertyChangeSupport subscribers;
 
     private Assignment assignment;
@@ -100,6 +102,25 @@ public class AppModel implements IAppModel {
                 e.printStackTrace();
             }
         });
+    }
+
+
+    public void setCurrentHeadingBeingEdited(String currentHeadingBeingEdited) {
+        this.currentHeadingBeingEdited = currentHeadingBeingEdited;
+    }
+
+    public void updatePhrasesForCurrentHeading() {
+        // Get phrases for the current heading
+        // Send those phrases to the view
+        notifySubscribers("updatePhrases", "sample phrase for " + currentHeadingBeingEdited + " section");
+    }
+
+    public void insertPhraseIntoCurrentFeedbackBox(String phrase) {
+        notifySubscribers("insertPhrase", phrase);
+    }
+
+    public String getCurrentHeadingBeingEdited() {
+        return this.currentHeadingBeingEdited;
     }
 
 }

@@ -93,9 +93,9 @@ public class FeedbackScreen implements PropertyChangeListener {
     private void setupPhrasesSection() {
         phrasesSection = new PhrasesSection();
 
-        PhrasesPanel customPhrasesPanel = new PhrasesPanel(PhraseType.CUSTOM);
-        PhrasesPanel frequentlyUsedPhrasesPanel = new PhrasesPanel(PhraseType.FREQUENTLY_USED);
-        PhrasesPanel insightsPhrasesPanel = new PhrasesPanel(PhraseType.INSIGHTS);
+        PhrasesPanel customPhrasesPanel = new PhrasesPanel(controller, PhraseType.CUSTOM);
+        PhrasesPanel frequentlyUsedPhrasesPanel = new PhrasesPanel(controller, PhraseType.FREQUENTLY_USED);
+        PhrasesPanel insightsPhrasesPanel = new PhrasesPanel(controller, PhraseType.INSIGHTS);
 
         phrasesSection.addPhrasesPanel(customPhrasesPanel);
         phrasesSection.addPhrasesPanel(frequentlyUsedPhrasesPanel);
@@ -206,6 +206,16 @@ public class FeedbackScreen implements PropertyChangeListener {
                 System.out.println("Saving doc: " + studentId);
                 Map<String, String> headingsAndData = editorPanel.saveDataAsMap();
                 controller.saveFeedbackDocument(assignment, studentId, headingsAndData);
+                break;
+
+            case "updatePhrases":
+                String samplePhrase = (String) event.getNewValue();
+                phrasesSection.addPhraseToPanel(samplePhrase, PhraseType.CUSTOM);
+                break;
+            case "insertPhrase":
+                String phrase = (String) event.getNewValue();
+                String heading = controller.getCurrentHeadingBeingEdited();
+                editorPanel.insertPhraseIntoFeedbackBox(phrase, heading);
                 break;
             default:
                 System.out.println("Received unknown message!");

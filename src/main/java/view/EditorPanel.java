@@ -24,6 +24,8 @@ public class EditorPanel extends JPanel {
     private JPanel feedbackBoxesPanel;
     private List<FeedbackBox> feedbackBoxes;
 
+    private Map<String, FeedbackBox> headingAndFeedbackBox;
+
     private AppController controller;
 
     public EditorPanel(AppController controller, String titleText, List<String> headings) {
@@ -36,6 +38,8 @@ public class EditorPanel extends JPanel {
         this.feedbackBoxesPanel = new JPanel();
         this.feedbackBoxesPanel.setLayout(new BoxLayout(feedbackBoxesPanel, BoxLayout.PAGE_AXIS));
         this.feedbackBoxes = new ArrayList<FeedbackBox>();
+
+        this.headingAndFeedbackBox = new HashMap<String, FeedbackBox>();
 
         // Layout components from top to bottom
         this.setLayout(new BorderLayout());
@@ -65,6 +69,7 @@ public class EditorPanel extends JPanel {
         headings.forEach(heading -> {
             FeedbackBox feedbackBox = new FeedbackBox(controller, heading);
             feedbackBoxes.add(feedbackBox);
+            headingAndFeedbackBox.put(heading, feedbackBox);
             feedbackBoxesPanel.add(feedbackBox);
         });
 
@@ -87,6 +92,10 @@ public class EditorPanel extends JPanel {
 
         revalidate();
         repaint();
+    }
+
+    public void insertPhraseIntoFeedbackBox(String phrase, String feedbackBoxHeading) {
+        this.headingAndFeedbackBox.get(feedbackBoxHeading).insertPhrase(phrase);
     }
 
 

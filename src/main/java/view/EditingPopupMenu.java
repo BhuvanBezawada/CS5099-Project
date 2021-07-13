@@ -83,6 +83,7 @@ public class EditingPopupMenu {
             JTextArea invoker = (JTextArea) popupMenu.getInvoker();
             selectedText = invoker.getSelectedText();
             phrasesPanelsMap.get(PhraseType.CUSTOM).addPhrase(selectedText);
+
         });
     }
 }

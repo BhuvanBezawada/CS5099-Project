@@ -4,8 +4,6 @@ import controller.AppController;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
 import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -44,6 +42,7 @@ public class FeedbackBox extends JPanel {
             public void focusGained(FocusEvent e) {
 //                textPane.setBorder(selectedBorder);
                 //controller.displayNewDocument(controller.getCurrentDocInView());
+                controller.updateCurrentHeadingBeingEdited(heading);
             }
 
             @Override
@@ -83,5 +82,10 @@ public class FeedbackBox extends JPanel {
 
     public void registerPopupMenu(EditingPopupMenu editingPopupMenu) {
         editingPopupMenu.registerFeedbackBox(this);
+    }
+
+    public void insertPhrase(String phrase) {
+        int caretPos = this.textPane.getCaretPosition();
+        textPane.insert(phrase, caretPos);
     }
 }
