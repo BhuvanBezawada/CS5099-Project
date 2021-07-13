@@ -9,14 +9,20 @@ import java.awt.*;
 public class PhraseBox extends JPanel {
 
     private String phrase;
+    private String phraseSentiment;
+
     private JTextArea phraseTextArea;
     private JButton insertButton;
+
+    private JLabel sentimentLabel;
 
     private AppController controller;
 
     public PhraseBox(AppController controller, String phrase) {
         this.phrase = phrase;
         this.phraseTextArea = new JTextArea();
+        this.phraseSentiment = controller.getPhraseSentiment(phrase);
+        System.out.println("Sentiment: " + phraseSentiment);
 
         this.controller = controller;
 
@@ -29,6 +35,7 @@ public class PhraseBox extends JPanel {
 
         setupInsertButton();
         setupPhraseTextArea();
+        setupSentimentLabel();
 
         this.setMaximumSize(new Dimension(300, 100));
         this.setVisible(true);
@@ -38,8 +45,24 @@ public class PhraseBox extends JPanel {
         this.insertButton.addActionListener(l -> {
             controller.insertPhraseIntoCurrentFeedbackBox(phrase);
         });
+
+        this.add(insertButton, BorderLayout.LINE_START);
     }
 
+    private void setupSentimentLabel() {
+        ImageIcon icon = null;
+        String emojiFilePath = "images/"; // maybe replace with ? for unknown ones...
+        if (this.phraseSentiment.equals("Neutral")) {
+            emojiFilePath += "neutral.png";
+        } else if (this.phraseSentiment.equals("Positive") || this.phraseSentiment.equals("Very positive")) {
+            emojiFilePath += "positive.png";
+        } else {
+            emojiFilePath += "negative.png";
+        }
+
+        this.sentimentLabel = new JLabel(new ImageIcon(new ImageIcon(emojiFilePath).getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT)));
+        this.add(sentimentLabel, BorderLayout.LINE_END);
+    }
     private void setupPhraseTextArea() {
         phraseTextArea.setRows(5);
         phraseTextArea.setColumns(10);
@@ -47,7 +70,6 @@ public class PhraseBox extends JPanel {
         phraseTextArea.setText(phrase);
         phraseTextArea.setLineWrap(true);
 
-        this.add(insertButton, BorderLayout.LINE_START);
         this.add(phraseTextArea, BorderLayout.CENTER);
 
         //phraseTextArea.setDragEnabled(true);

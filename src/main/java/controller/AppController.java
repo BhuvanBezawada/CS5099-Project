@@ -1,9 +1,13 @@
 package controller;
 
 import database.DocumentDatabaseManager;
+import edu.stanford.nlp.pipeline.CoreDocument;
+import edu.stanford.nlp.pipeline.CoreSentence;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import model.AppModel;
 import model.Assignment;
 import model.FeedbackDocument;
+import nlp.BasicPipelineExample;
 
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -15,9 +19,13 @@ public class AppController {
     AppModel appModel;
     DocumentDatabaseManager documentDatabase;
 
+
+    StanfordCoreNLP nlp;
+
     public AppController(AppModel appModel) {
         this.appModel = appModel;
         this.documentDatabase = new DocumentDatabaseManager();
+        this.nlp = BasicPipelineExample.getPipeline();
     }
 
     public Assignment createAssignment(String assignmentTitle, String headings, File studentManifestFile) {
@@ -111,5 +119,15 @@ public class AppController {
 
     public String getCurrentHeadingBeingEdited() {
         return appModel.getCurrentHeadingBeingEdited();
+    }
+
+    public String getPhraseSentiment(String phrase) {
+        CoreDocument coreDocument = new CoreDocument(phrase);
+        nlp.annotate(coreDocument);
+
+        List<CoreSentence> sentenceList = coreDocument.sentences();
+        sentenceList.forEach(e -> System.out.println( e + " - " + e.sentiment()));
+
+        return sentenceList.get(0).sentiment();
     }
 }
