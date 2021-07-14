@@ -123,4 +123,8 @@ public class AppModel implements IAppModel {
         return this.currentHeadingBeingEdited;
     }
 
+    public void addNewPhrase(String phrase) {
+        notifySubscribers("newPhrase", phrase);
+    }
+
 }

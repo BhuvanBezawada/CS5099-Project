@@ -130,4 +130,8 @@ public class AppController {
 
         return sentenceList.get(0).sentiment();
     }
+
+    public void addNewPhrase(String phrase) {
+        appModel.addNewPhrase(phrase);
+    }
 }

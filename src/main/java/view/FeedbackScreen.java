@@ -28,7 +28,7 @@ public class FeedbackScreen implements PropertyChangeListener {
 
     private JSplitPane phrasesAndControlsSplitPane;
     private PhrasesSection phrasesSection;
-    private JPanel controlPanel;
+    private PhraseEntryBox phraseEntryBox;
 
 
     private Assignment assignment;
@@ -78,9 +78,11 @@ public class FeedbackScreen implements PropertyChangeListener {
     }
 
     private void setupPhrasesAndControlsSplitPane() {
-        phrasesAndControlsSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, controlPanel, phrasesSection);
-        phrasesAndControlsSplitPane.setOneTouchExpandable(true);
-        phrasesAndControlsSplitPane.setDividerLocation(0.5);
+        this.phraseEntryBox = new PhraseEntryBox(controller);
+
+        phrasesAndControlsSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, phrasesSection, phraseEntryBox);
+        phrasesAndControlsSplitPane.setOneTouchExpandable(false);
+        phrasesAndControlsSplitPane.setDividerLocation(600);
         phrasesAndControlsSplitPane.setMaximumSize(new Dimension(300, 800));
         phrasesAndControlsSplitPane.setPreferredSize(new Dimension(300, 800));
         phrasesAndControlsSplitPane.setMinimumSize(new Dimension(300, 800));
@@ -216,6 +218,10 @@ public class FeedbackScreen implements PropertyChangeListener {
                 String phrase = (String) event.getNewValue();
                 String heading = controller.getCurrentHeadingBeingEdited();
                 editorPanel.insertPhraseIntoFeedbackBox(phrase, heading);
+                break;
+            case "newPhrase":
+                String newPhrase = (String) event.getNewValue();
+                phrasesSection.addPhraseToPanel(newPhrase, PhraseType.CUSTOM);
                 break;
             default:
                 System.out.println("Received unknown message!");
