@@ -7,6 +7,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class FeedbackBox extends JPanel {
 
@@ -71,7 +73,15 @@ public class FeedbackBox extends JPanel {
         this.textPane.setWrapStyleWord(true);
         this.textPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        //this.setTransferHandler(new TransferHandler("text"));
+        this.textPane.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == 10){
+                    int caretPos = textPane.getCaretPosition();
+                    textPane.insert("- ", caretPos); // When a new line is taken add a " - "
+                }
+            }
+        });
     }
 
     public JTextArea getTextPane() {
