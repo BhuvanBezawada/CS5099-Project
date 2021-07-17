@@ -77,17 +77,33 @@ public class PreviewBox extends JPanel {
         this.textPane.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-                textPane.setBorder(selectedBorder);
+                //highlight();
                 controller.displayNewDocument(assignment, heading);
             }
 
             @Override
             public void focusLost(FocusEvent e) {
                 //controller.saveFeedbackDocument(heading);
-                textPane.setBorder(unselectedBorder);
+                //unhighlight();
             }
         });
 
         this.textPane.setText(heading + "\n\n" + uniqueLine + "\n" + "Grade: " + grade);
+    }
+
+    public String getHeading() {
+        return this.heading;
+    }
+
+    public void highlight() {
+        textPane.setBorder(selectedBorder);
+        textPane.repaint();
+        textPane.revalidate();
+    }
+
+    public void unhighlight() {
+        textPane.setBorder(unselectedBorder);
+        textPane.repaint();
+        textPane.revalidate();
     }
 }

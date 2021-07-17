@@ -45,6 +45,10 @@ public class FeedbackBox extends JPanel {
 //                textPane.setBorder(selectedBorder);
                 //controller.displayNewDocument(controller.getCurrentDocInView());
                 controller.updateCurrentHeadingBeingEdited(heading);
+
+                if (textPane.getText().isEmpty()) {
+                    insertHypenForNewLine();
+                }
             }
 
             @Override
@@ -77,8 +81,7 @@ public class FeedbackBox extends JPanel {
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == 10){
-                    int caretPos = textPane.getCaretPosition();
-                    textPane.insert("- ", caretPos); // When a new line is taken add a " - "
+                    insertHypenForNewLine();
                 }
             }
         });
@@ -99,5 +102,10 @@ public class FeedbackBox extends JPanel {
     public void insertPhrase(String phrase) {
         int caretPos = this.textPane.getCaretPosition();
         textPane.insert(phrase, caretPos);
+    }
+
+    private void insertHypenForNewLine(){
+        int caretPos = textPane.getCaretPosition();
+        textPane.insert("- ", caretPos); // When a new line is taken add a " - "
     }
 }

@@ -2,6 +2,8 @@ package view;
 
 import controller.AppController;
 
+import javax.swing.*;
+
 public class AppView implements IAppView {
 
     private AppController controller;

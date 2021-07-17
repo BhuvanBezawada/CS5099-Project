@@ -201,7 +201,12 @@ public class FeedbackScreen implements PropertyChangeListener {
         switch (event.getPropertyName()) {
             case "docViewChange":
                 System.out.println("Got event from model, will update editor...");
-                editorPanel.setData(assignment.getFeedbackDocumentForStudent((String) event.getNewValue()));
+                String newDocInView = (String) event.getNewValue();
+                editorPanel.setData(assignment.getFeedbackDocumentForStudent(newDocInView));
+                previewPanel.unhighlightPreviewBox(controller.getLastDocInView());
+                previewPanel.highlightPreviewBox(newDocInView);
+                previewPanel.repaint();
+                previewPanel.revalidate();
                 break;
             case "saveDoc":
                 String studentId = (String) event.getNewValue();
