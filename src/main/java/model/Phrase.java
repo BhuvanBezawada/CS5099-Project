@@ -14,6 +14,10 @@ public class Phrase {
         return this.sentiment;
     }
 
+    public void setUsageCount(int usageCount) {
+        this.usageCount = usageCount;
+    }
+
     public void setSentiment(Sentiment sentiment) {
         this.sentiment = sentiment;
     }

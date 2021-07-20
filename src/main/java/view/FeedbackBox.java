@@ -4,11 +4,15 @@ import controller.AppController;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class FeedbackBox extends JPanel {
 
@@ -21,6 +25,9 @@ public class FeedbackBox extends JPanel {
     private JTextArea textPane;
     private EditingPopupMenu editingPopupMenu;
     private AppController controller;
+
+    private List<String> currentBoxContents;
+    private List<String> previousBoxContents;
 
     public FeedbackBox(AppController controller, String heading) {
         // Store heading
@@ -81,6 +88,14 @@ public class FeedbackBox extends JPanel {
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == 10){
+                    // Clear previous contents and store most recent contents
+                    previousBoxContents = new ArrayList<>();
+                    previousBoxContents.addAll(currentBoxContents);
+
+                    // Store the realtime contents
+                    currentBoxContents = Arrays.asList(textPane.getText().split("\n"));
+                    System.out.println("Completed lines : " + currentBoxContents.size());
+                    //controller.updatePhrases(heading, previousBoxContents, currentBoxContents);
                     insertHypenForNewLine();
                 }
             }

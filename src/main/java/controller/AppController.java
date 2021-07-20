@@ -134,4 +134,8 @@ public class AppController {
     public void addNewPhrase(String phrase) {
         appModel.addNewPhrase(phrase);
     }
+
+    public void updatePhrases(String heading, List<String> previousBoxContents, List<String> newBoxContents) {
+
+    }
 }
