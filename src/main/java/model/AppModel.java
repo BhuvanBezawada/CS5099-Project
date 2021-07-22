@@ -127,4 +127,7 @@ public class AppModel implements IAppModel {
         notifySubscribers("newPhrase", phrase);
     }
 
+    public void resetPhrasesPanel() {
+        notifySubscribers("resetPhrasesPanel", "");
+    }
 }

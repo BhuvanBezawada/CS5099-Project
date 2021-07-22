@@ -39,4 +39,9 @@ public class Phrase {
             this.usageCount--;
         }
     }
+
+    @Override
+    public String toString() {
+        return phraseAsString;
+    }
 }

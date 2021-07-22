@@ -1,12 +1,14 @@
 package controller;
 
 import database.DocumentDatabaseManager;
+import database.GraphDatabaseManager;
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.CoreSentence;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import model.AppModel;
 import model.Assignment;
 import model.FeedbackDocument;
+import model.Phrase;
 import nlp.BasicPipelineExample;
 
 import java.beans.PropertyChangeListener;
@@ -18,6 +20,7 @@ public class AppController {
 
     AppModel appModel;
     DocumentDatabaseManager documentDatabase;
+    GraphDatabaseManager graphDatabase;
 
 
     StanfordCoreNLP nlp;
@@ -25,6 +28,7 @@ public class AppController {
     public AppController(AppModel appModel) {
         this.appModel = appModel;
         this.documentDatabase = new DocumentDatabaseManager();
+        this.graphDatabase = new GraphDatabaseManager();
         this.nlp = BasicPipelineExample.getPipeline();
     }
 
@@ -37,6 +41,9 @@ public class AppController {
 
         // Create the feedback files for the assignment in the database
         documentDatabase.createFeedbackDocuments(assignment);
+
+        graphDatabase.openOrCreateGraphDatabase("data/" + assignment.getDatabaseName());
+        graphDatabase.setUpGraphDbForAssignment(assignment.getAssignmentHeadings());
 
         System.out.println("Assignment: " + assignment.getDatabaseName());
         return assignment;
@@ -54,6 +61,7 @@ public class AppController {
 
     private void loadFeedbackDocuments(Assignment assignment) {
         documentDatabase.openDocumentDatabase(assignment.getDatabaseName());
+        graphDatabase.openOrCreateGraphDatabase("data/" + assignment.getDatabaseName());
         List<FeedbackDocument> feedbackDocuments = documentDatabase.loadFeedbackDocumentsForAssignment(assignment);
         assignment.setFeedbackDocuments(feedbackDocuments);
 
@@ -132,10 +140,25 @@ public class AppController {
     }
 
     public void addNewPhrase(String phrase) {
-        appModel.addNewPhrase(phrase);
+        // Minimum requirement to be a phrase is 3 words
+        String[] s = phrase.split(" ");
+        if (!phrase.trim().isEmpty()) {
+            appModel.addNewPhrase(phrase);
+        } else {
+            System.out.println("[DEBUG]: empty string detected, not creating a phrase");
+        }
     }
 
     public void updatePhrases(String heading, List<String> previousBoxContents, List<String> newBoxContents) {
+        graphDatabase.updatePhrasesForHeading(heading, previousBoxContents, newBoxContents);
+        List<Phrase> phrasesForHeading = graphDatabase.getPhrasesForHeading(heading);
+        System.out.println("[DEBUG] phrases for heading: " + phrasesForHeading);
+        phrasesForHeading.forEach( phrase -> {
+            addNewPhrase(phrase.getPhraseAsString());
+        });
+    }
 
+    public void resetPhrasesPanel() {
+        appModel.resetPhrasesPanel();
     }
 }

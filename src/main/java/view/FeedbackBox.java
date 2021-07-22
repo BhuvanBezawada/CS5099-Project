@@ -13,6 +13,7 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FeedbackBox extends JPanel {
 
@@ -52,6 +53,7 @@ public class FeedbackBox extends JPanel {
 //                textPane.setBorder(selectedBorder);
                 //controller.displayNewDocument(controller.getCurrentDocInView());
                 controller.updateCurrentHeadingBeingEdited(heading);
+                controller.resetPhrasesPanel();
 
                 if (textPane.getText().isEmpty()) {
                     insertHypenForNewLine();
@@ -94,8 +96,13 @@ public class FeedbackBox extends JPanel {
 
                     // Store the realtime contents
                     currentBoxContents = Arrays.asList(textPane.getText().split("\n"));
+                    currentBoxContents = currentBoxContents.stream()
+                            .filter(line -> line.startsWith("- "))
+                            .map(line -> line.replace("- ", ""))
+                            .collect(Collectors.toList());
+
                     System.out.println("Completed lines : " + currentBoxContents.size());
-                    //controller.updatePhrases(heading, previousBoxContents, currentBoxContents);
+                    controller.updatePhrases(heading, previousBoxContents, currentBoxContents);
                     insertHypenForNewLine();
                 }
             }
@@ -107,6 +114,7 @@ public class FeedbackBox extends JPanel {
     }
 
     public void setTextPaneText(String data) {
+        this.currentBoxContents = Arrays.asList(data.split("\n"));
         this.textPane.setText(data);
     }
 

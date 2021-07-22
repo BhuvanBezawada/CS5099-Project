@@ -6,7 +6,9 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class GraphDatabaseManager {
@@ -70,14 +72,18 @@ public class GraphDatabaseManager {
         List<Phrase> phrasesForHeading = getPhrasesForHeading(heading);
 
 
-        List<String> oldPhrasesCopy = new ArrayList<>(oldPhrases);
-        List<String> newPhrasesCopy = new ArrayList<>(newPhrases);
+        ArrayList<String> oldPhrasesCopy1 = new ArrayList<String>(oldPhrases);
+        ArrayList<String> newPhrasesCopy1 = new ArrayList<String>(newPhrases);
 
-        oldPhrasesCopy.removeAll(newPhrasesCopy);
-        newPhrases.removeAll(oldPhrases);
+        ArrayList<String> oldPhrasesCopy2 = new ArrayList<String>(oldPhrases);
+        ArrayList<String> newPhrasesCopy2 = new ArrayList<String>(newPhrases);
 
-        List<String> removedPhrases = new ArrayList<>(oldPhrasesCopy);
-        List<String> addedPhrases = new ArrayList<>(newPhrases);
+        oldPhrasesCopy1.removeAll(newPhrasesCopy1);
+        newPhrasesCopy2.removeAll(oldPhrasesCopy2);
+
+        ArrayList<String> removedPhrases = new ArrayList<String>(oldPhrasesCopy1);
+        ArrayList<String> addedPhrases = new ArrayList<String>(newPhrasesCopy2);
+        System.out.println("DEBUG: new phrases added: " + addedPhrases);
 
         // Filter out phrases we have identified as those to remove
         List<Phrase> filteredForRemoval = phrasesForHeading
@@ -113,7 +119,10 @@ public class GraphDatabaseManager {
         addedPhrases.removeAll(updated);
         addedPhrases.forEach(phraseToAdd -> {
             addPhraseForHeading(heading, new Phrase(phraseToAdd));
+            System.out.println("[DEBUG] added phrase: " + phraseToAdd);
         });
+
+        System.out.println("[DEBUG] updated phrases for heading: " + heading);
     }
 
 
@@ -132,10 +141,14 @@ public class GraphDatabaseManager {
 
 
     public void removePhrase(String heading, String phrase) {
+        Map<String, Object> params = new HashMap<>();
+        params.put( "heading", heading);
+        params.put("phrase", phrase);
+
         try (Transaction tx = graphDb.beginTx()){
             graphDb.execute(
-                    "MATCH (h:Heading {heading: '" + heading + "'}) " +
-                            "MATCH (p:Phrase {phrase: '" + phrase + "'})" +
+                    "MATCH (h:Heading {heading: $heading}) " +
+                            "MATCH (p:Phrase {phrase: $phrase})" +
                             "DETACH DELETE p");
 
             tx.success();
@@ -144,15 +157,20 @@ public class GraphDatabaseManager {
         }
     }
 
-    public void addPhraseForHeading(String heading, Phrase phrase) {
+    public void addPhraseForHeading(final String heading, Phrase phrase) {
         addNewNode(phrase);
 
+        Map<String, Object> params = new HashMap<>();
+        params.put( "heading", heading);
+        params.put("phrase", phrase.getPhraseAsString());
+        params.put("usageCount", phrase.getUsageCount());
+
+        String query = "MATCH (h:Heading {heading: $heading}) " +
+                "MATCH (p:Phrase {phrase: $phrase, usageCount: $usageCount}) " +
+                "CREATE (h)-[rel:CONTAINS]->(p)";
+
         try (Transaction tx = graphDb.beginTx()){
-            graphDb.execute(
-                    "MATCH (h:Heading {heading: '" + heading + "'}) " +
-                    "MATCH (p:Phrase {phrase: '" + phrase.getPhraseAsString() + "'" +
-                            ", usageCount: " + phrase.getUsageCount() + "})" +
-                    "CREATE (h)-[rel:CONTAINS]->(p)");
+            graphDb.execute(query, params);
 
             tx.success();
 
@@ -161,19 +179,30 @@ public class GraphDatabaseManager {
     }
 
     public List<Phrase> getPhrasesForHeading(String heading) {
+
+        Map<String, Object> params = new HashMap<>();
+        params.put( "heading", heading);
+
+        String query = "MATCH (h:Heading {heading: $heading}) " +
+                "-[rel:CONTAINS]->(p:Phrase)" +
+                "RETURN p";
+
         try (Transaction tx = graphDb.beginTx()) {
-            Result results = graphDb.execute("MATCH (h:Heading {heading: '" + heading + "'}) " +
-                    "-[rel:CONTAINS]->(p:Phrase)" +
-                    "RETURN p");
+            Result results = graphDb.execute(query, params);
+
+            //System.out.println("[DEBUG] results found for heading: " + heading + " = " + results.resultAsString());
 
             List<Phrase> phrasesForHeading = new ArrayList<>();
 
             results.stream().forEach(result -> {
+                System.out.println("result" + result);
                 Node node = (Node) result.get("p");
                 Phrase phrase = new Phrase(node.getProperty("phrase").toString());
                 phrase.setUsageCount(Integer.parseInt(node.getProperty("usageCount").toString()));
                 phrasesForHeading.add(phrase);
             });
+
+            System.out.println("list: " + phrasesForHeading);
 
             return phrasesForHeading;
         }

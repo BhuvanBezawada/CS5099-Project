@@ -16,25 +16,25 @@ public class TestGraphDatabaseManager {
         testHeadings.add("Overall Comments");
 
         graphDatabaseManager.setUpGraphDbForAssignment(testHeadings);
-        Phrase phrase = new Phrase("Well done!");
+        Phrase phrase = new Phrase("Let's see if this works. I'm going to try and escape *982839//'/\n\n\'!");
         Phrase phrase2 = new Phrase("This was some good quality work");
         graphDatabaseManager.addPhraseForHeading("Overall Comments", phrase);
         graphDatabaseManager.addPhraseForHeading("Overall Comments", phrase2);
 
-        System.out.println("Before phrase update:");
-        List<Phrase> overall_comments = graphDatabaseManager.getPhrasesForHeading("Overall Comments");
-        overall_comments.forEach(phrase1 -> {
-            System.out.println(phrase1.getPhraseAsString() + ": " + phrase1.getUsageCount());
-        });
-
-        phrase.incrementUsageCount();
-        graphDatabaseManager.updatePhrase("Overall Comments", phrase);
-
-        System.out.println("After phrase update:");
-        List<Phrase> overall_comments1 = graphDatabaseManager.getPhrasesForHeading("Overall Comments");
-        overall_comments1.forEach(phrase1 -> {
-            System.out.println(phrase1.getPhraseAsString() + ": " + phrase1.getUsageCount());
-        });
+//        System.out.println("Before phrase update:");
+//        List<Phrase> overall_comments = graphDatabaseManager.getPhrasesForHeading("Overall Comments");
+//        overall_comments.forEach(phrase1 -> {
+//            System.out.println(phrase1.getPhraseAsString() + ": " + phrase1.getUsageCount());
+//        });
+//
+//        phrase.incrementUsageCount();
+//        graphDatabaseManager.updatePhrase("Overall Comments", phrase);
+//
+//        System.out.println("After phrase update:");
+//        List<Phrase> overall_comments1 = graphDatabaseManager.getPhrasesForHeading("Overall Comments");
+//        overall_comments1.forEach(phrase1 -> {
+//            System.out.println(phrase1.getPhraseAsString() + ": " + phrase1.getUsageCount());
+//        });
     }
 
 

@@ -228,6 +228,14 @@ public class FeedbackScreen implements PropertyChangeListener {
                 String newPhrase = (String) event.getNewValue();
                 phrasesSection.addPhraseToPanel(newPhrase, PhraseType.CUSTOM);
                 break;
+            case "resetPhrasesPanel":
+                System.out.println("removing all phrases from panel");
+                phrasesSection.resetPhrasesPanel(PhraseType.CUSTOM);
+                break;
+            case "error":
+                String errorMessage = (String) event.getNewValue();
+                JOptionPane.showMessageDialog(feedbackScreen, errorMessage, "Invalid phrase!", JOptionPane.ERROR_MESSAGE);
+                break;
             default:
                 System.out.println("Received unknown message!");
                 System.out.println(event.getNewValue());

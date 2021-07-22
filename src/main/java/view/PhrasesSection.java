@@ -33,6 +33,11 @@ public class PhrasesSection extends JPanel {
         updatePhrasesSection();
     }
 
+    public void resetPhrasesPanel(PhraseType phraseType) {
+        phrasesPanelsByType.get(phraseType).removeAll();
+        updatePhrasesSection();
+    }
+
     public void addPhraseToPanel(String phrase, PhraseType phrasePanelType) {
         this.phrasesPanelsByType.get(phrasePanelType).addPhrase(phrase);
     }
