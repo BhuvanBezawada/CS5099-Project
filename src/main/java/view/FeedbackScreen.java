@@ -228,6 +228,10 @@ public class FeedbackScreen implements PropertyChangeListener {
                 String newPhrase = (String) event.getNewValue();
                 phrasesSection.addPhraseToPanel(newPhrase, PhraseType.CUSTOM);
                 break;
+            case "deletePhrase":
+                String phraseToDelete = (String) event.getNewValue();
+                phrasesSection.removePhraseFromPanel(phraseToDelete, PhraseType.CUSTOM);
+                break;
             case "resetPhrasesPanel":
                 System.out.println("removing all phrases from panel");
                 phrasesSection.resetPhrasesPanel(PhraseType.CUSTOM);

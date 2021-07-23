@@ -11,6 +11,7 @@ import model.FeedbackDocument;
 import model.Phrase;
 import nlp.BasicPipelineExample;
 
+import javax.rmi.CORBA.Util;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.List;
@@ -35,6 +36,10 @@ public class AppController {
     public Assignment createAssignment(String assignmentTitle, String headings, File studentManifestFile) {
         // Create assignment in the model
         Assignment assignment = appModel.createAssignment(assignmentTitle, headings, studentManifestFile);
+        assignment.saveAssignmentDetails(assignmentTitle
+                .toLowerCase()
+                .replace(" ", "-")
+                .replace(".db", ""));
 
         // Create the assignment database
         documentDatabase.createDocumentDatabase(assignment.getDatabaseName());
@@ -67,6 +72,12 @@ public class AppController {
 
         System.out.println("1st doc is: " + assignment.getFeedbackDocuments().get(0).getHeadingData("1"));
         System.out.println("Got back " + assignment.getFeedbackDocuments().size() + " documents from db");
+
+        assignment.getAssignmentHeadings().forEach(heading -> {
+            List<Phrase> phrasesForHeading = graphDatabase.getPhrasesForHeading(heading);
+            appModel.setPreviousPhraseSet(heading, phrasesForHeading);
+            appModel.setCurrentPhraseSet(heading, phrasesForHeading);
+        });
     }
 
     public void getFeedbackDocument(Assignment assignment, String studentId) {
@@ -140,9 +151,8 @@ public class AppController {
     }
 
     public void addNewPhrase(String phrase) {
-        // Minimum requirement to be a phrase is 3 words
-        String[] s = phrase.split(" ");
-        if (!phrase.trim().isEmpty()) {
+        // Filter out empty lines
+        if (!phrase.trim().isEmpty() && !phrase.trim().equals("-")) {
             appModel.addNewPhrase(phrase);
         } else {
             System.out.println("[DEBUG]: empty string detected, not creating a phrase");
@@ -150,15 +160,43 @@ public class AppController {
     }
 
     public void updatePhrases(String heading, List<String> previousBoxContents, List<String> newBoxContents) {
+        // Store previous phrase set
+        List<Phrase> previousPhrasesForHeading = graphDatabase.getPhrasesForHeading(heading);
+        appModel.setPreviousPhraseSet(heading, previousPhrasesForHeading);
+
+        // Update the database with the new phrases
         graphDatabase.updatePhrasesForHeading(heading, previousBoxContents, newBoxContents);
-        List<Phrase> phrasesForHeading = graphDatabase.getPhrasesForHeading(heading);
-        System.out.println("[DEBUG] phrases for heading: " + phrasesForHeading);
-        phrasesForHeading.forEach( phrase -> {
-            addNewPhrase(phrase.getPhraseAsString());
+        List<Phrase> currentPhrasesForHeading = graphDatabase.getPhrasesForHeading(heading);
+        appModel.setCurrentPhraseSet(heading, currentPhrasesForHeading);
+
+        // Find what's changed and send those changes to GUI
+        List<Phrase> removalsFromList = Utilities.getRemovalsFromList(previousPhrasesForHeading, currentPhrasesForHeading);
+        List<Phrase> additionsToList = Utilities.getAdditionsToList(previousPhrasesForHeading, currentPhrasesForHeading);
+
+        System.out.println("DEBUG: removals -> " + removalsFromList);
+        System.out.println("DEBUG: additions -> " + additionsToList);
+
+        removalsFromList.forEach(phraseToRemove -> {
+            appModel.removePhrase(phraseToRemove.getPhraseAsString());
+        });
+
+        additionsToList.forEach(phraseToAdd -> {
+            appModel.addNewPhrase(phraseToAdd.getPhraseAsString());
         });
     }
 
     public void resetPhrasesPanel() {
         appModel.resetPhrasesPanel();
+    }
+
+    public boolean headingChanged() {
+        return !appModel.getCurrentHeadingBeingEdited().equals(appModel.getPreviousHeadingBeingEdited());
+    }
+
+    public void showPhrasesForHeading(String heading) {
+        List<Phrase> currentPhraseSet = appModel.getCurrentPhraseSet(heading);
+        currentPhraseSet.forEach(phrase -> {
+            addNewPhrase(phrase.getPhraseAsString());
+        });
     }
 }

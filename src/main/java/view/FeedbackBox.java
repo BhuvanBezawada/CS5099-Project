@@ -35,6 +35,9 @@ public class FeedbackBox extends JPanel {
         this.heading = heading;
         this.controller = controller;
 
+        this.currentBoxContents = new ArrayList<String>();
+        this.previousBoxContents = new ArrayList<String>();
+
         // Setup components
         setupLabel();
         setupTextArea();
@@ -53,7 +56,12 @@ public class FeedbackBox extends JPanel {
 //                textPane.setBorder(selectedBorder);
                 //controller.displayNewDocument(controller.getCurrentDocInView());
                 controller.updateCurrentHeadingBeingEdited(heading);
-                controller.resetPhrasesPanel();
+
+                // If heading being edited has changed, show all the phrases for that heading
+                if (controller.headingChanged()) {
+                    controller.resetPhrasesPanel();
+                    controller.showPhrasesForHeading(heading);
+                }
 
                 if (textPane.getText().isEmpty()) {
                     insertHypenForNewLine();
@@ -89,18 +97,8 @@ public class FeedbackBox extends JPanel {
         this.textPane.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == 10){
-                    // Clear previous contents and store most recent contents
-                    previousBoxContents = new ArrayList<>();
-                    previousBoxContents.addAll(currentBoxContents);
-
-                    // Store the realtime contents
-                    currentBoxContents = Arrays.asList(textPane.getText().split("\n"));
-                    currentBoxContents = currentBoxContents.stream()
-                            .filter(line -> line.startsWith("- "))
-                            .map(line -> line.replace("- ", ""))
-                            .collect(Collectors.toList());
-
+                if (e.getKeyCode() == 10) {
+                    captureState();
                     System.out.println("Completed lines : " + currentBoxContents.size());
                     controller.updatePhrases(heading, previousBoxContents, currentBoxContents);
                     insertHypenForNewLine();
@@ -113,8 +111,32 @@ public class FeedbackBox extends JPanel {
         return this.textPane;
     }
 
+    private void captureState() {
+        System.out.println("In capture state: ");
+        // Clear previous contents and store most recent contents
+        previousBoxContents = new ArrayList<>(currentBoxContents);
+        System.out.println("prev box contents: " + previousBoxContents);
+
+        // Store the realtime contents
+        currentBoxContents = Arrays.asList(textPane.getText().split("\n"));
+        currentBoxContents = currentBoxContents.stream()
+                .map(String::trim)
+                .filter(line -> line.startsWith("- "))
+                .map(line -> line.replace("- ", ""))
+                .collect(Collectors.toList());
+
+        System.out.println("feedback box current contents: " + currentBoxContents);
+    }
+
     public void setTextPaneText(String data) {
+        System.out.println("Data: " + data);
         this.currentBoxContents = Arrays.asList(data.split("\n"));
+        currentBoxContents = currentBoxContents.stream()
+                .map(String::trim)
+                .filter(line -> line.startsWith("- "))
+                .map(line -> line.replace("- ", ""))
+                .collect(Collectors.toList());
+
         this.textPane.setText(data);
     }
 

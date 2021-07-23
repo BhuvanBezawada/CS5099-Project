@@ -87,6 +87,7 @@ public class EditorPanel extends JPanel {
 
         feedbackBoxes.forEach(feedbackBox -> {
             feedbackBox.setTextPaneText("");
+            System.out.println("[DEBUG] feedback box: " + feedbackBox.getHeading());
             feedbackBox.setTextPaneText(feedbackDocument.getHeadingData(feedbackBox.getHeading()));
         });
 

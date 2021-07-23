@@ -1,5 +1,6 @@
 package database;
 
+import controller.Utilities;
 import model.Phrase;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -71,19 +72,11 @@ public class GraphDatabaseManager {
 
         List<Phrase> phrasesForHeading = getPhrasesForHeading(heading);
 
+        List<String> removedPhrases = Utilities.getRemovalsFromList(oldPhrases, newPhrases);
+        List<String> addedPhrases = Utilities.getAdditionsToList(oldPhrases, newPhrases);
 
-        ArrayList<String> oldPhrasesCopy1 = new ArrayList<String>(oldPhrases);
-        ArrayList<String> newPhrasesCopy1 = new ArrayList<String>(newPhrases);
-
-        ArrayList<String> oldPhrasesCopy2 = new ArrayList<String>(oldPhrases);
-        ArrayList<String> newPhrasesCopy2 = new ArrayList<String>(newPhrases);
-
-        oldPhrasesCopy1.removeAll(newPhrasesCopy1);
-        newPhrasesCopy2.removeAll(oldPhrasesCopy2);
-
-        ArrayList<String> removedPhrases = new ArrayList<String>(oldPhrasesCopy1);
-        ArrayList<String> addedPhrases = new ArrayList<String>(newPhrasesCopy2);
-        System.out.println("DEBUG: new phrases added: " + addedPhrases);
+        System.out.println("[DEBUG] phrases to remove: " + removedPhrases);
+        System.out.println("[DEBUG] phrases to be added: " + addedPhrases);
 
         // Filter out phrases we have identified as those to remove
         List<Phrase> filteredForRemoval = phrasesForHeading
@@ -93,9 +86,13 @@ public class GraphDatabaseManager {
 
         // Check the usage count of the phrases to remove
         filteredForRemoval.forEach(phraseToRemove -> {
+            System.out.println("This needs to be removed: " + phraseToRemove);
+            System.out.println("num usages: " + phraseToRemove.getUsageCount());
             if (phraseToRemove.getUsageCount() == 1) {
+                System.out.println("removing for good");
                 removePhrase(heading, phraseToRemove.getPhraseAsString());
             } else {
+                System.out.println("decrementing usage");
                 phraseToRemove.decrementUsageCount();
                 updatePhrase(heading, phraseToRemove);
             }
@@ -118,8 +115,10 @@ public class GraphDatabaseManager {
         // Add any new phrases
         addedPhrases.removeAll(updated);
         addedPhrases.forEach(phraseToAdd -> {
-            addPhraseForHeading(heading, new Phrase(phraseToAdd));
-            System.out.println("[DEBUG] added phrase: " + phraseToAdd);
+            Phrase phrase = new Phrase(phraseToAdd);
+            phrase.incrementUsageCount();
+            addPhraseForHeading(heading, phrase);
+            System.out.println("[DEBUG] added new phrase: " + phraseToAdd);
         });
 
         System.out.println("[DEBUG] updated phrases for heading: " + heading);
@@ -127,11 +126,19 @@ public class GraphDatabaseManager {
 
 
     public void updatePhrase(String heading, Phrase phrase) {
+
+        Map<String, Object> params = new HashMap<>();
+        params.put( "heading", heading);
+        params.put("phrase", phrase.getPhraseAsString());
+        params.put("usageCount", phrase.getUsageCount());
+
+        String query = "MATCH (h:Heading {heading: $heading}) " +
+                "MATCH (p:Phrase {phrase: $phrase}) " +
+                "SET p.usageCount = $usageCount";
+
+
         try (Transaction tx = graphDb.beginTx()){
-            graphDb.execute(
-                    "MATCH (h:Heading {heading: '" + heading + "'}) " +
-                            "MATCH (p:Phrase {phrase: '" + phrase.getPhraseAsString() + "'})" +
-                            "SET p.usageCount = " + phrase.getUsageCount());
+            graphDb.execute(query, params);
 
             tx.success();
 
@@ -145,11 +152,12 @@ public class GraphDatabaseManager {
         params.put( "heading", heading);
         params.put("phrase", phrase);
 
+        String query = "MATCH (h:Heading {heading: $heading}) " +
+                "MATCH (p:Phrase {phrase: $phrase})" +
+                "DETACH DELETE p";
+
         try (Transaction tx = graphDb.beginTx()){
-            graphDb.execute(
-                    "MATCH (h:Heading {heading: $heading}) " +
-                            "MATCH (p:Phrase {phrase: $phrase})" +
-                            "DETACH DELETE p");
+            graphDb.execute(query, params);
 
             tx.success();
 

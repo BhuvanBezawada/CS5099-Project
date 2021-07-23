@@ -78,4 +78,8 @@ public class PhraseBox extends JPanel {
         // Add some padding to the bottom on the panel and make it visible
         this.setBorder(BorderCreator.createEmptyBorder(BorderCreator.PADDING_20_PIXELS));
     }
+
+    public String getPhrase() {
+        return this.phrase;
+    }
 }

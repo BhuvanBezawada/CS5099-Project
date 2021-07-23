@@ -34,6 +34,19 @@ public class PhrasesPanel extends JPanel {
         updatePhrasePanel();
     }
 
+    public void removePhrase(String phrase) {
+        int toRemove = 0;
+        for (int i = 0; i < phraseBoxes.size(); i++) {
+            if (phraseBoxes.get(i).getPhrase().equals(phrase)) {
+                toRemove = i;
+            }
+        }
+
+        this.remove(phraseBoxes.get(toRemove)); // Remove component
+        phraseBoxes.remove(toRemove); // Remove from list
+        updatePhrasePanel();
+    }
+
     private void updatePhrasePanel() {
         this.revalidate();
         this.repaint();

@@ -96,7 +96,7 @@ public class Assignment implements Serializable {
     }
 
     public void saveAssignmentDetails(String fileName) {
-        try (FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+        try (FileOutputStream fileOutputStream = new FileOutputStream(fileName + ".fht");
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
             objectOutputStream.writeObject(this);
         } catch (IOException e) {

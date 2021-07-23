@@ -42,6 +42,10 @@ public class PhrasesSection extends JPanel {
         this.phrasesPanelsByType.get(phrasePanelType).addPhrase(phrase);
     }
 
+    public void removePhraseFromPanel(String phrase, PhraseType phrasePanelType) {
+        this.phrasesPanelsByType.get(phrasePanelType).removePhrase(phrase);
+    }
+
     private void updatePhrasesSection() {
         this.revalidate();
         this.repaint();

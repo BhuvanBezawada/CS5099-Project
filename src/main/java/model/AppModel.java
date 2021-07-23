@@ -7,6 +7,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AppModel implements IAppModel {
 
@@ -14,13 +18,20 @@ public class AppModel implements IAppModel {
     private String lastStudentId;
 
     private String currentHeadingBeingEdited;
+    private String previousHeadingBeingEdited;
 
     private PropertyChangeSupport subscribers;
+
+    private Map<String, List<Phrase>> currentHeadingAndUsedPhrases;
+    private Map<String, List<Phrase>> previousHeadingAndUsedPhrases;
 
     private Assignment assignment;
 
     public AppModel() {
         this.subscribers = new PropertyChangeSupport(this);
+
+        this.currentHeadingAndUsedPhrases = new HashMap<String, List<Phrase>>();
+        this.previousHeadingAndUsedPhrases = new HashMap<String, List<Phrase>>();
     }
 
     /*
@@ -53,12 +64,14 @@ public class AppModel implements IAppModel {
 
         // Once an assignment is created, notify the observers
         notifySubscribers("assignment", "created");
+        this.assignment = assignment;
 
         return assignment;
     }
 
     public Assignment loadAssignment(String assignmentFilePath) {
-        return Assignment.loadAssignment(assignmentFilePath);
+        this.assignment = Assignment.loadAssignment(assignmentFilePath);
+        return this.assignment;
     }
 
     public String getAssignmentDatabaseName(String assignmentTitle) {
@@ -106,6 +119,7 @@ public class AppModel implements IAppModel {
 
 
     public void setCurrentHeadingBeingEdited(String currentHeadingBeingEdited) {
+        this.previousHeadingBeingEdited = this.currentHeadingBeingEdited;
         this.currentHeadingBeingEdited = currentHeadingBeingEdited;
     }
 
@@ -123,11 +137,35 @@ public class AppModel implements IAppModel {
         return this.currentHeadingBeingEdited;
     }
 
+    public String getPreviousHeadingBeingEdited(){
+        return this.previousHeadingBeingEdited;
+    }
+
     public void addNewPhrase(String phrase) {
         notifySubscribers("newPhrase", phrase);
     }
 
+    public void removePhrase(String phrase) {
+        notifySubscribers("deletePhrase", phrase);
+    }
+
     public void resetPhrasesPanel() {
         notifySubscribers("resetPhrasesPanel", "");
+    }
+
+    public List<Phrase> getCurrentPhraseSet(String heading) {
+        return this.currentHeadingAndUsedPhrases.get(heading);
+    }
+
+    public void setCurrentPhraseSet(String heading, List<Phrase> phrases) {
+        this.currentHeadingAndUsedPhrases.put(heading, phrases);
+    }
+
+    public List<Phrase> getPreviousPhraseSet(String heading) {
+        return this.previousHeadingAndUsedPhrases.get(heading);
+    }
+
+    public void setPreviousPhraseSet(String heading, List<Phrase> phrases) {
+        this.previousHeadingAndUsedPhrases.put(heading, phrases);
     }
 }
