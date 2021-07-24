@@ -65,6 +65,8 @@ public class DocumentDatabaseManager {//implements IDocumentDatabase {
                 dbDoc.put(heading, "");
             }
 
+            dbDoc.put("grade", feedbackDocument.getGrade());
+
             assignmentCollection.insert(dbDoc);
         });
 
@@ -96,6 +98,7 @@ public class DocumentDatabaseManager {//implements IDocumentDatabase {
                         feedbackDocument.setDataForHeading(heading, (String) result.get(heading));
                     });
 
+                    feedbackDocument.setGrade((double) result.get("grade"));
                     feedbackDocuments.add(feedbackDocument);
                 });
                 return feedbackDocuments;
@@ -106,7 +109,7 @@ public class DocumentDatabaseManager {//implements IDocumentDatabase {
         return null;
     }
 
-    public boolean saveFeedbackDocument(Assignment assignment, String studentId, Map<String, String> headingsAndData) {
+    public boolean saveFeedbackDocument(Assignment assignment, String studentId, Map<String, String> headingsAndData, double grade) {
         if (databaseConnection.hasCollection(assignment.getDatabaseCollectionName())) {
 
             NitriteCollection collection = databaseConnection.getCollection(assignment.getDatabaseCollectionName());
@@ -120,6 +123,8 @@ public class DocumentDatabaseManager {//implements IDocumentDatabase {
             headingsAndData.keySet().forEach(heading -> {
                 document.put(heading, headingsAndData.get(heading));
             });
+
+            document.put("grade", grade);
 
             collection.update(document);
             databaseConnection.commit();
@@ -141,6 +146,8 @@ public class DocumentDatabaseManager {//implements IDocumentDatabase {
             feedbackDocument.getHeadings().forEach(heading -> {
                 feedbackDocument.setDataForHeading(heading, (String) document.get(heading));
             });
+
+            feedbackDocument.setGrade((double) document.get("grade"));
 
             assignment.setFeedbackDocument(studentId, feedbackDocument);
         }

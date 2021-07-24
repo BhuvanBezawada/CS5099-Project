@@ -9,6 +9,7 @@ public class FeedbackDocument implements Serializable {
     private Assignment assignment;
     private String studentId;
     private HashMap<String, String> headingAndData;
+    private double grade;
 
     public FeedbackDocument(Assignment assignment, String studentId) {
         this.assignment = assignment;
@@ -18,6 +19,16 @@ public class FeedbackDocument implements Serializable {
         assignment.getAssignmentHeadings().forEach(heading -> {
             headingAndData.put(heading, "");
         });
+
+        this.grade = 0.0;
+    }
+
+    public void setGrade(double grade) {
+        this.grade = grade;
+    }
+
+    public double getGrade() {
+        return this.grade;
     }
 
     public void setDataForHeading(String heading, String data) {

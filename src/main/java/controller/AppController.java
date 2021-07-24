@@ -88,8 +88,8 @@ public class AppController {
         appModel.notifySubscribers("saveDoc", studentId);
     }
 
-    public void saveFeedbackDocument(Assignment assignment, String studentId, Map<String, String> headingsAndData) {
-        documentDatabase.saveFeedbackDocument(assignment, studentId, headingsAndData);
+    public void saveFeedbackDocument(Assignment assignment, String studentId, Map<String, String> headingsAndData, double grade) {
+        documentDatabase.saveFeedbackDocument(assignment, studentId, headingsAndData, grade);
     }
 
     public void setCurrentDocInView(String studentId) {
@@ -198,5 +198,9 @@ public class AppController {
         currentPhraseSet.forEach(phrase -> {
             addNewPhrase(phrase.getPhraseAsString());
         });
+    }
+
+    public void error(String errorMessage) {
+        appModel.notifySubscribers("error", errorMessage);
     }
 }

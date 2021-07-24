@@ -23,6 +23,7 @@ public class EditorPanel extends JPanel {
     private JLabel titleLabel;
     private JPanel feedbackBoxesPanel;
     private List<FeedbackBox> feedbackBoxes;
+    private GradeBox gradeBox;
 
     private Map<String, FeedbackBox> headingAndFeedbackBox;
 
@@ -40,11 +41,13 @@ public class EditorPanel extends JPanel {
         this.feedbackBoxes = new ArrayList<FeedbackBox>();
 
         this.headingAndFeedbackBox = new HashMap<String, FeedbackBox>();
+        this.gradeBox = new GradeBox(controller);
 
         // Layout components from top to bottom
         this.setLayout(new BorderLayout());
         this.setupTitle();
         this.setupFeedbackBoxes();
+        this.add(gradeBox, BorderLayout.PAGE_END);
         this.setVisible(true);
     }
 
@@ -91,6 +94,9 @@ public class EditorPanel extends JPanel {
             feedbackBox.setTextPaneText(feedbackDocument.getHeadingData(feedbackBox.getHeading()));
         });
 
+        gradeBox.setStudentId(feedbackDocument.getStudentId());
+        gradeBox.setGrade(feedbackDocument.getGrade());
+
         revalidate();
         repaint();
     }
@@ -107,5 +113,9 @@ public class EditorPanel extends JPanel {
         });
 
         return headingsAndData;
+    }
+
+    public double getGrade() {
+        return this.gradeBox.getGrade();
     }
 }

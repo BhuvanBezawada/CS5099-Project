@@ -69,6 +69,7 @@ public class PhraseBox extends JPanel {
         phraseTextArea.setBorder(BorderCreator.createEmptyBorder(BorderCreator.PADDING_10_PIXELS));
         phraseTextArea.setText(phrase);
         phraseTextArea.setLineWrap(true);
+        phraseTextArea.setWrapStyleWord(true);
 
         this.add(phraseTextArea, BorderLayout.CENTER);
 

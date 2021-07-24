@@ -212,9 +212,11 @@ public class FeedbackScreen implements PropertyChangeListener {
                 String studentId = (String) event.getNewValue();
                 System.out.println("Saving doc: " + studentId);
                 Map<String, String> headingsAndData = editorPanel.saveDataAsMap();
-                controller.saveFeedbackDocument(assignment, studentId, headingsAndData);
+                double grade = editorPanel.getGrade();
+                if (grade > 0) {
+                    controller.saveFeedbackDocument(assignment, studentId, headingsAndData, grade);
+                }
                 break;
-
             case "updatePhrases":
                 String samplePhrase = (String) event.getNewValue();
                 phrasesSection.addPhraseToPanel(samplePhrase, PhraseType.CUSTOM);
@@ -238,7 +240,7 @@ public class FeedbackScreen implements PropertyChangeListener {
                 break;
             case "error":
                 String errorMessage = (String) event.getNewValue();
-                JOptionPane.showMessageDialog(feedbackScreen, errorMessage, "Invalid phrase!", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(feedbackScreen, errorMessage, "Error!", JOptionPane.ERROR_MESSAGE);
                 break;
             default:
                 System.out.println("Received unknown message!");
