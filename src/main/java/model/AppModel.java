@@ -92,6 +92,26 @@ public class AppModel implements IAppModel {
         return currentStudentId;
     }
 
+    public void exportGrades(Assignment assignment) {
+        File outputDirectory = new File(assignment.getAssignmentTitle().trim().replace(" ", "-"));
+        if (!outputDirectory.exists()) {
+            outputDirectory.mkdir();
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputDirectory + "/grades.txt"))) {
+            assignment.getFeedbackDocuments().forEach(feedbackDocument -> {
+                try {
+                    writer.write(feedbackDocument.getStudentId() + "," + feedbackDocument.getGrade());
+                    writer.newLine();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void exportFeedbackDocuments(Assignment assignment) {
         File outputDirectory = new File(assignment.getAssignmentTitle().trim().replace(" ", "-"));
         if (!outputDirectory.exists()) {

@@ -122,6 +122,13 @@ public class AppController {
         appModel.exportFeedbackDocuments(assignment);
     }
 
+    public void exportGrades(Assignment assignment) {
+        // Make sure feedback documents are updated
+        documentDatabase.loadFeedbackDocumentsForAssignment(assignment);
+        // Export them
+        appModel.exportGrades(assignment);
+    }
+
 
     public void updatePhrasePanel(String currentHeadingBeingEdited) {
         appModel.setCurrentHeadingBeingEdited(currentHeadingBeingEdited);
