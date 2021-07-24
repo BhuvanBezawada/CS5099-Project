@@ -1,5 +1,7 @@
 package model;
 
+import org.neo4j.cypher.internal.frontend.v3_4.phases.Do;
+
 import javax.swing.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -7,10 +9,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class AppModel implements IAppModel {
 
@@ -110,6 +110,25 @@ public class AppModel implements IAppModel {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    public List<Integer> getGrades(Assignment assignment) {
+
+        Map<Double, Integer> gradeAndNumber = new LinkedHashMap<Double, Integer>();
+        for (double i = 0.0; i <= 20.0; i+= 0.5) {
+            gradeAndNumber.put(i, 0);
+        }
+
+        assignment.getFeedbackDocuments().forEach(feedbackDocument -> {
+            double grade = feedbackDocument.getGrade();
+            int currentCount = gradeAndNumber.get(grade);
+            gradeAndNumber.put(grade, currentCount+1);
+        });
+
+        System.out.println(gradeAndNumber);
+
+        return new ArrayList<>(gradeAndNumber.values());
     }
 
     public void exportFeedbackDocuments(Assignment assignment) {

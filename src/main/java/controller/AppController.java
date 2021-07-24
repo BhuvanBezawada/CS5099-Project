@@ -5,6 +5,7 @@ import database.GraphDatabaseManager;
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.CoreSentence;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import main.Vis;
 import model.AppModel;
 import model.Assignment;
 import model.FeedbackDocument;
@@ -127,6 +128,13 @@ public class AppController {
         documentDatabase.loadFeedbackDocumentsForAssignment(assignment);
         // Export them
         appModel.exportGrades(assignment);
+    }
+
+    public void visualiseGrades(Assignment assignment) {
+        documentDatabase.loadFeedbackDocumentsForAssignment(assignment);
+        List<Integer> grades = appModel.getGrades(assignment);
+        System.out.println(grades);
+        Vis.createBarChart(grades);
     }
 
 

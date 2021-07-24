@@ -165,6 +165,7 @@ public class FeedbackScreen implements PropertyChangeListener {
         JMenuItem loadOption = new JMenuItem("Load");
         JMenuItem exportDocsOption = new JMenuItem("Export feedback docs");
         JMenuItem exportGradesOption = new JMenuItem("Export grades");
+        JMenuItem visGradesOption = new JMenuItem("Visualise grades");
 
         saveOption.addActionListener(l -> {
             String filePath = assignment.getAssignmentTitle().toLowerCase().trim().replace(" ",  "-") + ".fht";
@@ -182,10 +183,16 @@ public class FeedbackScreen implements PropertyChangeListener {
             JOptionPane.showMessageDialog(feedbackScreen, "Exporting assignment grades...");
         });
 
+        visGradesOption.addActionListener(l -> {
+            controller.visualiseGrades(assignment);
+            JOptionPane.showMessageDialog(feedbackScreen, "Generating visualisation of assignment grades...");
+        });
+
         fileMenu.add(saveOption);
         fileMenu.add(loadOption);
         fileMenu.add(exportDocsOption);
         fileMenu.add(exportGradesOption);
+        fileMenu.add(visGradesOption);
 
         menuBar.add(fileMenu);
 
