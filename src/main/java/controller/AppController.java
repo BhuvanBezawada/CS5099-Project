@@ -67,7 +67,7 @@ public class AppController {
 
     private void loadFeedbackDocuments(Assignment assignment) {
         documentDatabase.openDocumentDatabase(assignment.getDatabaseName());
-        graphDatabase.openOrCreateGraphDatabase("data/" + assignment.getDatabaseName());
+        graphDatabase.openOrCreateGraphDatabase("../../../data/" + assignment.getDatabaseName());
         List<FeedbackDocument> feedbackDocuments = documentDatabase.loadFeedbackDocumentsForAssignment(assignment);
         assignment.setFeedbackDocuments(feedbackDocuments);
 

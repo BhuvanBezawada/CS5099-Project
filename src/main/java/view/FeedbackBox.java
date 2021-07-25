@@ -70,6 +70,7 @@ public class FeedbackBox extends JPanel {
 
             @Override
             public void focusLost(FocusEvent e) {
+                System.out.println("Focus lost for box " + heading);
                 controller.saveFeedbackDocument(controller.getCurrentDocInView());
 //                textPane.setBorder(unselectedBorder);
             }

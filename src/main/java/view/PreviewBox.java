@@ -77,7 +77,6 @@ public class PreviewBox extends JPanel {
         this.textPane.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-                //highlight();
                 controller.displayNewDocument(assignment, heading);
             }
 

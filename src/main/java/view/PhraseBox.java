@@ -3,8 +3,8 @@ package view;
 import controller.AppController;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.net.URL;
 
 public class PhraseBox extends JPanel {
 
@@ -29,7 +29,7 @@ public class PhraseBox extends JPanel {
         // Following resize code is adapted from:
         // https://stackoverflow.com/questions/6714045/how-to-resize-jlabel-imageicon
         this.insertButton = new JButton(
-                new ImageIcon(new ImageIcon("images/green_arrow.png").getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT)));
+                new ImageIcon(new ImageIcon(this.getClass().getResource("/green_arrow.png")).getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT)));
 
         this.setLayout(new BorderLayout());
 
@@ -44,6 +44,7 @@ public class PhraseBox extends JPanel {
     private void setupInsertButton() {
         this.insertButton.addActionListener(l -> {
             controller.insertPhraseIntoCurrentFeedbackBox(phrase);
+            controller.saveFeedbackDocument(controller.getCurrentDocInView());
         });
 
         this.add(insertButton, BorderLayout.LINE_START);
@@ -51,13 +52,13 @@ public class PhraseBox extends JPanel {
 
     private void setupSentimentLabel() {
         ImageIcon icon = null;
-        String emojiFilePath = "images/"; // maybe replace with ? for unknown ones...
+        URL emojiFilePath = null; //this.getClass().getResource("../"); // maybe replace with ? for unknown ones...
         if (this.phraseSentiment.equals("Neutral")) {
-            emojiFilePath += "neutral.png";
+            emojiFilePath = this.getClass().getResource("/neutral.png");
         } else if (this.phraseSentiment.equals("Positive") || this.phraseSentiment.equals("Very positive")) {
-            emojiFilePath += "positive.png";
+            emojiFilePath = this.getClass().getResource("/positive.png");
         } else {
-            emojiFilePath += "negative.png";
+            emojiFilePath = this.getClass().getResource("/negative.png");
         }
 
         this.sentimentLabel = new JLabel(new ImageIcon(new ImageIcon(emojiFilePath).getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT)));

@@ -73,8 +73,6 @@ public class FeedbackScreen implements PropertyChangeListener {
 
         feedbackScreen.add(feedbackScreenPanel, BorderLayout.CENTER);
         feedbackScreen.setVisible(true);
-
-
     }
 
     private void setupPhrasesAndControlsSplitPane() {
@@ -127,7 +125,6 @@ public class FeedbackScreen implements PropertyChangeListener {
 
         // Set the document data if it exists
         editorPanel.setData(assignment.getFeedbackDocuments().get(0));
-        System.out.println("In Feedback Screen Class: " + assignment.getFeedbackDocuments().get(0).getHeadingData("1"));
 
         editorPanelScrollPane.add(editorPanel);
         editorPanelScrollPane.getViewport().setView(editorPanel);
@@ -217,8 +214,13 @@ public class FeedbackScreen implements PropertyChangeListener {
                 System.out.println("Got event from model, will update editor...");
                 String newDocInView = (String) event.getNewValue();
                 editorPanel.setData(assignment.getFeedbackDocumentForStudent(newDocInView));
-                previewPanel.unhighlightPreviewBox(controller.getLastDocInView());
+
+                if (controller.getLastDocInView() != null) {
+                    previewPanel.unhighlightPreviewBox(controller.getLastDocInView());
+                }
+
                 previewPanel.highlightPreviewBox(newDocInView);
+
                 previewPanel.repaint();
                 previewPanel.revalidate();
                 break;
@@ -227,7 +229,7 @@ public class FeedbackScreen implements PropertyChangeListener {
                 System.out.println("Saving doc: " + studentId);
                 Map<String, String> headingsAndData = editorPanel.saveDataAsMap();
                 double grade = editorPanel.getGrade();
-                if (grade > 0) {
+                if (grade >= 0) {
                     controller.saveFeedbackDocument(assignment, studentId, headingsAndData, grade);
                 }
                 break;

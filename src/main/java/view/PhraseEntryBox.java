@@ -3,7 +3,6 @@ package view;
 import controller.AppController;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class PhraseEntryBox extends JPanel {
@@ -19,7 +18,7 @@ public class PhraseEntryBox extends JPanel {
         this.textArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         this.textArea.setLineWrap(true);
         this.textArea.setWrapStyleWord(true);
-        this.submitButton = new JButton(new ImageIcon(new ImageIcon("images/submit_arrow.png").getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT)));
+        this.submitButton = new JButton(new ImageIcon(new ImageIcon(this.getClass().getResource("/submit_arrow.png")).getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT)));
         this.add(textArea, BorderLayout.CENTER);
         this.add(submitButton, BorderLayout.LINE_END);
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10,10));
