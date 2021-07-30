@@ -16,6 +16,16 @@ public class Assignment implements Serializable {
     private String databaseName;
     private String databaseCollectionName;
 
+    private String assignmentDirectoryPath;
+
+    public String getAssignmentDirectoryPath() {
+        return assignmentDirectoryPath;
+    }
+
+    public void setAssignmentDirectoryPath(String assignmentDirectoryPath) {
+        this.assignmentDirectoryPath = assignmentDirectoryPath;
+    }
+
     public String getDatabaseCollectionName() {
         return this.databaseCollectionName;
     }
@@ -40,10 +50,6 @@ public class Assignment implements Serializable {
         }
 
         return loadedAssignment;
-    }
-
-    public static String getAssignmentDatabaseName(String assignmentTitle) {
-        return assignmentTitle.replace(" ", "-").toLowerCase();
     }
 
     public String getAssignmentTitle() {
@@ -96,7 +102,7 @@ public class Assignment implements Serializable {
     }
 
     public void saveAssignmentDetails(String fileName) {
-        try (FileOutputStream fileOutputStream = new FileOutputStream(fileName + ".fht");
+        try (FileOutputStream fileOutputStream = new FileOutputStream(assignmentDirectoryPath + File.separator + fileName + ".fht");
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
             objectOutputStream.writeObject(this);
         } catch (IOException e) {

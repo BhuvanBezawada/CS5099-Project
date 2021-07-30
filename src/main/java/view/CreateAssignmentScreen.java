@@ -162,10 +162,12 @@ public class CreateAssignmentScreen {
         JLabel assignmentTitleLabel = new JLabel("Assignment title: ");
         JLabel assignmentHeadingsLabel = new JLabel("Assignment headings: ");
         JLabel studentManifestFileLabel = new JLabel("Student manifest file: ");
+        JLabel assignmentDirectoryLabel = new JLabel("Assignment directory: ");
 
         JTextField assignmentTitleTextField = new JTextField("e.g. CS 5000 Assignment 1");
         JTextArea assignmentHeadingsTextArea = new JTextArea(5, 20);
         JButton studentManifestFileButton = new JButton("Select student manifest file...");
+        JTextArea assignmentDirectoryTextArea = new JTextArea(System.getProperty("user.home"));
 
         JPanel assignmentTitlePanel = new JPanel(new FlowLayout());
         assignmentTitlePanel.add(assignmentTitleLabel);
@@ -179,9 +181,14 @@ public class CreateAssignmentScreen {
         studentManifestPanel.add(studentManifestFileLabel);
         studentManifestPanel.add(studentManifestFileButton);
 
+        JPanel assignmentDirectoryPanel = new JPanel(new FlowLayout());
+        assignmentDirectoryPanel.add(assignmentDirectoryLabel);
+        assignmentDirectoryPanel.add(assignmentDirectoryTextArea);
+
         configForm.add(assignmentTitlePanel);
         configForm.add(assignmentHeadingsPanel);
         configForm.add(studentManifestPanel);
+        configForm.add(assignmentDirectoryPanel);
 
         studentManifestFileButton.addActionListener(l -> {
             JFileChooser fileChooser = new JFileChooser();
@@ -202,6 +209,7 @@ public class CreateAssignmentScreen {
         // Keep track of editable components
         editableComponents.put("assignmentTitle", assignmentTitleTextField);
         editableComponents.put("assignmentHeadings", assignmentHeadingsTextArea);
+        editableComponents.put("assignmentDirectory", assignmentDirectoryTextArea);
 
         createAssignmentScreenPanel.add(configForm);
     }
@@ -219,9 +227,10 @@ public class CreateAssignmentScreen {
             // Tell controller to create the assignment
             String assignmentTitle = ((JTextField) editableComponents.get("assignmentTitle")).getText();
             String assignmentHeadings = ((JTextArea) editableComponents.get("assignmentHeadings")).getText();
+            String assignmentDirectoryPath = ((JTextArea) editableComponents.get("assignmentDirectory")).getText();
 
             // Setup assignment and db for it
-            Assignment assignment = controller.createAssignment(assignmentTitle, assignmentHeadings, studentManifestFile);
+            Assignment assignment = controller.createAssignment(assignmentTitle, assignmentHeadings, studentManifestFile, assignmentDirectoryPath);
 
             FeedbackScreen feedbackScreen = new FeedbackScreen(controller, assignment);
             createAssignmentScreen.dispose();

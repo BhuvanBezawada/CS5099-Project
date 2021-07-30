@@ -2,7 +2,6 @@ package view;
 
 import controller.AppController;
 import model.Assignment;
-import model.FeedbackDocument;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -17,7 +16,7 @@ public class PreviewBox extends JPanel {
 
     private String heading;
     private String uniqueLine;
-    private int grade;
+    private double grade;
     private JTextArea textPane;
 
     private Border unselectedBorder;
@@ -26,7 +25,7 @@ public class PreviewBox extends JPanel {
     private AppController controller;
     private Assignment assignment;
 
-    public PreviewBox(AppController controller, String heading, int grade, String uniqueLine) {
+    public PreviewBox(AppController controller, String heading, double grade, String uniqueLine) {
         this.controller = controller;
 
         // Store variables
@@ -102,6 +101,22 @@ public class PreviewBox extends JPanel {
 
     public void unhighlight() {
         textPane.setBorder(unselectedBorder);
+        textPane.repaint();
+        textPane.revalidate();
+    }
+
+    public void setGrade(double grade) {
+        this.grade = grade;
+        this.textPane.setText("");
+        this.textPane.setText(heading + "\n\n" + uniqueLine + "\n" + "Grade: " + grade);
+        textPane.repaint();
+        textPane.revalidate();
+    }
+
+    public void setUniqueLine(String line) {
+        this.uniqueLine = line;
+        this.textPane.setText("");
+        this.textPane.setText(heading + "\n\n" + uniqueLine + "\n" + "Grade: " + grade);
         textPane.repaint();
         textPane.revalidate();
     }

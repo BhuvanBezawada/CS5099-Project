@@ -26,12 +26,21 @@ public class AppModel implements IAppModel {
     private Map<String, List<Phrase>> previousHeadingAndUsedPhrases;
 
     private Assignment assignment;
+    private boolean assignmentResumed;
 
     public AppModel() {
         this.subscribers = new PropertyChangeSupport(this);
 
         this.currentHeadingAndUsedPhrases = new HashMap<String, List<Phrase>>();
         this.previousHeadingAndUsedPhrases = new HashMap<String, List<Phrase>>();
+    }
+
+    public void setAssignmentResumed(boolean isResumed) {
+        this.assignmentResumed = isResumed;
+    }
+
+    public boolean isAssignmentResumed() {
+        return this.assignmentResumed;
     }
 
     /*
@@ -55,12 +64,19 @@ public class AppModel implements IAppModel {
 
     /* Create model elements from the controller, requested by GUI */
 
-    public Assignment createAssignment(String assignmentTitle, String assignmentHeadings, File studentManifestFile) {
+    public Assignment createAssignment(String assignmentTitle, String assignmentHeadings, File studentManifestFile, String assignmentDirectoryPath) {
         // Create assignment object
         Assignment assignment = new Assignment();
         assignment.setAssignmentTitle(assignmentTitle);
         assignment.setAssignmentHeadings(assignmentHeadings);
         assignment.setStudentIds(studentManifestFile);
+        assignment.setAssignmentDirectoryPath(assignmentDirectoryPath);
+
+        // Create the assignment directory if it does not exist
+        File outputDirectory = new File(assignmentDirectoryPath);
+        if (!outputDirectory.exists()) {
+            outputDirectory.mkdir();
+        }
 
         // Once an assignment is created, notify the observers
         notifySubscribers("assignment", "created");
@@ -72,10 +88,6 @@ public class AppModel implements IAppModel {
     public Assignment loadAssignment(String assignmentFilePath) {
         this.assignment = Assignment.loadAssignment(assignmentFilePath);
         return this.assignment;
-    }
-
-    public String getAssignmentDatabaseName(String assignmentTitle) {
-        return Assignment.getAssignmentDatabaseName(assignmentTitle);
     }
 
     public void setCurrentScreenView(String studentId) {
@@ -93,12 +105,12 @@ public class AppModel implements IAppModel {
     }
 
     public void exportGrades(Assignment assignment) {
-        File outputDirectory = new File(assignment.getAssignmentTitle().trim().replace(" ", "-"));
+        File outputDirectory = new File(assignment.getAssignmentDirectoryPath() + File.separator + assignment.getAssignmentTitle().trim().replace(" ", "-"));
         if (!outputDirectory.exists()) {
             outputDirectory.mkdir();
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputDirectory + "/grades.txt"))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputDirectory + File.separator + "grades.txt"))) {
             assignment.getFeedbackDocuments().forEach(feedbackDocument -> {
                 try {
                     writer.write(feedbackDocument.getStudentId() + "," + feedbackDocument.getGrade());
@@ -132,13 +144,13 @@ public class AppModel implements IAppModel {
     }
 
     public void exportFeedbackDocuments(Assignment assignment) {
-        File outputDirectory = new File(assignment.getAssignmentTitle().trim().replace(" ", "-"));
+        File outputDirectory = new File(assignment.getAssignmentDirectoryPath() + File.separator + assignment.getAssignmentTitle().trim().replace(" ", "-"));
         if (!outputDirectory.exists()) {
             outputDirectory.mkdir();
         }
 
         assignment.getFeedbackDocuments().forEach(feedbackDocument -> {
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputDirectory + "/" + feedbackDocument.getStudentId() + ".txt"))) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputDirectory + File.separator + feedbackDocument.getStudentId() + ".txt"))) {
                 feedbackDocument.getHeadings().forEach(heading -> {
                     try {
                         writer.write(heading);

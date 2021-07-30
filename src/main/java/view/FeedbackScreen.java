@@ -137,7 +137,7 @@ public class FeedbackScreen implements PropertyChangeListener {
         List<PreviewBox> previewBoxes = new ArrayList<PreviewBox>();
 
         assignment.getFeedbackDocuments().forEach(feedbackDocument -> {
-            PreviewBox previewBox = new PreviewBox(controller, feedbackDocument.getStudentId(), -1, "<empty file>");
+            PreviewBox previewBox = new PreviewBox(controller, feedbackDocument.getStudentId(), feedbackDocument.getGrade(), "<empty file>");
             previewBox.setAssignment(assignment);
             previewBoxes.add(previewBox);
         });
@@ -231,6 +231,7 @@ public class FeedbackScreen implements PropertyChangeListener {
                 double grade = editorPanel.getGrade();
                 if (grade >= 0) {
                     controller.saveFeedbackDocument(assignment, studentId, headingsAndData, grade);
+                    previewPanel.updatePreviewBox(studentId, controller.getRandomLineFromDoc(assignment, studentId), grade);
                 }
                 break;
             case "updatePhrases":

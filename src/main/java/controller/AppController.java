@@ -17,6 +17,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class AppController {
 
@@ -34,30 +35,38 @@ public class AppController {
         this.nlp = BasicPipelineExample.getPipeline();
     }
 
-    public Assignment createAssignment(String assignmentTitle, String headings, File studentManifestFile) {
+    public Assignment createAssignment(String assignmentTitle, String headings, File studentManifestFile, String assignmentDirectoryPath) {
         // Create assignment in the model
-        Assignment assignment = appModel.createAssignment(assignmentTitle, headings, studentManifestFile);
+        Assignment assignment = appModel.createAssignment(assignmentTitle, headings, studentManifestFile, assignmentDirectoryPath);
         assignment.saveAssignmentDetails(assignmentTitle
                 .toLowerCase()
                 .replace(" ", "-")
                 .replace(".db", ""));
 
         // Create the assignment database
-        documentDatabase.createDocumentDatabase(assignment.getDatabaseName());
+        documentDatabase.createDocumentDatabase(assignment.getAssignmentDirectoryPath() + File.separator + assignment.getDatabaseName());
 
         // Create the feedback files for the assignment in the database
         documentDatabase.createFeedbackDocuments(assignment);
 
-        graphDatabase.openOrCreateGraphDatabase("data/" + assignment.getDatabaseName());
+        graphDatabase.openOrCreateGraphDatabase(assignment.getAssignmentDirectoryPath() + File.separator + "graphDB" + File.separator + assignment.getDatabaseName());
         graphDatabase.setUpGraphDbForAssignment(assignment.getAssignmentHeadings());
 
         System.out.println("Assignment: " + assignment.getDatabaseName());
+        appModel.setAssignmentResumed(false);
+
         return assignment;
     }
 
     public Assignment loadAssignment(String assignmentFilePath) {
         Assignment assignment = appModel.loadAssignment(assignmentFilePath);
         loadFeedbackDocuments(assignment);
+        assignment.getAssignmentHeadings().forEach(heading -> {
+            List<Phrase> phrasesForHeading = graphDatabase.getPhrasesForHeading(heading);
+            System.out.println("Got phrases for heading from graph db: " + heading + " : " + phrasesForHeading);
+            appModel.setPreviousPhraseSet(heading, phrasesForHeading);
+            appModel.setCurrentPhraseSet(heading, phrasesForHeading);
+        });
         return assignment;
     }
 
@@ -66,8 +75,8 @@ public class AppController {
     }
 
     private void loadFeedbackDocuments(Assignment assignment) {
-        documentDatabase.openDocumentDatabase(assignment.getDatabaseName());
-        graphDatabase.openOrCreateGraphDatabase("../../../data/" + assignment.getDatabaseName());
+        documentDatabase.openDocumentDatabase(assignment.getAssignmentDirectoryPath() + File.separator + assignment.getDatabaseName());
+        graphDatabase.openOrCreateGraphDatabase(assignment.getAssignmentDirectoryPath() + File.separator + "graphDB" + File.separator + assignment.getDatabaseName());
         List<FeedbackDocument> feedbackDocuments = documentDatabase.loadFeedbackDocumentsForAssignment(assignment);
         assignment.setFeedbackDocuments(feedbackDocuments);
 
@@ -209,13 +218,34 @@ public class AppController {
     }
 
     public void showPhrasesForHeading(String heading) {
+        System.out.println("IN SHOW PHRASES FOR HEADING");
         List<Phrase> currentPhraseSet = appModel.getCurrentPhraseSet(heading);
-        currentPhraseSet.forEach(phrase -> {
-            addNewPhrase(phrase.getPhraseAsString());
-        });
+        System.out.println("CURRENT PHRASE SET: " + heading + " : " + currentPhraseSet);
+        if (currentPhraseSet != null) {
+            currentPhraseSet.forEach(phrase -> {
+                addNewPhrase(phrase.getPhraseAsString());
+            });
+        }
+    }
+
+    public boolean isAssignmentResumed() {
+        return appModel.isAssignmentResumed();
+    }
+
+    public void setAssignmentResumed(boolean isResumed) {
+        appModel.setAssignmentResumed(isResumed);
     }
 
     public void error(String errorMessage) {
         appModel.notifySubscribers("error", errorMessage);
+    }
+
+    public String getRandomLineFromDoc(Assignment assignment, String studentId) {
+//        documentDatabase.loadFeedbackDocumentsForAssignment(assignment);
+//        FeedbackDocument feedbackDocumentForStudent = assignment.getFeedbackDocumentForStudent(studentId);
+//        String headingData = feedbackDocumentForStudent.getHeadingData(getCurrentHeadingBeingEdited());
+//        String[] split = headingData.split("\n");
+//        return split[new Random().nextInt(split.length)];
+        return "Random line";
     }
 }

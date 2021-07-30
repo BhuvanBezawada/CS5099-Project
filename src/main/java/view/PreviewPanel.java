@@ -39,4 +39,10 @@ public class PreviewPanel extends JPanel {
         System.out.println("Unhighlighting " + heading);
         headingAndPreviewBoxMap.get(heading).unhighlight();
     }
+
+    public void updatePreviewBox(String heading, String line, double grade) {
+        System.out.println("Updating preview box for: " + headingAndPreviewBoxMap.get(heading).getHeading());
+        headingAndPreviewBoxMap.get(heading).setUniqueLine(line);
+        headingAndPreviewBoxMap.get(heading).setGrade(grade);
+    }
 }
