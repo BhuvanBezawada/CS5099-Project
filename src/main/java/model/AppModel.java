@@ -1,14 +1,15 @@
 package model;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.neo4j.cypher.internal.frontend.v3_4.phases.Do;
 
 import javax.swing.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,13 +36,6 @@ public class AppModel implements IAppModel {
         this.previousHeadingAndUsedPhrases = new HashMap<String, List<Phrase>>();
     }
 
-    public void setAssignmentResumed(boolean isResumed) {
-        this.assignmentResumed = isResumed;
-    }
-
-    public boolean isAssignmentResumed() {
-        return this.assignmentResumed;
-    }
 
     /*
      * Methods for observers of the model.
@@ -219,4 +213,70 @@ public class AppModel implements IAppModel {
     public void setPreviousPhraseSet(String heading, List<Phrase> phrases) {
         this.previousHeadingAndUsedPhrases.put(heading, phrases);
     }
+
+    public Assignment createAssignmentFromConfig(String configFilePath) {
+        try {
+            JSONObject configDoc = (JSONObject) new JSONParser().parse(new FileReader(configFilePath));
+
+            String title = (String) configDoc.get("title");
+            String assignmentLocation = (String) configDoc.get("assignment_location");
+            String lineMarker = (String) configDoc.get("line_marker");
+            JSONArray headings = (JSONArray) configDoc.get("headings");
+
+            StringBuilder headingsString = new StringBuilder();
+            headings.forEach(heading -> {
+                headingsString.append(heading);
+                headingsString.append("\n");
+            });
+
+            Map headingStyle = ((Map) configDoc.get("heading_style"));
+            String headingMarker = (String) headingStyle.get("heading_marker");
+            String headingUnderlined = (String) headingStyle.get("heading_underlined");
+            long numLinesAfterSectionEnds = (long) headingStyle.get("num_lines_after_section_ends");
+
+            String studentManifestFileLocation = (String) configDoc.get("student_manifest_location");
+            File studentManifestFile = new File(studentManifestFileLocation);
+
+            System.out.println("Title: " + title);
+            System.out.println("Loc: " + assignmentLocation);
+            System.out.println("LineMarker: " + lineMarker);
+            System.out.println("Headings: " + headingsString.toString());
+            System.out.println("HeadingStyle: ");
+            System.out.println("HeadingMarker: " + headingMarker);
+            System.out.println("HeadingUnderlined: " + headingUnderlined);
+            System.out.println("HeadingLineSpace: " + numLinesAfterSectionEnds);
+
+            Assignment assignment = createAssignment(title, headingsString.toString(), studentManifestFile, assignmentLocation);
+            setAssignmentPreferences(assignment, headingMarker, headingUnderlined, (int) numLinesAfterSectionEnds, lineMarker);
+
+            return assignment;
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public void setAssignmentPreferences(Assignment assignment, String headingStyle, String underlineStyle, int lineSpacing, String lineMarker) {
+        assignment.setHeadingStyle(headingStyle);
+        assignment.setUnderlineStyle(underlineStyle);
+        assignment.setLineSpacing(lineSpacing);
+        assignment.setLineMarker(lineMarker);
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

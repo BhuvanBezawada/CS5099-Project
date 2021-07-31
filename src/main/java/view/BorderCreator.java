@@ -12,5 +12,9 @@ public abstract class BorderCreator {
         return new EmptyBorder(padding, padding, 0, padding);
     }
 
+    public static Border createAllSidesEmptyBorder(int padding) {
+        return new EmptyBorder(padding, padding, padding, padding);
+    }
+
 
 }

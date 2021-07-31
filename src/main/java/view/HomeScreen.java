@@ -93,7 +93,8 @@ public class HomeScreen {
         startNewButton.addActionListener(e -> {
             JOptionPane.showMessageDialog(homeScreen, "Starting new assignment!");
             homeScreen.dispose();
-            CreateAssignmentScreen createAssignmentScreen = new CreateAssignmentScreen(controller);
+//            CreateAssignmentScreen createAssignmentScreen = new CreateAssignmentScreen(controller);
+            SetupOptionsScreen setupOptionsScreen = new SetupOptionsScreen(controller);
         });
         startNewButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 

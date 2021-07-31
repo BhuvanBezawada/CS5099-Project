@@ -141,7 +141,7 @@ public class CreateAssignmentScreen {
 
         createAssignmentScreen = new JFrame("Create Assignment");
         createAssignmentScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        createAssignmentScreen.setSize(1200, 800);
+        createAssignmentScreen.setSize(800, 600);
 
         this.editableComponents = new HashMap<String, Component>();
 
@@ -155,6 +155,74 @@ public class CreateAssignmentScreen {
         createAssignmentScreen.setVisible(true);
     }
 
+
+    private void setupHeadingStylePanel() {
+        JPanel headingStyleConfigPanel = new JPanel(new FlowLayout());
+        JLabel headingStyleConfigLabel = new JLabel("Heading style:");
+
+        JComboBox<String> selections = new JComboBox<String>();
+        selections.addItem("No hash");
+        selections.addItem("Single hash (#)");
+        selections.addItem("Double hash (##)");
+
+        editableComponents.put("headingStyle", selections);
+
+        headingStyleConfigPanel.add(headingStyleConfigLabel);
+        headingStyleConfigPanel.add(selections);
+        configForm.add(headingStyleConfigPanel);
+    }
+
+    private void setupHeadingUnderlinePanel() {
+        JPanel headingUnderlineConfigPanel = new JPanel(new FlowLayout());
+        JLabel underlineConfigLabel = new JLabel("Heading underline style:");
+
+        JComboBox<String> selections = new JComboBox<String>();
+        selections.addItem("No underline");
+        selections.addItem("Single underline (---)");
+        selections.addItem("Double underline (===)");
+
+        editableComponents.put("headingUnderlineStyle", selections);
+
+        headingUnderlineConfigPanel.add(underlineConfigLabel);
+        headingUnderlineConfigPanel.add(selections);
+        configForm.add(headingUnderlineConfigPanel);
+    }
+
+    private void setupHeadingLineSpacingPanel() {
+        JPanel lineSpacingConfigPanel = new JPanel(new FlowLayout());
+        JLabel lineSpacingConfigLabel = new JLabel("Line spacing after sections:");
+
+        JComboBox<Integer> selections = new JComboBox<Integer>();
+        selections.addItem(1);
+        selections.addItem(2);
+        selections.addItem(3);
+
+        editableComponents.put("headingLineSpacing", selections);
+
+        lineSpacingConfigPanel.add(lineSpacingConfigLabel);
+        lineSpacingConfigPanel.add(selections);
+        configForm.add(lineSpacingConfigPanel);
+    }
+
+    private void setupLineMarkerPanel() {
+        JPanel lineMarkerConfigPanel = new JPanel(new FlowLayout());
+        JLabel lineMarkerLabel = new JLabel("Line marker style:");
+
+        JComboBox<String> selections = new JComboBox<String>();
+        selections.addItem("-");
+        selections.addItem("->");
+        selections.addItem("=>");
+        selections.addItem("*");
+        selections.addItem("+");
+
+        editableComponents.put("lineMarker", selections);
+
+        lineMarkerConfigPanel.add(lineMarkerLabel);
+        lineMarkerConfigPanel.add(selections);
+        configForm.add(lineMarkerConfigPanel);
+    }
+
+
     private void setupConfigForm() {
         this.configForm = new JPanel();
         configForm.setLayout(new BoxLayout(configForm, BoxLayout.PAGE_AXIS));
@@ -165,9 +233,17 @@ public class CreateAssignmentScreen {
         JLabel assignmentDirectoryLabel = new JLabel("Assignment directory: ");
 
         JTextField assignmentTitleTextField = new JTextField("e.g. CS 5000 Assignment 1");
-        JTextArea assignmentHeadingsTextArea = new JTextArea(5, 20);
+        assignmentTitleTextField.setBorder(BorderCreator.createAllSidesEmptyBorder(10));
+        assignmentTitleTextField.setColumns(30);
+
+        JTextArea assignmentHeadingsTextArea = new JTextArea(7, 30);
+        assignmentHeadingsTextArea.setBorder(BorderCreator.createAllSidesEmptyBorder(10));
+
         JButton studentManifestFileButton = new JButton("Select student manifest file...");
-        JTextArea assignmentDirectoryTextArea = new JTextArea(System.getProperty("user.home"));
+
+        JTextField assignmentDirectoryTextArea = new JTextField(System.getProperty("user.home") + File.separator + "Desktop" + File.separator);
+        assignmentDirectoryTextArea.setBorder(BorderCreator.createAllSidesEmptyBorder(10));
+        assignmentDirectoryTextArea.setColumns(30);
 
         JPanel assignmentTitlePanel = new JPanel(new FlowLayout());
         assignmentTitlePanel.add(assignmentTitleLabel);
@@ -185,10 +261,18 @@ public class CreateAssignmentScreen {
         assignmentDirectoryPanel.add(assignmentDirectoryLabel);
         assignmentDirectoryPanel.add(assignmentDirectoryTextArea);
 
+
+
+        configForm.add(new JLabel("Assignment Configuration"));
         configForm.add(assignmentTitlePanel);
-        configForm.add(assignmentHeadingsPanel);
-        configForm.add(studentManifestPanel);
         configForm.add(assignmentDirectoryPanel);
+        configForm.add(assignmentHeadingsPanel);
+        setupHeadingStylePanel();
+        setupHeadingUnderlinePanel();
+        setupLineMarkerPanel();
+        setupHeadingLineSpacingPanel();
+        configForm.add(studentManifestPanel);
+
 
         studentManifestFileButton.addActionListener(l -> {
             JFileChooser fileChooser = new JFileChooser();
@@ -227,10 +311,16 @@ public class CreateAssignmentScreen {
             // Tell controller to create the assignment
             String assignmentTitle = ((JTextField) editableComponents.get("assignmentTitle")).getText();
             String assignmentHeadings = ((JTextArea) editableComponents.get("assignmentHeadings")).getText();
-            String assignmentDirectoryPath = ((JTextArea) editableComponents.get("assignmentDirectory")).getText();
+            String assignmentDirectoryPath = ((JTextField) editableComponents.get("assignmentDirectory")).getText();
+
+            String headingStyle = (String) ((JComboBox<String>) editableComponents.get("headingStyle")).getSelectedItem();
+            String headingUnderlineStyle = (String) ((JComboBox<String>) editableComponents.get("headingUnderlineStyle")).getSelectedItem();
+            int lineSpacing = (Integer) ((JComboBox<Integer>) editableComponents.get("headingLineSpacing")).getSelectedItem();
+            String lineMarker = (String) ((JComboBox<String>) editableComponents.get("lineMarker")).getSelectedItem();
 
             // Setup assignment and db for it
             Assignment assignment = controller.createAssignment(assignmentTitle, assignmentHeadings, studentManifestFile, assignmentDirectoryPath);
+            controller.setAssignmentPreferences(assignment, headingStyle, headingUnderlineStyle, lineSpacing, lineMarker);
 
             FeedbackScreen feedbackScreen = new FeedbackScreen(controller, assignment);
             createAssignmentScreen.dispose();

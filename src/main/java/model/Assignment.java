@@ -2,6 +2,7 @@ package model;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Assignment implements Serializable {
 
@@ -13,10 +14,92 @@ public class Assignment implements Serializable {
     private List<FeedbackDocument> feedbackDocuments;
     private Map<String, FeedbackDocument> studentIdAndFeedbackDocumentMap;
 
+    private static final List<String> headingStyles = Collections.unmodifiableList(
+            new ArrayList<String>() {{
+                add("#");
+                add("##");
+            }});
+
+    private final List<String> underlineStyles = Collections.unmodifiableList(
+            new ArrayList<String>() {{
+                add("-");
+                add("==");
+            }});
+
+    private final List<Integer> lineSpacings = Collections.unmodifiableList(
+            new ArrayList<Integer>() {{
+                add(1);
+                add(2);
+                add(3);
+            }});
+
+    private final List<String> lineMarkers = Collections.unmodifiableList(
+            new ArrayList<String>() {{
+                add("-");
+                add("->");
+                add("=>");
+                add("*");
+                add("+");
+            }});
+
     private String databaseName;
     private String databaseCollectionName;
 
     private String assignmentDirectoryPath;
+
+
+    public String getHeadingStyle() {
+        return headingStyle;
+    }
+
+    public void setHeadingStyle(String headingStyle) {
+        if (headingStyles.contains(headingStyle)) {
+            this.headingStyle = headingStyle;
+        } else {
+            this.headingStyle = "";
+        }
+    }
+
+    public String getUnderlineStyle() {
+        return underlineStyle;
+    }
+
+    public void setUnderlineStyle(String underlineStyle) {
+        if (underlineStyles.contains(underlineStyle)) {
+            this.underlineStyle = underlineStyle;
+        } else {
+            this.underlineStyle = "";
+        }
+    }
+
+    public int getLineSpacing() {
+        return lineSpacing;
+    }
+
+    public void setLineSpacing(int lineSpacing) {
+        if (lineSpacings.contains(lineSpacing)) {
+            this.lineSpacing = lineSpacing;
+        } else {
+            this.lineSpacing = 1;
+        }
+    }
+
+    public String getLineMarker() {
+        return lineMarker;
+    }
+
+    public void setLineMarker(String lineMarker) {
+        if (lineSpacings.contains(lineSpacing)) {
+            this.lineMarker = lineMarker;
+        } else {
+            this.lineMarker = "-";
+        }
+    }
+
+    private String headingStyle;
+    private String underlineStyle;
+    private int lineSpacing;
+    private String lineMarker;
 
     public String getAssignmentDirectoryPath() {
         return assignmentDirectoryPath;
@@ -68,6 +151,8 @@ public class Assignment implements Serializable {
 
     public void setAssignmentHeadings(String assignmentHeadings) {
         this.assignmentHeadings = new ArrayList<String>(Arrays.asList(assignmentHeadings.split("\n")));
+        // Remove empty lines
+        this.assignmentHeadings = this.assignmentHeadings.stream().filter(heading -> !heading.trim().isEmpty()).collect(Collectors.toList());
         System.out.println("Converting to list: " + this.assignmentHeadings);
     }
 
@@ -127,4 +212,6 @@ public class Assignment implements Serializable {
     public FeedbackDocument getFeedbackDocumentForStudent(String studentId) {
         return studentIdAndFeedbackDocumentMap.get(studentId);
     }
+
+
 }

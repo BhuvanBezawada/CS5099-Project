@@ -53,7 +53,6 @@ public class AppController {
         graphDatabase.setUpGraphDbForAssignment(assignment.getAssignmentHeadings());
 
         System.out.println("Assignment: " + assignment.getDatabaseName());
-        appModel.setAssignmentResumed(false);
 
         return assignment;
     }
@@ -228,14 +227,6 @@ public class AppController {
         }
     }
 
-    public boolean isAssignmentResumed() {
-        return appModel.isAssignmentResumed();
-    }
-
-    public void setAssignmentResumed(boolean isResumed) {
-        appModel.setAssignmentResumed(isResumed);
-    }
-
     public void error(String errorMessage) {
         appModel.notifySubscribers("error", errorMessage);
     }
@@ -247,5 +238,30 @@ public class AppController {
 //        String[] split = headingData.split("\n");
 //        return split[new Random().nextInt(split.length)];
         return "Random line";
+    }
+
+    public Assignment createAssignmentFromConfig(String configFilePath) {
+        Assignment assignment = appModel.createAssignmentFromConfig(configFilePath);
+
+        assignment.saveAssignmentDetails(assignment.getAssignmentTitle()
+                .toLowerCase()
+                .replace(" ", "-")
+                .replace(".db", ""));
+
+        // Create the assignment database
+        documentDatabase.createDocumentDatabase(assignment.getAssignmentDirectoryPath() + File.separator + assignment.getDatabaseName());
+
+        // Create the feedback files for the assignment in the database
+        documentDatabase.createFeedbackDocuments(assignment);
+
+        graphDatabase.openOrCreateGraphDatabase(assignment.getAssignmentDirectoryPath() + File.separator + "graphDB" + File.separator + assignment.getDatabaseName());
+        graphDatabase.setUpGraphDbForAssignment(assignment.getAssignmentHeadings());
+
+        System.out.println("Assignment: " + assignment.getDatabaseName());
+        return assignment;
+    }
+
+    public void setAssignmentPreferences(Assignment assignment, String headingStyle, String underlineStyle, int lineSpacing, String lineMarker) {
+        appModel.setAssignmentPreferences(assignment, headingStyle, underlineStyle, lineSpacing, lineMarker);
     }
 }
