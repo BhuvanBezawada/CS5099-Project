@@ -5,6 +5,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.neo4j.cypher.internal.frontend.v3_4.phases.Do;
+import view.PhraseType;
+import view.PhrasesPanel;
 
 import javax.swing.*;
 import java.beans.PropertyChangeListener;
@@ -25,6 +27,17 @@ public class AppModel implements IAppModel {
 
     private Map<String, List<Phrase>> currentHeadingAndUsedPhrases;
     private Map<String, List<Phrase>> previousHeadingAndUsedPhrases;
+
+    public PhraseType getCurrentPhrasePanelInView() {
+        return currentPhrasePanelInView;
+    }
+
+    public void setCurrentPhrasePanelInView(PhraseType currentPhrasePanelInView) {
+        this.currentPhrasePanelInView = currentPhrasePanelInView;
+        notifySubscribers("phrasePanelChange", currentPhrasePanelInView);
+    }
+
+    private PhraseType currentPhrasePanelInView;
 
     private Assignment assignment;
 

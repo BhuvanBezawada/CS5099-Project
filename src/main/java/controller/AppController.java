@@ -59,12 +59,16 @@ public class AppController {
     public Assignment loadAssignment(String assignmentFilePath) {
         Assignment assignment = appModel.loadAssignment(assignmentFilePath);
         loadFeedbackDocuments(assignment);
-        assignment.getAssignmentHeadings().forEach(heading -> {
-            List<Phrase> phrasesForHeading = graphDatabase.getPhrasesForHeading(heading);
-            System.out.println("Got phrases for heading from graph db: " + heading + " : " + phrasesForHeading);
-            appModel.setPreviousPhraseSet(heading, phrasesForHeading);
-            appModel.setCurrentPhraseSet(heading, phrasesForHeading);
-        });
+//        assignment.getAssignmentHeadings().forEach(heading -> {
+//            List<Phrase> phrasesForHeading = graphDatabase.getPhrasesForHeading(heading);
+//            System.out.println("Got phrases for heading from graph db: " + heading + " : " + phrasesForHeading);
+//            appModel.setPreviousPhraseSet(heading, phrasesForHeading);
+//            appModel.setCurrentPhraseSet(heading, phrasesForHeading);
+//
+//            List<Phrase> customPhrases = graphDatabase.getCustomPhrases();
+//            System.out.println("[DEBUG] got custom phrases: " + customPhrases);
+//            customPhrases.forEach(phrase -> appModel.addNewCustomPhrase(phrase));
+//        });
         return assignment;
     }
 
@@ -99,9 +103,9 @@ public class AppController {
         documentDatabase.saveFeedbackDocument(assignment, studentId, headingsAndData, grade);
     }
 
-    public void setCurrentDocInView(String studentId) {
-        appModel.setCurrentScreenView(studentId);
-    }
+//    public void setCurrentDocInView(String studentId) {
+//        appModel.setCurrentScreenView(studentId);
+//    }
 
     public String getLastDocInView() {
         return appModel.getLastScreenView();
@@ -144,11 +148,6 @@ public class AppController {
     }
 
 
-    public void updatePhrasePanel(String currentHeadingBeingEdited) {
-        appModel.setCurrentHeadingBeingEdited(currentHeadingBeingEdited);
-        appModel.updatePhrasesForCurrentHeading();
-    }
-
     public void updateCurrentHeadingBeingEdited(String currentHeadingBeingEdited) {
         appModel.setCurrentHeadingBeingEdited(currentHeadingBeingEdited);
     }
@@ -176,14 +175,11 @@ public class AppController {
         if (!phrase.trim().isEmpty() && !phrase.trim().equals(getLineMarker())) {
             Phrase phrase1 = new Phrase(phrase);
             phrase1.incrementUsageCount();
+            graphDatabase.addPhraseToCustomNode(phrase1);
             appModel.addNewCustomPhrase(phrase1);
         } else {
             System.out.println("[DEBUG]: empty string detected, not creating a phrase");
         }
-    }
-
-    public void addNewPhrase(Phrase phrase) {
-        appModel.addNewPhrase(phrase);
     }
 
     public void updatePhrases(String heading, List<String> previousBoxContents, List<String> newBoxContents) {
@@ -281,4 +277,18 @@ public class AppController {
     public String getLineMarker() {
         return appModel.getLineMarker();
     }
+
+    public PhraseType getCurrentPhrasePanelInView() {
+        return appModel.getCurrentPhrasePanelInView();
+    }
+
+    public void setCurrentPhrasePanelInView(PhraseType phraseType) {
+        appModel.setCurrentPhrasePanelInView(phraseType);
+    }
+
+    public void showCustomPhrases() {
+        List<Phrase> customPhrases = graphDatabase.getCustomPhrases();
+        customPhrases.forEach(customPhrase -> appModel.addNewCustomPhrase(customPhrase));
+    }
+
 }

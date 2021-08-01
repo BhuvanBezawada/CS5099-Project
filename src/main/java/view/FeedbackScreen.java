@@ -78,6 +78,7 @@ public class FeedbackScreen implements PropertyChangeListener {
 
     private void setupPhrasesAndControlsSplitPane() {
         this.phraseEntryBox = new PhraseEntryBox(controller);
+        this.phraseEntryBox.disablePhraseEntryBox();
 
         phrasesAndControlsSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, phrasesSection, phraseEntryBox);
         phrasesAndControlsSplitPane.setOneTouchExpandable(false);
@@ -92,7 +93,7 @@ public class FeedbackScreen implements PropertyChangeListener {
     }
 
     private void setupPhrasesSection() {
-        phrasesSection = new PhrasesSection();
+        phrasesSection = new PhrasesSection(controller);
 
         PhrasesPanel customPhrasesPanel = new PhrasesPanel(controller, PhraseType.CUSTOM);
         PhrasesPanel frequentlyUsedPhrasesPanel = new PhrasesPanel(controller, PhraseType.FREQUENTLY_USED);
@@ -102,6 +103,7 @@ public class FeedbackScreen implements PropertyChangeListener {
         phrasesSection.addPhrasesPanel(frequentlyUsedPhrasesPanel);
         phrasesSection.addPhrasesPanel(insightsPhrasesPanel);
         phrasesSection.setHighlightedPane(1); // Start on frequently used pane
+        controller.setCurrentPhrasePanelInView(PhraseType.FREQUENTLY_USED);
 
         editingPopupMenu.registerPhrasesPanel(customPhrasesPanel);
         editingPopupMenu.registerPhrasesPanel(frequentlyUsedPhrasesPanel);
@@ -246,6 +248,7 @@ public class FeedbackScreen implements PropertyChangeListener {
                 editorPanel.insertPhraseIntoFeedbackBox(phrase, heading);
                 break;
             case "newPhrase":
+                System.out.println("IN FEEDBACK SCREEN SWITCH FOR NEW PHRASE");
                 Phrase newPhrase = (Phrase) event.getNewValue();
                 phrasesSection.addPhraseToPanel(newPhrase.getPhraseAsString(), newPhrase.getUsageCount(), PhraseType.FREQUENTLY_USED);
                 break;
@@ -260,6 +263,23 @@ public class FeedbackScreen implements PropertyChangeListener {
             case "resetPhrasesPanel":
                 System.out.println("removing all phrases from panel");
                 phrasesSection.resetPhrasesPanel(PhraseType.FREQUENTLY_USED);
+                break;
+
+            case "newCustomPhrase":
+                Phrase newCustomPhrase = (Phrase) event.getNewValue();
+                phrasesSection.addPhraseToPanel(newCustomPhrase.getPhraseAsString(), newCustomPhrase.getUsageCount(), PhraseType.CUSTOM);
+                break;
+            case "phrasePanelChange":
+                if (phraseEntryBox != null) {
+                    PhraseType panelInView = (PhraseType) event.getNewValue();
+                    if (panelInView == PhraseType.CUSTOM) {
+                        phrasesSection.resetPhrasesPanel(PhraseType.CUSTOM);
+                        controller.showCustomPhrases();
+                        phraseEntryBox.enablePhraseEntryBox();
+                    } else {
+                        phraseEntryBox.disablePhraseEntryBox();
+                    }
+                }
                 break;
             case "error":
                 String errorMessage = (String) event.getNewValue();

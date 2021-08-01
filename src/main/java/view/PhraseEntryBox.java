@@ -34,4 +34,18 @@ public class PhraseEntryBox extends JPanel {
             this.textArea.setText("");
         });
     }
+
+    public void disablePhraseEntryBox() {
+        this.submitButton.setEnabled(false);
+        this.textArea.setEditable(false);
+        repaint();
+        revalidate();
+    }
+
+    public void enablePhraseEntryBox() {
+        this.submitButton.setEnabled(true);
+        this.textArea.setEditable(true);
+        repaint();
+        revalidate();
+    }
 }

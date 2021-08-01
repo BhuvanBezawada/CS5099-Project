@@ -1,5 +1,7 @@
 package view;
 
+import controller.AppController;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -13,8 +15,10 @@ public class PhrasesSection extends JPanel {
     private List<JScrollPane> phrasesPanelsScrollPanes;
 
     private Map<PhraseType, PhrasesPanel> phrasesPanelsByType;
+    private AppController controller;
 
-    public PhrasesSection() {
+    public PhrasesSection(AppController controller) {
+        this.controller = controller;
         this.tabbedPane = new JTabbedPane();
         this.phrasesPanelsScrollPanes = new ArrayList<JScrollPane>();
         this.phrasesPanelsByType = new HashMap<PhraseType, PhrasesPanel>();
@@ -70,6 +74,15 @@ public class PhrasesSection extends JPanel {
             // Set selected colour
             if (tabbedPane.getSelectedIndex() >= 0) {
                 tabbedPane.setBackgroundAt(tabbedPane.getSelectedIndex(), Color.BLUE);
+
+                if (tabbedPane.getSelectedIndex() == 0) {
+                    controller.setCurrentPhrasePanelInView(PhraseType.CUSTOM);
+                } else if (tabbedPane.getSelectedIndex() == 1) {
+                    controller.setCurrentPhrasePanelInView(PhraseType.FREQUENTLY_USED);
+                } else {
+                    controller.setCurrentPhrasePanelInView(PhraseType.INSIGHTS);
+                }
+
             }
         });
     }

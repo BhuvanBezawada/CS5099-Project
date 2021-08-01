@@ -24,6 +24,7 @@ public class GraphDatabaseManager {
     public void setUpGraphDbForAssignment(List<String> headings) {
         try (Transaction tx = graphDb.beginTx()) {
 
+            // Setup nodes for the headings
             for (int i = 0; i < headings.size(); i++) {
                 String currentHeading = headings.get(i);
 
@@ -40,11 +41,83 @@ public class GraphDatabaseManager {
                 node.setProperty("followed_by", nextHeading);
             }
 
+            // Setup a node for the custom phrases
+            createCustomPhrasesNode();
+
             tx.success();
         } catch (TransactionFailureException e) {
             e.printStackTrace();
         }
     }
+
+
+    private void createCustomPhrasesNode() {
+        Node node = graphDb.createNode();
+        node.addLabel(Label.label("Custom"));
+        node.setProperty("nodeName", "customPhrases");
+    }
+
+    public void addPhraseToCustomNode(Phrase phrase) {
+        // Put custom phrase into the db
+        addNewNode(phrase);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("nodeName", "customPhrases");
+        params.put("phrase", phrase.getPhraseAsString());
+        params.put("usageCount", phrase.getUsageCount());
+
+        String query = "MATCH (n:Custom {nodeName: $nodeName}) " +
+                "MATCH (p:Phrase {phrase: $phrase, usageCount: $usageCount}) " +
+                "CREATE (n)-[rel:CONTAINS]->(p)";
+
+        try (Transaction tx = graphDb.beginTx()){
+            graphDb.execute(query, params);
+
+            tx.success();
+
+            System.out.println("Linked phrase to custom phrases node.");
+        }
+    }
+
+    // Get custom phrases
+    public List<Phrase> getCustomPhrases() {
+
+        Map<String, Object> params = new HashMap<>();
+        params.put( "nodeName", "customPhrases");
+
+        String query = "MATCH (n:Custom {nodeName: $nodeName})" +
+                "-[rel:CONTAINS]->(p:Phrase)" +
+                "RETURN n, p";
+
+        try (Transaction tx = graphDb.beginTx()) {
+            Result results = graphDb.execute(query, params);
+
+            List<Phrase> customPhrasesList = new ArrayList<>();
+            //System.out.println("CUSTOM PHRASES RESULTS :" + results.resultAsString());
+
+            results.stream().forEach(result -> {
+                System.out.println("result" + result);
+                Node node = (Node) result.get("p");
+                Phrase phrase = new Phrase(node.getProperty("phrase").toString());
+                phrase.setUsageCount(Integer.parseInt(node.getProperty("usageCount").toString()));
+                customPhrasesList.add(phrase);
+            });
+
+            // Sort phrases into ascending order
+            Collections.sort(customPhrasesList);
+
+            System.out.println("custom phrases list: " + customPhrasesList);
+
+            return customPhrasesList;
+        }
+    }
+
+
+
+
+
+
+
 
 
     private void addNewNode(Phrase phrase) {
@@ -68,6 +141,7 @@ public class GraphDatabaseManager {
 
 
         List<Phrase> phrasesForHeading = getPhrasesForHeading(heading);
+        phrasesForHeading.addAll(getCustomPhrases()); // add custom phrases, so we can search if they are being used?
 
         List<String> removedPhrases = Utilities.getRemovalsFromList(oldPhrases, newPhrases);
         List<String> addedPhrases = Utilities.getAdditionsToList(oldPhrases, newPhrases);
@@ -190,7 +264,7 @@ public class GraphDatabaseManager {
 
         String query = "MATCH (h:Heading {heading: $heading}) " +
                 "-[rel:CONTAINS]->(p:Phrase)" +
-                "RETURN p";
+                "RETURN h, p";
 
         try (Transaction tx = graphDb.beginTx()) {
             Result results = graphDb.execute(query, params);
@@ -198,6 +272,8 @@ public class GraphDatabaseManager {
             //System.out.println("[DEBUG] results found for heading: " + heading + " = " + results.resultAsString());
 
             List<Phrase> phrasesForHeading = new ArrayList<>();
+
+            //System.out.println("In get phrases for heading RESULTS :"  + results.resultAsString());
 
             results.stream().forEach(result -> {
                 System.out.println("result" + result);
@@ -210,7 +286,7 @@ public class GraphDatabaseManager {
             // Sort phrases into ascending order
             Collections.sort(phrasesForHeading);
 
-            System.out.println("list: " + phrasesForHeading);
+            System.out.println("phrases for heading: '" + heading + "' list: " + phrasesForHeading);
 
             return phrasesForHeading;
         }
