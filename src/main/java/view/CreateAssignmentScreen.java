@@ -113,14 +113,14 @@ package view;//package view;
 
 import controller.AppController;
 import model.Assignment;
+import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.Has;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.File;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class CreateAssignmentScreen {
 
@@ -135,6 +135,20 @@ public class CreateAssignmentScreen {
     private Map<String, Component> editableComponents;
 
     private AppController controller;
+
+    private Map<String, String> underlineStyles = Collections.unmodifiableMap(
+            new LinkedHashMap<String, String>() {{
+                put("No underline", "");
+                put("Single underline (---)", "-");
+                put("Double underline (===)", "=");
+            }});
+
+    private Map<String, String> headingStyles = Collections.unmodifiableMap(
+            new LinkedHashMap<String, String>() {{
+                put("No hash", "");
+                put("Single hash (#)", "#");
+                put("Double hash (##)", "##");
+            }});
 
     public CreateAssignmentScreen(AppController controller) {
         this.controller = controller;
@@ -161,9 +175,7 @@ public class CreateAssignmentScreen {
         JLabel headingStyleConfigLabel = new JLabel("Heading style:");
 
         JComboBox<String> selections = new JComboBox<String>();
-        selections.addItem("No hash");
-        selections.addItem("Single hash (#)");
-        selections.addItem("Double hash (##)");
+        headingStyles.keySet().forEach(selections::addItem);
 
         editableComponents.put("headingStyle", selections);
 
@@ -177,9 +189,7 @@ public class CreateAssignmentScreen {
         JLabel underlineConfigLabel = new JLabel("Heading underline style:");
 
         JComboBox<String> selections = new JComboBox<String>();
-        selections.addItem("No underline");
-        selections.addItem("Single underline (---)");
-        selections.addItem("Double underline (===)");
+        underlineStyles.keySet().forEach(selections::addItem);
 
         editableComponents.put("headingUnderlineStyle", selections);
 
@@ -318,9 +328,15 @@ public class CreateAssignmentScreen {
             int lineSpacing = (Integer) ((JComboBox<Integer>) editableComponents.get("headingLineSpacing")).getSelectedItem();
             String lineMarker = (String) ((JComboBox<String>) editableComponents.get("lineMarker")).getSelectedItem();
 
+
+            System.out.println("Selected heading style: " + headingStyles.get(headingStyle));
+            System.out.println("Selected underline style: " + underlineStyles.get(headingUnderlineStyle));
+            System.out.println("Selected line spacing: " + lineSpacing);
+            System.out.println("Selected line marker: " + lineMarker);
+
             // Setup assignment and db for it
             Assignment assignment = controller.createAssignment(assignmentTitle, assignmentHeadings, studentManifestFile, assignmentDirectoryPath);
-            controller.setAssignmentPreferences(assignment, headingStyle, headingUnderlineStyle, lineSpacing, lineMarker);
+            controller.setAssignmentPreferences(assignment, headingStyles.get(headingStyle), underlineStyles.get(headingUnderlineStyle), lineSpacing, lineMarker);
 
             FeedbackScreen feedbackScreen = new FeedbackScreen(controller, assignment);
             createAssignmentScreen.dispose();

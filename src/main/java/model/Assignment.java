@@ -23,7 +23,7 @@ public class Assignment implements Serializable {
     private final List<String> underlineStyles = Collections.unmodifiableList(
             new ArrayList<String>() {{
                 add("-");
-                add("==");
+                add("=");
             }});
 
     private final List<Integer> lineSpacings = Collections.unmodifiableList(
@@ -54,7 +54,7 @@ public class Assignment implements Serializable {
 
     public void setHeadingStyle(String headingStyle) {
         if (headingStyles.contains(headingStyle)) {
-            this.headingStyle = headingStyle;
+            this.headingStyle = headingStyle.trim() + " ";
         } else {
             this.headingStyle = "";
         }
@@ -90,9 +90,9 @@ public class Assignment implements Serializable {
 
     public void setLineMarker(String lineMarker) {
         if (lineSpacings.contains(lineSpacing)) {
-            this.lineMarker = lineMarker;
+            this.lineMarker = lineMarker.trim() + " ";
         } else {
-            this.lineMarker = "-";
+            this.lineMarker = "- ";
         }
     }
 

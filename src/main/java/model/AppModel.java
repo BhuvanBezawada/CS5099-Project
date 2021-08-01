@@ -27,7 +27,6 @@ public class AppModel implements IAppModel {
     private Map<String, List<Phrase>> previousHeadingAndUsedPhrases;
 
     private Assignment assignment;
-    private boolean assignmentResumed;
 
     public AppModel() {
         this.subscribers = new PropertyChangeSupport(this);
@@ -147,10 +146,26 @@ public class AppModel implements IAppModel {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputDirectory + File.separator + feedbackDocument.getStudentId() + ".txt"))) {
                 feedbackDocument.getHeadings().forEach(heading -> {
                     try {
-                        writer.write(heading);
+                        // Heading
+                        writer.write(assignment.getHeadingStyle() + heading);
+                        writer.newLine();
+
+                        // Underline heading if required
+                        String underlineStyle = assignment.getUnderlineStyle();
+                        if (!underlineStyle.isEmpty()){
+                            for (int i = 0; i < assignment.getHeadingStyle().length() + heading.length(); i++) {
+                                writer.write(underlineStyle);
+                            }
+                        }
+
+                        // Data
                         writer.newLine();
                         writer.write(feedbackDocument.getHeadingData(heading));
-                        writer.newLine();
+
+                        // End section spacing
+                        for (int i = 0; i < assignment.getLineSpacing(); i++) {
+                            writer.newLine();
+                        }
                         writer.newLine();
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -231,7 +246,7 @@ public class AppModel implements IAppModel {
 
             Map headingStyle = ((Map) configDoc.get("heading_style"));
             String headingMarker = (String) headingStyle.get("heading_marker");
-            String headingUnderlined = (String) headingStyle.get("heading_underlined");
+            String headingUnderlineStyle = (String) headingStyle.get("heading_underline_style");
             long numLinesAfterSectionEnds = (long) headingStyle.get("num_lines_after_section_ends");
 
             String studentManifestFileLocation = (String) configDoc.get("student_manifest_location");
@@ -243,11 +258,12 @@ public class AppModel implements IAppModel {
             System.out.println("Headings: " + headingsString.toString());
             System.out.println("HeadingStyle: ");
             System.out.println("HeadingMarker: " + headingMarker);
-            System.out.println("HeadingUnderlined: " + headingUnderlined);
+            System.out.println("HeadingUnderlined: " + headingUnderlineStyle);
             System.out.println("HeadingLineSpace: " + numLinesAfterSectionEnds);
 
             Assignment assignment = createAssignment(title, headingsString.toString(), studentManifestFile, assignmentLocation);
-            setAssignmentPreferences(assignment, headingMarker, headingUnderlined, (int) numLinesAfterSectionEnds, lineMarker);
+            setAssignmentPreferences(assignment, headingMarker, headingUnderlineStyle, (int) numLinesAfterSectionEnds, lineMarker);
+            this.assignment = assignment;
 
             return assignment;
         } catch (IOException | ParseException e) {
@@ -262,6 +278,10 @@ public class AppModel implements IAppModel {
         assignment.setUnderlineStyle(underlineStyle);
         assignment.setLineSpacing(lineSpacing);
         assignment.setLineMarker(lineMarker);
+    }
+
+    public String getLineMarker() {
+        return assignment.getLineMarker();
     }
 }
 

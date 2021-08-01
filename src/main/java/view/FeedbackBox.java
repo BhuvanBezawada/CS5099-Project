@@ -64,7 +64,7 @@ public class FeedbackBox extends JPanel {
                 }
 
                 if (textPane.getText().isEmpty()) {
-                    insertHypenForNewLine();
+                    insertLineMarkerForNewLine();
                 }
             }
 
@@ -102,7 +102,7 @@ public class FeedbackBox extends JPanel {
                     captureState();
                     System.out.println("Completed lines : " + currentBoxContents.size());
                     controller.updatePhrases(heading, previousBoxContents, currentBoxContents);
-                    insertHypenForNewLine();
+                    insertLineMarkerForNewLine();
                 }
             }
         });
@@ -122,8 +122,8 @@ public class FeedbackBox extends JPanel {
         currentBoxContents = Arrays.asList(textPane.getText().split("\n"));
         currentBoxContents = currentBoxContents.stream()
                 .map(String::trim)
-                .filter(line -> line.startsWith("- "))
-                .map(line -> line.replace("- ", ""))
+                .filter(line -> line.startsWith(controller.getLineMarker() + " "))
+                .map(line -> line.replace(controller.getLineMarker() + " ", ""))
                 .collect(Collectors.toList());
 
         System.out.println("feedback box current contents: " + currentBoxContents);
@@ -134,8 +134,8 @@ public class FeedbackBox extends JPanel {
         this.currentBoxContents = Arrays.asList(data.split("\n"));
         currentBoxContents = currentBoxContents.stream()
                 .map(String::trim)
-                .filter(line -> line.startsWith("- "))
-                .map(line -> line.replace("- ", ""))
+                .filter(line -> line.startsWith(controller.getLineMarker() + " "))
+                .map(line -> line.replace(controller.getLineMarker() + " ", ""))
                 .collect(Collectors.toList());
 
         this.textPane.setText(data);
@@ -150,8 +150,8 @@ public class FeedbackBox extends JPanel {
         textPane.insert(phrase, caretPos);
     }
 
-    private void insertHypenForNewLine(){
+    private void insertLineMarkerForNewLine(){
         int caretPos = textPane.getCaretPosition();
-        textPane.insert("- ", caretPos); // When a new line is taken add a " - "
+        textPane.insert(controller.getLineMarker() + " ", caretPos); // When a new line is taken add a " - "
     }
 }

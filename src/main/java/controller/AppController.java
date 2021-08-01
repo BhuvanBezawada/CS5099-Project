@@ -264,4 +264,8 @@ public class AppController {
     public void setAssignmentPreferences(Assignment assignment, String headingStyle, String underlineStyle, int lineSpacing, String lineMarker) {
         appModel.setAssignmentPreferences(assignment, headingStyle, underlineStyle, lineSpacing, lineMarker);
     }
+
+    public String getLineMarker() {
+        return appModel.getLineMarker();
+    }
 }
