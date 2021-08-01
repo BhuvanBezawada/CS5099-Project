@@ -2,6 +2,7 @@ package view;
 
 import controller.AppController;
 import model.Assignment;
+import model.Phrase;
 import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.Has;
 
 import javax.swing.*;
@@ -100,6 +101,7 @@ public class FeedbackScreen implements PropertyChangeListener {
         phrasesSection.addPhrasesPanel(customPhrasesPanel);
         phrasesSection.addPhrasesPanel(frequentlyUsedPhrasesPanel);
         phrasesSection.addPhrasesPanel(insightsPhrasesPanel);
+        phrasesSection.setHighlightedPane(1); // Start on frequently used pane
 
         editingPopupMenu.registerPhrasesPanel(customPhrasesPanel);
         editingPopupMenu.registerPhrasesPanel(frequentlyUsedPhrasesPanel);
@@ -235,8 +237,8 @@ public class FeedbackScreen implements PropertyChangeListener {
                 }
                 break;
             case "updatePhrases":
-                String samplePhrase = (String) event.getNewValue();
-                phrasesSection.addPhraseToPanel(samplePhrase, PhraseType.CUSTOM);
+                Phrase samplePhrase = (Phrase) event.getNewValue();
+                phrasesSection.addPhraseToPanel(samplePhrase.getPhraseAsString(), samplePhrase.getUsageCount(), PhraseType.FREQUENTLY_USED);
                 break;
             case "insertPhrase":
                 String phrase = (String) event.getNewValue();
@@ -244,16 +246,20 @@ public class FeedbackScreen implements PropertyChangeListener {
                 editorPanel.insertPhraseIntoFeedbackBox(phrase, heading);
                 break;
             case "newPhrase":
-                String newPhrase = (String) event.getNewValue();
-                phrasesSection.addPhraseToPanel(newPhrase, PhraseType.CUSTOM);
+                Phrase newPhrase = (Phrase) event.getNewValue();
+                phrasesSection.addPhraseToPanel(newPhrase.getPhraseAsString(), newPhrase.getUsageCount(), PhraseType.FREQUENTLY_USED);
                 break;
             case "deletePhrase":
                 String phraseToDelete = (String) event.getNewValue();
-                phrasesSection.removePhraseFromPanel(phraseToDelete, PhraseType.CUSTOM);
+                phrasesSection.removePhraseFromPanel(phraseToDelete, PhraseType.FREQUENTLY_USED);
+                break;
+            case "updatePhraseCounter":
+                Phrase phraseToUpdate = (Phrase) event.getNewValue();
+                phrasesSection.updatePhraseCounter(PhraseType.FREQUENTLY_USED, phraseToUpdate.getPhraseAsString(), phraseToUpdate.getUsageCount());
                 break;
             case "resetPhrasesPanel":
                 System.out.println("removing all phrases from panel");
-                phrasesSection.resetPhrasesPanel(PhraseType.CUSTOM);
+                phrasesSection.resetPhrasesPanel(PhraseType.FREQUENTLY_USED);
                 break;
             case "error":
                 String errorMessage = (String) event.getNewValue();

@@ -2,7 +2,7 @@ package model;
 
 import java.util.Objects;
 
-public class Phrase {
+public class Phrase implements Comparable<Phrase> {
 
     private String phraseAsString;
     private Sentiment sentiment;
@@ -58,5 +58,10 @@ public class Phrase {
     @Override
     public int hashCode() {
         return Objects.hash(phraseAsString);
+    }
+
+    @Override
+    public int compareTo(Phrase o) {
+        return o.getUsageCount() - this.getUsageCount();
     }
 }

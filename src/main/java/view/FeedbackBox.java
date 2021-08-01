@@ -122,8 +122,8 @@ public class FeedbackBox extends JPanel {
         currentBoxContents = Arrays.asList(textPane.getText().split("\n"));
         currentBoxContents = currentBoxContents.stream()
                 .map(String::trim)
-                .filter(line -> line.startsWith(controller.getLineMarker() + " "))
-                .map(line -> line.replace(controller.getLineMarker() + " ", ""))
+                .filter(line -> line.startsWith(controller.getLineMarker()))
+                .map(line -> line.replace(controller.getLineMarker(), ""))
                 .collect(Collectors.toList());
 
         System.out.println("feedback box current contents: " + currentBoxContents);
@@ -134,8 +134,8 @@ public class FeedbackBox extends JPanel {
         this.currentBoxContents = Arrays.asList(data.split("\n"));
         currentBoxContents = currentBoxContents.stream()
                 .map(String::trim)
-                .filter(line -> line.startsWith(controller.getLineMarker() + " "))
-                .map(line -> line.replace(controller.getLineMarker() + " ", ""))
+                .filter(line -> line.startsWith(controller.getLineMarker()))
+                .map(line -> line.replace(controller.getLineMarker(), ""))
                 .collect(Collectors.toList());
 
         this.textPane.setText(data);
@@ -152,6 +152,6 @@ public class FeedbackBox extends JPanel {
 
     private void insertLineMarkerForNewLine(){
         int caretPos = textPane.getCaretPosition();
-        textPane.insert(controller.getLineMarker() + " ", caretPos); // When a new line is taken add a " - "
+        textPane.insert(controller.getLineMarker(), caretPos); // When a new line is taken add a " - "
     }
 }

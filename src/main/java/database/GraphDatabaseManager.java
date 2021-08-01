@@ -6,10 +6,7 @@ import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class GraphDatabaseManager {
@@ -118,7 +115,7 @@ public class GraphDatabaseManager {
             Phrase phrase = new Phrase(phraseToAdd);
             phrase.incrementUsageCount();
             addPhraseForHeading(heading, phrase);
-            System.out.println("[DEBUG] added new phrase: " + phraseToAdd);
+            System.out.println("[DEBUG] added new phrase: p: " + phrase + " c:" + phrase.getUsageCount());
         });
 
         System.out.println("[DEBUG] updated phrases for heading: " + heading);
@@ -142,7 +139,7 @@ public class GraphDatabaseManager {
 
             tx.success();
 
-            System.out.println("Updated phrase usage count.");
+            System.out.println("[DEBUG] updated phrase usage count: " + phrase + " - count = " + phrase.getUsageCount());
         }
     }
 
@@ -161,7 +158,7 @@ public class GraphDatabaseManager {
 
             tx.success();
 
-            System.out.println("Deleted phrase from heading.");
+            System.out.println("[DEBUG] deleted phrase: '" + phrase + "' from heading: " + heading);
         }
     }
 
@@ -209,6 +206,9 @@ public class GraphDatabaseManager {
                 phrase.setUsageCount(Integer.parseInt(node.getProperty("usageCount").toString()));
                 phrasesForHeading.add(phrase);
             });
+
+            // Sort phrases into ascending order
+            Collections.sort(phrasesForHeading);
 
             System.out.println("list: " + phrasesForHeading);
 

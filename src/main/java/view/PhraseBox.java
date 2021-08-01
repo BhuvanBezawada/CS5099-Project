@@ -6,22 +6,26 @@ import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
 
-public class PhraseBox extends JPanel {
+public class PhraseBox extends JPanel implements Comparable<PhraseBox> {
 
     private String phrase;
     private String phraseSentiment;
+    private int usageCount;
 
     private JTextArea phraseTextArea;
     private JButton insertButton;
 
     private JLabel sentimentLabel;
+    private JLabel usageCountLabel;
 
     private AppController controller;
 
-    public PhraseBox(AppController controller, String phrase) {
+    public PhraseBox(AppController controller, String phrase, int usageCount) {
         this.phrase = phrase;
         this.phraseTextArea = new JTextArea();
         this.phraseSentiment = controller.getPhraseSentiment(phrase);
+        this.usageCount = usageCount;
+
         System.out.println("Sentiment: " + phraseSentiment);
 
         this.controller = controller;
@@ -36,6 +40,7 @@ public class PhraseBox extends JPanel {
         setupInsertButton();
         setupPhraseTextArea();
         setupSentimentLabel();
+        setupUsageCountLabel();
 
         this.setMaximumSize(new Dimension(300, 100));
         this.setVisible(true);
@@ -64,6 +69,13 @@ public class PhraseBox extends JPanel {
         this.sentimentLabel = new JLabel(new ImageIcon(new ImageIcon(emojiFilePath).getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT)));
         this.add(sentimentLabel, BorderLayout.LINE_END);
     }
+
+    private void setupUsageCountLabel() {
+        this.usageCountLabel = new JLabel(String.valueOf(usageCount));
+        this.add(usageCountLabel, BorderLayout.BEFORE_FIRST_LINE);
+    }
+
+
     private void setupPhraseTextArea() {
         phraseTextArea.setRows(5);
         phraseTextArea.setColumns(10);
@@ -83,5 +95,21 @@ public class PhraseBox extends JPanel {
 
     public String getPhrase() {
         return this.phrase;
+    }
+
+    public void setUsageCount(int usageCount) {
+        this.usageCount = usageCount;
+        this.usageCountLabel.setText(String.valueOf(usageCount));
+        repaint();
+        revalidate();
+    }
+
+    public int getUsageCount() {
+        return this.usageCount;
+    }
+
+    @Override
+    public int compareTo(PhraseBox o) {
+        return o.getUsageCount() - this.getUsageCount();
     }
 }

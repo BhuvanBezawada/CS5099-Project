@@ -11,13 +11,12 @@ import model.Assignment;
 import model.FeedbackDocument;
 import model.Phrase;
 import nlp.BasicPipelineExample;
+import view.PhraseType;
 
-import javax.rmi.CORBA.Util;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 public class AppController {
 
@@ -79,7 +78,6 @@ public class AppController {
         List<FeedbackDocument> feedbackDocuments = documentDatabase.loadFeedbackDocumentsForAssignment(assignment);
         assignment.setFeedbackDocuments(feedbackDocuments);
 
-        System.out.println("1st doc is: " + assignment.getFeedbackDocuments().get(0).getHeadingData("1"));
         System.out.println("Got back " + assignment.getFeedbackDocuments().size() + " documents from db");
 
         assignment.getAssignmentHeadings().forEach(heading -> {
@@ -173,16 +171,23 @@ public class AppController {
         return sentenceList.get(0).sentiment();
     }
 
-    public void addNewPhrase(String phrase) {
+    public void addNewCustomPhraseFromView(String phrase) {
         // Filter out empty lines
-        if (!phrase.trim().isEmpty() && !phrase.trim().equals("-")) {
-            appModel.addNewPhrase(phrase);
+        if (!phrase.trim().isEmpty() && !phrase.trim().equals(getLineMarker())) {
+            Phrase phrase1 = new Phrase(phrase);
+            phrase1.incrementUsageCount();
+            appModel.addNewCustomPhrase(phrase1);
         } else {
             System.out.println("[DEBUG]: empty string detected, not creating a phrase");
         }
     }
 
+    public void addNewPhrase(Phrase phrase) {
+        appModel.addNewPhrase(phrase);
+    }
+
     public void updatePhrases(String heading, List<String> previousBoxContents, List<String> newBoxContents) {
+        System.out.println("[DEBUG] in controller updatePhrases method");
         // Store previous phrase set
         List<Phrase> previousPhrasesForHeading = graphDatabase.getPhrasesForHeading(heading);
         appModel.setPreviousPhraseSet(heading, previousPhrasesForHeading);
@@ -195,16 +200,24 @@ public class AppController {
         // Find what's changed and send those changes to GUI
         List<Phrase> removalsFromList = Utilities.getRemovalsFromList(previousPhrasesForHeading, currentPhrasesForHeading);
         List<Phrase> additionsToList = Utilities.getAdditionsToList(previousPhrasesForHeading, currentPhrasesForHeading);
+        
+        // Find what's stayed same and update the usage counts
+        List<Phrase> stayedSameList = Utilities.getIntersection(previousPhrasesForHeading, currentPhrasesForHeading);
 
         System.out.println("DEBUG: removals -> " + removalsFromList);
         System.out.println("DEBUG: additions -> " + additionsToList);
+        System.out.println("DEBUG: stayed same -> " + stayedSameList);
 
         removalsFromList.forEach(phraseToRemove -> {
             appModel.removePhrase(phraseToRemove.getPhraseAsString());
         });
 
         additionsToList.forEach(phraseToAdd -> {
-            appModel.addNewPhrase(phraseToAdd.getPhraseAsString());
+            appModel.addNewPhrase(phraseToAdd);
+        });
+
+        stayedSameList.forEach(phrase -> {
+            appModel.updatePhraseCounter(phrase);
         });
     }
 
@@ -222,7 +235,7 @@ public class AppController {
         System.out.println("CURRENT PHRASE SET: " + heading + " : " + currentPhraseSet);
         if (currentPhraseSet != null) {
             currentPhraseSet.forEach(phrase -> {
-                addNewPhrase(phrase.getPhraseAsString());
+                appModel.addNewPhrase(phrase);
             });
         }
     }

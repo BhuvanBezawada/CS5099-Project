@@ -19,4 +19,12 @@ public class Utilities {
         return oldListCopy;
     }
 
+
+    public static <T> List<T> getIntersection(List<T> oldList, List<T> newList) {
+        List<T> oldListCopy = new ArrayList<>(oldList);
+        List<T> newListCopy = new ArrayList<>(newList);
+        newListCopy.retainAll(oldListCopy);
+        return newListCopy;
+    }
+
 }

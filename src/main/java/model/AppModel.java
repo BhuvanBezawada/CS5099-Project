@@ -53,6 +53,10 @@ public class AppModel implements IAppModel {
         subscribers.firePropertyChange(property, "oldValue", notification);
     }
 
+    public void notifySubscribers(String property, Object notification) {
+        subscribers.firePropertyChange(property, "oldValue", notification);
+    }
+
 
 
     /* Create model elements from the controller, requested by GUI */
@@ -201,8 +205,16 @@ public class AppModel implements IAppModel {
         return this.previousHeadingBeingEdited;
     }
 
-    public void addNewPhrase(String phrase) {
+    public void addNewPhrase(Phrase phrase) {
         notifySubscribers("newPhrase", phrase);
+    }
+
+    public void addNewCustomPhrase(Phrase phrase) {
+        notifySubscribers("newCustomPhrase", phrase);
+    }
+
+    public void updatePhraseCounter(Phrase phrase) {
+        notifySubscribers("updatePhraseCounter", phrase);
     }
 
     public void removePhrase(String phrase) {
