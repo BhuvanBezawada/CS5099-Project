@@ -1,121 +1,11 @@
 package view;//package view;
-//
-//import model.Assignment;
-//
-//import javax.swing.*;
-//import java.awt.*;
-//
-//public class CreateAssignmentScreen {
-//
-//    private JFrame createAssignmentScreen;
-//    private JPanel createAssignmentScreenPanel;
-//
-//    private Assignment assignment;
-//
-//    public CreateAssignmentScreen() {
-//        createAssignmentScreen = new JFrame("Create Assignment");
-//        createAssignmentScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        createAssignmentScreen.setSize(1200, 800);
-//
-//        this.assignment = new Assignment();
-//
-//        setupCreateAssignmentScreenComponents();
-//        displayCreateAssignmentScreen();
-//    }
-//
-//    private void setupCreateAssignmentScreenComponents() {
-//        createAssignmentScreenPanel = new JPanel();
-//
-//        JPanel studentManifestFileSelectionPanel = new JPanel();
-//        studentManifestFileSelectionPanel.setMaximumSize(new Dimension(600, 100));
-//
-//        JPanel feedbackTemplateFileSelectionPanel = new JPanel();
-//        feedbackTemplateFileSelectionPanel.setMaximumSize(new Dimension(600, 100));
-//
-//        JPanel previewPanel = new JPanel();
-//        previewPanel.setMinimumSize(new Dimension(800, 500));
-//        previewPanel.setMaximumSize(new Dimension(800, 500));
-//        previewPanel.setBackground(Color.green);
-//
-//        JPanel confirmationPanel = new JPanel();
-//        confirmationPanel.setMaximumSize(new Dimension(800, 100));
-//
-//
-//        createAssignmentScreenPanel.setLayout(new BoxLayout(createAssignmentScreenPanel, BoxLayout.PAGE_AXIS));
-//        studentManifestFileSelectionPanel.setLayout(new FlowLayout());
-//        feedbackTemplateFileSelectionPanel.setLayout(new FlowLayout());
-//        confirmationPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-//
-//        studentManifestFileSelectionPanel.add(new JLabel("Student Manifest: "));
-//        JTextField selectedLocation = new JTextField();
-//        selectedLocation.setMinimumSize(new Dimension(200, 30));
-//        selectedLocation.setPreferredSize(new Dimension(200, 30));
-//        studentManifestFileSelectionPanel.add(selectedLocation);
-//
-//        JButton selectStudentManifestButton = new JButton("Select Student Manifest");
-//        selectStudentManifestButton.addActionListener(e -> {
-//            JFileChooser fileChooser = new JFileChooser();
-//            fileChooser.showOpenDialog(selectStudentManifestButton);
-//
-//            // Need to handle file selection
-//        });
-//        studentManifestFileSelectionPanel.add(selectStudentManifestButton);
-//
-//
-//
-//        feedbackTemplateFileSelectionPanel.add(new JLabel("Feedback Template: "));
-//        JTextField feedbackTemplateLocation = new JTextField();
-//        feedbackTemplateLocation.setMinimumSize(new Dimension(200, 30));
-//        feedbackTemplateLocation.setPreferredSize(new Dimension(200, 30));
-//        feedbackTemplateFileSelectionPanel.add(feedbackTemplateLocation);
-//
-//        JButton selectFeedbackTemplateButton = new JButton("Select Feedback Template");
-//        selectFeedbackTemplateButton.addActionListener(e -> {
-//            JFileChooser fileChooser = new JFileChooser();
-//            fileChooser.showOpenDialog(selectFeedbackTemplateButton);
-//
-//            // Need to handle file selection
-//        });
-//        feedbackTemplateFileSelectionPanel.add(selectFeedbackTemplateButton);
-//
-//        JButton backButton = new JButton("Back to Home");
-//        JButton confirmButton = new JButton("Confirm Selections");
-//
-//        confirmButton.addActionListener(e -> {
-//            FeedbackScreen feedbackScreen = new FeedbackScreen(new Assignment());
-//            createAssignmentScreen.dispose();
-//        });
-//
-//        backButton.addActionListener(e -> {
-//            HomeScreen homeScreen = new HomeScreen();
-//            createAssignmentScreen.dispose();
-//        });
-//
-////        backButton.setHorizontalAlignment(SwingConstants.RIGHT);
-////        confirmButton.setHorizontalAlignment(SwingConstants.RIGHT);
-//
-//        confirmationPanel.add(backButton);
-//        confirmationPanel.add(confirmButton);
-//
-//        createAssignmentScreenPanel.add(studentManifestFileSelectionPanel);
-//        createAssignmentScreenPanel.add(feedbackTemplateFileSelectionPanel);
-//        createAssignmentScreenPanel.add(previewPanel);
-//        createAssignmentScreenPanel.add(confirmationPanel);
-//        createAssignmentScreen.add(createAssignmentScreenPanel);
-//    }
-//
-//    private void displayCreateAssignmentScreen() {
-//        createAssignmentScreen.setVisible(true);
-//    }
-//
-//}
-
-
 import controller.AppController;
 import model.Assignment;
+import org.apache.xalan.xsltc.DOM;
 import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.Has;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.File;
@@ -155,15 +45,21 @@ public class CreateAssignmentScreen {
 
         createAssignmentScreen = new JFrame("Create Assignment");
         createAssignmentScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        createAssignmentScreen.setSize(800, 600);
+        createAssignmentScreen.setSize(1000, 800);
 
         this.editableComponents = new HashMap<String, Component>();
 
         this.createAssignmentScreenPanel = new JPanel();
         createAssignmentScreenPanel.setLayout(new BoxLayout(createAssignmentScreenPanel, BoxLayout.PAGE_AXIS));
-
+        createAssignmentScreenPanel.setBorder(BorderFactory.createEmptyBorder(20, 200, 20, 200));
         setupConfigForm();
         setupConfirmationPanel();
+
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (screenSize.width - createAssignmentScreen.getWidth())/2;
+        int y = (screenSize.height - createAssignmentScreen.getHeight())/2;
+        createAssignmentScreen.setLocation(x, y);
 
         createAssignmentScreen.add(createAssignmentScreenPanel);
         createAssignmentScreen.setVisible(true);
@@ -171,36 +67,61 @@ public class CreateAssignmentScreen {
 
 
     private void setupHeadingStylePanel() {
-        JPanel headingStyleConfigPanel = new JPanel(new FlowLayout());
-        JLabel headingStyleConfigLabel = new JLabel("Heading style:");
+        JPanel headingStylePanel = new JPanel();
+        headingStylePanel.setLayout(new BoxLayout(headingStylePanel, BoxLayout.LINE_AXIS));
+
+        JPanel headingStyleLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JLabel headingStyleLabel = new JLabel("Heading style: ");
+        headingStyleLabelPanel.add(headingStyleLabel);
+
+        headingStyleLabelPanel.setMaximumSize(new Dimension(200, 20));
+        headingStyleLabelPanel.setPreferredSize(new Dimension(200, 20));
+        headingStyleLabelPanel.setMinimumSize(new Dimension(200, 20));
 
         JComboBox<String> selections = new JComboBox<String>();
         headingStyles.keySet().forEach(selections::addItem);
 
         editableComponents.put("headingStyle", selections);
 
-        headingStyleConfigPanel.add(headingStyleConfigLabel);
-        headingStyleConfigPanel.add(selections);
-        configForm.add(headingStyleConfigPanel);
+        headingStylePanel.add(headingStyleLabelPanel);
+        headingStylePanel.add(selections);
+
+        configForm.add(headingStylePanel);
     }
 
     private void setupHeadingUnderlinePanel() {
-        JPanel headingUnderlineConfigPanel = new JPanel(new FlowLayout());
-        JLabel underlineConfigLabel = new JLabel("Heading underline style:");
+        JPanel headingUnderlinePanel = new JPanel();
+        headingUnderlinePanel.setLayout(new BoxLayout(headingUnderlinePanel, BoxLayout.LINE_AXIS));
+
+        JPanel headingUnderlineLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JLabel headingUnderlineLabel = new JLabel("Heading underline style:");
+        headingUnderlineLabelPanel.add(headingUnderlineLabel);
+
+        headingUnderlineLabelPanel.setMaximumSize(new Dimension(200, 20));
+        headingUnderlineLabelPanel.setPreferredSize(new Dimension(200, 20));
+        headingUnderlineLabelPanel.setMinimumSize(new Dimension(200, 20));
 
         JComboBox<String> selections = new JComboBox<String>();
         underlineStyles.keySet().forEach(selections::addItem);
 
         editableComponents.put("headingUnderlineStyle", selections);
 
-        headingUnderlineConfigPanel.add(underlineConfigLabel);
-        headingUnderlineConfigPanel.add(selections);
-        configForm.add(headingUnderlineConfigPanel);
+        headingUnderlinePanel.add(headingUnderlineLabelPanel);
+        headingUnderlinePanel.add(selections);
+
+        configForm.add(headingUnderlinePanel);
     }
 
     private void setupHeadingLineSpacingPanel() {
-        JPanel lineSpacingConfigPanel = new JPanel(new FlowLayout());
-        JLabel lineSpacingConfigLabel = new JLabel("Line spacing after sections:");
+        JPanel headingLineSpacingPanel = new JPanel();
+        headingLineSpacingPanel.setLayout(new BoxLayout(headingLineSpacingPanel, BoxLayout.LINE_AXIS));
+
+        JPanel headingLineSpacingLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JLabel headingLineSpacingLabel = new JLabel("Line spacing after sections:");
+        headingLineSpacingLabelPanel.add(headingLineSpacingLabel);
+        headingLineSpacingLabelPanel.setMaximumSize(new Dimension(200, 20));
+        headingLineSpacingLabelPanel.setPreferredSize(new Dimension(200, 20));
+        headingLineSpacingLabelPanel.setMinimumSize(new Dimension(200, 20));
 
         JComboBox<Integer> selections = new JComboBox<Integer>();
         selections.addItem(1);
@@ -209,14 +130,23 @@ public class CreateAssignmentScreen {
 
         editableComponents.put("headingLineSpacing", selections);
 
-        lineSpacingConfigPanel.add(lineSpacingConfigLabel);
-        lineSpacingConfigPanel.add(selections);
-        configForm.add(lineSpacingConfigPanel);
+        headingLineSpacingPanel.add(headingLineSpacingLabelPanel);
+        headingLineSpacingPanel.add(selections);
+
+        configForm.add(headingLineSpacingPanel);
     }
 
     private void setupLineMarkerPanel() {
-        JPanel lineMarkerConfigPanel = new JPanel(new FlowLayout());
+        JPanel lineMarkerPanel = new JPanel();
+        lineMarkerPanel.setLayout(new BoxLayout(lineMarkerPanel, BoxLayout.LINE_AXIS));
+
+        JPanel lineMarkerLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JLabel lineMarkerLabel = new JLabel("Line marker style:");
+        lineMarkerLabelPanel.add(lineMarkerLabel);
+
+        lineMarkerLabelPanel.setMaximumSize(new Dimension(200, 20));
+        lineMarkerLabelPanel.setPreferredSize(new Dimension(200, 20));
+        lineMarkerLabelPanel.setMinimumSize(new Dimension(200, 20));
 
         JComboBox<String> selections = new JComboBox<String>();
         selections.addItem("-");
@@ -227,9 +157,10 @@ public class CreateAssignmentScreen {
 
         editableComponents.put("lineMarker", selections);
 
-        lineMarkerConfigPanel.add(lineMarkerLabel);
-        lineMarkerConfigPanel.add(selections);
-        configForm.add(lineMarkerConfigPanel);
+        lineMarkerPanel.add(lineMarkerLabelPanel);
+        lineMarkerPanel.add(selections);
+
+        configForm.add(lineMarkerPanel);
     }
 
 
@@ -237,73 +168,17 @@ public class CreateAssignmentScreen {
         this.configForm = new JPanel();
         configForm.setLayout(new BoxLayout(configForm, BoxLayout.PAGE_AXIS));
 
-        JLabel assignmentTitleLabel = new JLabel("Assignment title: ");
-        JLabel assignmentHeadingsLabel = new JLabel("Assignment headings: ");
-        JLabel studentManifestFileLabel = new JLabel("Student manifest file: ");
-        JLabel assignmentDirectoryLabel = new JLabel("Assignment directory: ");
+        createTitle();
 
-        JTextField assignmentTitleTextField = new JTextField("e.g. CS 5000 Assignment 1");
-        assignmentTitleTextField.setBorder(BorderCreator.createAllSidesEmptyBorder(10));
-        assignmentTitleTextField.setColumns(30);
-
-        JTextArea assignmentHeadingsTextArea = new JTextArea(7, 30);
-        assignmentHeadingsTextArea.setBorder(BorderCreator.createAllSidesEmptyBorder(10));
-
-        JButton studentManifestFileButton = new JButton("Select student manifest file...");
-
-        JTextField assignmentDirectoryTextArea = new JTextField(System.getProperty("user.home") + File.separator + "Desktop" + File.separator);
-        assignmentDirectoryTextArea.setBorder(BorderCreator.createAllSidesEmptyBorder(10));
-        assignmentDirectoryTextArea.setColumns(30);
-
-        JPanel assignmentTitlePanel = new JPanel(new FlowLayout());
-        assignmentTitlePanel.add(assignmentTitleLabel);
-        assignmentTitlePanel.add(assignmentTitleTextField);
-
-        JPanel assignmentHeadingsPanel = new JPanel(new FlowLayout());
-        assignmentHeadingsPanel.add(assignmentHeadingsLabel);
-        assignmentHeadingsPanel.add(new JScrollPane(assignmentHeadingsTextArea));
-
-        JPanel studentManifestPanel = new JPanel(new FlowLayout());
-        studentManifestPanel.add(studentManifestFileLabel);
-        studentManifestPanel.add(studentManifestFileButton);
-
-        JPanel assignmentDirectoryPanel = new JPanel(new FlowLayout());
-        assignmentDirectoryPanel.add(assignmentDirectoryLabel);
-        assignmentDirectoryPanel.add(assignmentDirectoryTextArea);
-
-
-
-        configForm.add(new JLabel("Assignment Configuration"));
-        configForm.add(assignmentTitlePanel);
-        configForm.add(assignmentDirectoryPanel);
-        configForm.add(assignmentHeadingsPanel);
+        setupAssignmentTitlePanel();
+        setupAssignmentDirectoryPanel();
+        setupAssignmentHeadingsPanel();
         setupHeadingStylePanel();
         setupHeadingUnderlinePanel();
         setupLineMarkerPanel();
         setupHeadingLineSpacingPanel();
-        configForm.add(studentManifestPanel);
-
-
-        studentManifestFileButton.addActionListener(l -> {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Choose a student manifest file...");
-
-            fileChooser.setAcceptAllFileFilterUsed(false);
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
-            fileChooser.addChoosableFileFilter(filter);
-
-            int returnValue = fileChooser.showDialog(studentManifestFileButton, "Select this student manifest file");
-            String assignmentFilePath = null;
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                assignmentFilePath = fileChooser.getSelectedFile().getPath();
-                studentManifestFile = new File(assignmentFilePath);
-            }
-        });
-
-        // Keep track of editable components
-        editableComponents.put("assignmentTitle", assignmentTitleTextField);
-        editableComponents.put("assignmentHeadings", assignmentHeadingsTextArea);
-        editableComponents.put("assignmentDirectory", assignmentDirectoryTextArea);
+        setupStudentManifestPanel();
+        configForm.add(Box.createRigidArea(new Dimension(100, 50)));
 
         createAssignmentScreenPanel.add(configForm);
     }
@@ -334,19 +209,144 @@ public class CreateAssignmentScreen {
             System.out.println("Selected line spacing: " + lineSpacing);
             System.out.println("Selected line marker: " + lineMarker);
 
-            // Setup assignment and db for it
-            Assignment assignment = controller.createAssignment(assignmentTitle, assignmentHeadings, studentManifestFile, assignmentDirectoryPath);
-            controller.setAssignmentPreferences(assignment, headingStyles.get(headingStyle), underlineStyles.get(headingUnderlineStyle), lineSpacing, lineMarker);
+            if (studentManifestFile != null && studentManifestFile.exists()) {
+                // Setup assignment and db for it
+                new Thread(SetupOptionsScreen::showLoadingScreen).start();
+                createAssignmentScreen.dispose();
 
-            FeedbackScreen feedbackScreen = new FeedbackScreen(controller, assignment);
-            createAssignmentScreen.dispose();
+                Assignment assignment = controller.createAssignment(assignmentTitle, assignmentHeadings, studentManifestFile, assignmentDirectoryPath);
+                controller.setAssignmentPreferences(assignment, headingStyles.get(headingStyle), underlineStyles.get(headingUnderlineStyle), lineSpacing, lineMarker);
+
+                FeedbackScreen feedbackScreen = new FeedbackScreen(controller, assignment);
+            } else {
+                JOptionPane.showMessageDialog(createAssignmentScreen, "Please select a student manifest form!", "Error!", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         backButton.addActionListener(e -> {
-            HomeScreen homeScreen = new HomeScreen(controller);
+            SetupOptionsScreen setupOptionsScreen = new SetupOptionsScreen(controller);
             createAssignmentScreen.dispose();
         });
 
         createAssignmentScreenPanel.add(confirmationPanel);
     }
+
+
+    private void setupAssignmentTitlePanel() {
+        JPanel assignmentTitlePanel = new JPanel();
+        //assignmentTitlePanel.setLayout(new BoxLayout(assignmentTitlePanel, BoxLayout.LINE_AXIS));
+
+        JPanel assignmentTitleLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JLabel assignmentTitleLabel = new JLabel("Assignment title: ");
+        assignmentTitleLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        assignmentTitleLabel.setVerticalAlignment(SwingConstants.CENTER);
+
+        assignmentTitleLabelPanel.add(assignmentTitleLabel);
+        assignmentTitleLabelPanel.setMaximumSize(new Dimension(200, 20));
+        assignmentTitleLabelPanel.setPreferredSize(new Dimension(200, 20));
+        assignmentTitleLabelPanel.setMinimumSize(new Dimension(200, 20));
+
+        JTextField assignmentTitleTextField = new JTextField("CS 5000 Assignment 1");
+        assignmentTitleTextField.setBorder(BorderCreator.createAllSidesEmptyBorder(10));
+        assignmentTitleTextField.setColumns(30);
+        editableComponents.put("assignmentTitle", assignmentTitleTextField);
+
+        assignmentTitlePanel.add(assignmentTitleLabelPanel);
+        assignmentTitlePanel.add(assignmentTitleTextField);
+
+        configForm.add(assignmentTitlePanel);
+    }
+
+    private void setupAssignmentDirectoryPanel() {
+        JPanel assignmentDirectoryPanel = new JPanel();
+        //assignmentDirectoryPanel.setLayout(new BoxLayout(assignmentDirectoryPanel, BoxLayout.LINE_AXIS));
+
+        JPanel assignmentDirectoryLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JLabel assignmentDirectoryLabel = new JLabel("Assignment directory: ");
+        assignmentDirectoryLabelPanel.add(assignmentDirectoryLabel);
+        assignmentDirectoryLabelPanel.setMaximumSize(new Dimension(200, 20));
+        assignmentDirectoryLabelPanel.setPreferredSize(new Dimension(200, 20));
+        assignmentDirectoryLabelPanel.setMinimumSize(new Dimension(200, 20));
+
+        JTextField assignmentDirectoryTextField = new JTextField(System.getProperty("user.home") + File.separator + "Desktop" + File.separator);
+        assignmentDirectoryTextField.setBorder(BorderCreator.createAllSidesEmptyBorder(10));
+        assignmentDirectoryTextField.setColumns(30);
+        editableComponents.put("assignmentDirectory", assignmentDirectoryTextField);
+
+        assignmentDirectoryPanel.add(assignmentDirectoryLabelPanel);
+        assignmentDirectoryPanel.add(assignmentDirectoryTextField);
+//        assignmentDirectoryPanel.setAlignmentX(SwingConstants.LEFT);
+
+        configForm.add(assignmentDirectoryPanel);
+    }
+
+    public void createTitle() {
+        JLabel titleLabel = new JLabel();
+        titleLabel.setText("Assignment Configuration");
+        titleLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 28));
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        titleLabel.setBorder(new EmptyBorder(0,0,20,0));//top,left,bottom,right
+        configForm.add(titleLabel);
+    }
+
+    private void setupAssignmentHeadingsPanel() {
+        JPanel assignmentHeadingsPanel = new JPanel();
+        //assignmentHeadingsPanel.setLayout(new BoxLayout(assignmentHeadingsPanel, BoxLayout.LINE_AXIS));
+
+        JPanel assignmentHeadingsLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JLabel assignmentHeadingsLabel = new JLabel("Assignment headings: ");
+        assignmentHeadingsLabelPanel.add(assignmentHeadingsLabel);
+        assignmentHeadingsLabelPanel.setMaximumSize(new Dimension(200, 20));
+        assignmentHeadingsLabelPanel.setPreferredSize(new Dimension(200, 20));
+        assignmentHeadingsLabelPanel.setMinimumSize(new Dimension(200, 20));
+
+        JTextArea assignmentHeadingsTextArea = new JTextArea(7, 30);
+        assignmentHeadingsTextArea.setBorder(BorderCreator.createAllSidesEmptyBorder(10));
+        editableComponents.put("assignmentHeadings", assignmentHeadingsTextArea);
+
+        assignmentHeadingsPanel.add(assignmentHeadingsLabelPanel);
+        assignmentHeadingsPanel.add(new JScrollPane(assignmentHeadingsTextArea));
+
+        configForm.add(assignmentHeadingsPanel);
+    }
+
+    private void setupStudentManifestPanel() {
+        JPanel studentManifestPanel = new JPanel();
+        studentManifestPanel.setLayout(new BoxLayout(studentManifestPanel, BoxLayout.LINE_AXIS));
+
+        JPanel studentManifestLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JLabel assignmentHeadingsLabel = new JLabel("Student manifest file: ");
+        studentManifestLabelPanel.add(assignmentHeadingsLabel);
+        studentManifestLabelPanel.setMaximumSize(new Dimension(200, 20));
+        studentManifestLabelPanel.setPreferredSize(new Dimension(200, 20));
+        studentManifestLabelPanel.setMinimumSize(new Dimension(200, 20));
+
+        JButton studentManifestFileButton = new JButton("Select student manifest file...");
+        studentManifestFileButton.setMaximumSize(new Dimension(400, 25));
+        studentManifestFileButton.setPreferredSize(new Dimension(400, 25));
+        studentManifestFileButton.setMinimumSize(new Dimension(400, 25));
+
+        studentManifestFileButton.addActionListener(l -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Choose a student manifest file...");
+
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
+            fileChooser.addChoosableFileFilter(filter);
+
+            int returnValue = fileChooser.showDialog(studentManifestFileButton, "Select this student manifest file");
+            String assignmentFilePath = null;
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                assignmentFilePath = fileChooser.getSelectedFile().getPath();
+                studentManifestFile = new File(assignmentFilePath);
+            }
+        });
+
+        studentManifestPanel.add(studentManifestLabelPanel);
+        studentManifestPanel.add(studentManifestFileButton);
+
+        configForm.add(studentManifestPanel);
+    }
+
+
 }

@@ -72,6 +72,12 @@ public class FeedbackScreen implements PropertyChangeListener {
         gridBagConstraints.gridy = 0;
         feedbackScreenPanel.add(phrasesAndControlsSplitPane, gridBagConstraints);
 
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (screenSize.width - feedbackScreen.getWidth())/2;
+        int y = (screenSize.height - feedbackScreen.getHeight())/2;
+        feedbackScreen.setLocation(x, y);
+
         feedbackScreen.add(feedbackScreenPanel, BorderLayout.CENTER);
         feedbackScreen.setVisible(true);
     }
@@ -146,6 +152,10 @@ public class FeedbackScreen implements PropertyChangeListener {
             previewBoxes.add(previewBox);
         });
 
+        // Order the preview boxes by the id if possible
+        Collections.sort(previewBoxes);
+        controller.setCurrentDocInView(previewBoxes.get(0).getHeading());
+
 
 //        assignment.getStudentIds().forEach(studentId -> {
 //            previewBoxes.add(new PreviewBox(controller, studentId, -1, "<empty file>"));
@@ -162,16 +172,19 @@ public class FeedbackScreen implements PropertyChangeListener {
     private void setupMenuBar() {
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
-        JMenuItem saveOption = new JMenuItem("Save");
-        JMenuItem loadOption = new JMenuItem("Load");
-        JMenuItem exportDocsOption = new JMenuItem("Export feedback docs");
+        JMenuItem saveOption = new JMenuItem("Save current document");
+        JMenuItem sentimentOption = new JMenuItem("Show overall sentiment of current document");
+        JMenuItem exportDocsOption = new JMenuItem("Export feedback documents");
         JMenuItem exportGradesOption = new JMenuItem("Export grades");
         JMenuItem visGradesOption = new JMenuItem("Visualise grades");
 
         saveOption.addActionListener(l -> {
-            String filePath = assignment.getAssignmentTitle().toLowerCase().trim().replace(" ",  "-") + ".fht";
-            JOptionPane.showMessageDialog(feedbackScreen, "Saving assignment to file: " + filePath);
-            controller.saveAssignment(assignment, filePath);
+            JOptionPane.showMessageDialog(feedbackScreen, "Saving document for student: " + controller.getCurrentDocInView());
+            controller.saveFeedbackDocument(controller.getCurrentDocInView());
+        });
+
+        sentimentOption.addActionListener(l -> {
+            JOptionPane.showMessageDialog(feedbackScreen, "Feature still to be implemented!");
         });
 
         exportDocsOption.addActionListener(l -> {
@@ -190,7 +203,7 @@ public class FeedbackScreen implements PropertyChangeListener {
         });
 
         fileMenu.add(saveOption);
-        fileMenu.add(loadOption);
+        fileMenu.add(sentimentOption);
         fileMenu.add(exportDocsOption);
         fileMenu.add(exportGradesOption);
         fileMenu.add(visGradesOption);

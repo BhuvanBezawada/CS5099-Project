@@ -4,6 +4,7 @@ import controller.AppController;
 import model.Assignment;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 
@@ -13,6 +14,8 @@ public class SetupOptionsScreen {
     private JPanel setupOptionsScreenPanel;
     private JButton useConfigFileButton;
     private JButton useManualSetupButton;
+    private JButton backButton;
+    private JLabel setupOptionScreenTitleLabel;
 
     private JTextPane instructions;
 
@@ -24,7 +27,12 @@ public class SetupOptionsScreen {
 
         setupOptionsScreen = new JFrame("Please select a setup option");
         setupOptionsScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setupOptionsScreen.setSize(600, 400);
+        setupOptionsScreen.setSize(800, 600);
+
+        setupOptionScreenTitleLabel = new JLabel("Setup Options");
+        setupOptionScreenTitleLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 28));
+        setupOptionScreenTitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        setupOptionScreenTitleLabel.setBorder(new EmptyBorder(0,0,20,0));//top,left,bottom,right
 
         setupOptionsScreenPanel = new JPanel();
         setupOptionsScreenPanel.setLayout(new BoxLayout(setupOptionsScreenPanel, BoxLayout.PAGE_AXIS));
@@ -48,9 +56,12 @@ public class SetupOptionsScreen {
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 configFilePath = fileChooser.getSelectedFile().getPath();
                 System.out.println("Config file path: " + configFilePath);
+
+                setupOptionsScreen.dispose();
+                new Thread(SetupOptionsScreen::showLoadingScreen).start();
+
                 Assignment assignment = controller.createAssignmentFromConfig(configFilePath);
                 FeedbackScreen feedbackScreen = new FeedbackScreen(controller, assignment);
-                setupOptionsScreen.dispose();
             }
         });
 
@@ -61,24 +72,43 @@ public class SetupOptionsScreen {
         useManualSetupButton.setMaximumSize(new Dimension(200, 50));
         useManualSetupButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         useManualSetupButton.addActionListener(l -> {
-            JOptionPane.showMessageDialog(setupOptionsScreen, "Starting new assignment!");
             setupOptionsScreen.dispose();
             CreateAssignmentScreen createAssignmentScreen = new CreateAssignmentScreen(controller);
         });
 
+        backButton = new JButton("Back");
+        backButton.setMinimumSize(new Dimension(200, 50));
+        backButton.setPreferredSize(new Dimension(200, 50));
+        backButton.setMaximumSize(new Dimension(200, 50));
+        backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        backButton.addActionListener(l -> {
+            setupOptionsScreen.dispose();
+            HomeScreen homeScreen = new HomeScreen(controller);
+        });
+
         setupInstructions();
 
+        setupOptionsScreenPanel.add(setupOptionScreenTitleLabel);
+        setupOptionsScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
         setupOptionsScreenPanel.add(instructions);
         setupOptionsScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
         setupOptionsScreenPanel.add(useConfigFileButton);
         setupOptionsScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
         setupOptionsScreenPanel.add(useManualSetupButton);
+        setupOptionsScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
+        setupOptionsScreenPanel.add(backButton);
+
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (screenSize.width - setupOptionsScreen.getWidth())/2;
+        int y = (screenSize.height - setupOptionsScreen.getHeight())/2;
+        setupOptionsScreen.setLocation(x, y);
 
         setupOptionsScreen.add(setupOptionsScreenPanel);
         setupOptionsScreen.setVisible(true);
     }
 
-    private void setupInstructions() {
+    public void setupInstructions() {
         this.instructions = new JTextPane();
 
         instructions.setText(
@@ -95,5 +125,31 @@ public class SetupOptionsScreen {
         instructions.setAlignmentX(Component.CENTER_ALIGNMENT);
     }
 
+
+    public static void showLoadingScreen() {
+        // Splash screen adapted from:
+        // https://www.tutorialspoint.com/how-can-we-implement-a-splash-screen-using-jwindow-in-java
+
+        JWindow splash = new JWindow();
+        ImageIcon imageIcon = new ImageIcon(SetupOptionsScreen.class.getResource("/loadingscreen.png"));
+
+        splash.setSize(imageIcon.getIconWidth(), imageIcon.getIconHeight());
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (screenSize.width - imageIcon.getIconWidth())/2;
+        int y = (screenSize.height - imageIcon.getIconHeight())/2;
+        splash.setLocation(x, y);
+        splash.setVisible(true);
+
+        Graphics graphics = splash.getGraphics();
+        splash.paint(graphics);
+        graphics.drawImage(imageIcon.getImage(), 0, 0, splash);
+
+        try {
+            Thread.sleep(3000);
+            splash.dispose();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

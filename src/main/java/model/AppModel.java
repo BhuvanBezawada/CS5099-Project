@@ -100,10 +100,12 @@ public class AppModel implements IAppModel {
         return this.assignment;
     }
 
-    public void setCurrentScreenView(String studentId) {
+    public void setCurrentScreenView(String studentId, boolean changeDoc) {
         this.lastStudentId = this.currentStudentId;
         this.currentStudentId = studentId;
-        notifySubscribers("docViewChange", studentId);
+        if (changeDoc) {
+            notifySubscribers("docViewChange", studentId);
+        }
     }
 
     public String getLastScreenView() {

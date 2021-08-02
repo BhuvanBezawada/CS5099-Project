@@ -168,12 +168,14 @@ public class Assignment implements Serializable {
         try (BufferedReader reader = new BufferedReader(new FileReader(studentManifestFile))) {
             while (reader.ready()) {
                 String studentId = reader.readLine().trim();
-                FeedbackDocument feedbackDocument = new FeedbackDocument(this, studentId);
+                if (!studentId.isEmpty()) {
+                    FeedbackDocument feedbackDocument = new FeedbackDocument(this, studentId);
 
-                this.studentIds.add(studentId);
-                this.feedbackDocuments.add(feedbackDocument);
+                    this.studentIds.add(studentId);
+                    this.feedbackDocuments.add(feedbackDocument);
 
-                this.studentIdAndFeedbackDocumentMap.put(studentId, feedbackDocument);
+                    this.studentIdAndFeedbackDocumentMap.put(studentId, feedbackDocument);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

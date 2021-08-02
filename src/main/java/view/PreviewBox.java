@@ -12,7 +12,7 @@ import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
-public class PreviewBox extends JPanel {
+public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
 
     private String heading;
     private String uniqueLine;
@@ -119,5 +119,16 @@ public class PreviewBox extends JPanel {
         this.textPane.setText(heading + "\n\n" + uniqueLine + "\n" + "Grade: " + grade);
         textPane.repaint();
         textPane.revalidate();
+    }
+
+    @Override
+    public int compareTo(PreviewBox o) {
+        try {
+            int thisNum = Integer.parseInt(heading);
+            int otherNum = Integer.parseInt(o.getHeading());
+            return thisNum - otherNum;
+        } catch (NumberFormatException | ClassCastException e) {
+            return 0;
+        }
     }
 }

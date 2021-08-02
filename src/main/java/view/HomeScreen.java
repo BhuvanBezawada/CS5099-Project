@@ -42,10 +42,19 @@ public class HomeScreen {
 
     public void displayHomeScreen() {
         homeScreenPanel.add(titleLabel);
+        homeScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
         homeScreenPanel.add(descriptionLabel);
+        homeScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
         homeScreenPanel.add(startNewButton);
+        homeScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
         homeScreenPanel.add(loadButton);
-        homeScreenPanel.add(helpButton);
+        homeScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
+        //homeScreenPanel.add(helpButton);
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (screenSize.width - homeScreen.getWidth())/2;
+        int y = (screenSize.height - homeScreen.getHeight())/2;
+        homeScreen.setLocation(x, y);
 
         // Add home screen panel to home screen frame
         homeScreen.add(homeScreenPanel);
@@ -58,6 +67,7 @@ public class HomeScreen {
 
         // Layout from top to bottom
         homeScreenPanel.setLayout(new BoxLayout(homeScreenPanel, BoxLayout.PAGE_AXIS));
+        homeScreenPanel.setBorder(BorderCreator.createEmptyBorder(50));
     }
 
     public void createTitle() {
@@ -65,21 +75,23 @@ public class HomeScreen {
         titleLabel.setText("Feedback Helper Tool");
         titleLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 28));
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        titleLabel.setBorder(new EmptyBorder(20,0,20,0));//top,left,bottom,right
+        titleLabel.setBorder(new EmptyBorder(0,0,20,0));//top,left,bottom,right
     }
 
     public void createDescription() {
         descriptionLabel = new JTextPane();
         descriptionLabel.setText(
                 "Welcome to the Feedback Helper Tool! " +
-                "To learn how to use this tool, please click the 'Help' button at the bottom of the screen. " +
+//                "To learn how to use this tool, please click the 'Help' button at the bottom of the screen. " +
                 "To get started with creating feedback documents click the 'Start New Assignment' button. " +
-                "To resume creating Feedback documents click the 'Load Assignment' button."
+                "You will then be prompted to setup your assignment via a JSON configuration file or through a manual guided setup. " +
+                "To resume creating feedback documents click the 'Load Assignment' button and select your '.fht' file."
         );
 
-        descriptionLabel.setMaximumSize(new Dimension(500, 150));
-        descriptionLabel.setPreferredSize(new Dimension(500, 150));
-        descriptionLabel.setMinimumSize(new Dimension(500, 150));
+        descriptionLabel.setBorder(BorderCreator.createAllSidesEmptyBorder(20));
+        descriptionLabel.setMaximumSize(new Dimension(500, 210));
+        descriptionLabel.setPreferredSize(new Dimension(500, 210));
+        descriptionLabel.setMinimumSize(new Dimension(500, 210));
         descriptionLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 18));
         descriptionLabel.setEditable(false);
         descriptionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -91,7 +103,6 @@ public class HomeScreen {
         startNewButton.setPreferredSize(new Dimension(300, 50));
         startNewButton.setMinimumSize(new Dimension(300, 50));
         startNewButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(homeScreen, "Starting new assignment!");
             homeScreen.dispose();
 //            CreateAssignmentScreen createAssignmentScreen = new CreateAssignmentScreen(controller);
             SetupOptionsScreen setupOptionsScreen = new SetupOptionsScreen(controller);
@@ -116,22 +127,21 @@ public class HomeScreen {
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 assignmentFilePath = fileChooser.getSelectedFile().getPath();
                 System.out.println("Assignment file path: " + assignmentFilePath);
+                homeScreen.dispose();
             }
 
-            homeScreen.dispose();
             if (assignmentFilePath != null) {
+                new Thread(SetupOptionsScreen::showLoadingScreen).start();
                 Assignment assignment = controller.loadAssignment(assignmentFilePath);
                 FeedbackScreen feedbackScreen = new FeedbackScreen(controller, assignment);
             }
         });
 
-        helpButton = new JButton("Help");
-        helpButton.setMaximumSize(new Dimension(300, 50));
-        helpButton.setPreferredSize(new Dimension(300, 50));
-        helpButton.setMinimumSize(new Dimension(300, 50));
-        helpButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+//        helpButton = new JButton("Help");
+//        helpButton.setMaximumSize(new Dimension(300, 50));
+//        helpButton.setPreferredSize(new Dimension(300, 50));
+//        helpButton.setMinimumSize(new Dimension(300, 50));
+//        helpButton.setAlignmentX(Component.CENTER_ALIGNMENT);
     }
-
-
 
 }

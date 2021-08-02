@@ -118,7 +118,12 @@ public class AppController {
     public void displayNewDocument(Assignment assignment, String studentId) {
         System.out.println("New doc clicked: " + studentId);
         documentDatabase.updateAndStoreFeedbackDocument(assignment, studentId);
-        appModel.setCurrentScreenView(studentId);
+        appModel.setCurrentScreenView(studentId, true);
+    }
+
+
+    public void setCurrentDocInView(String studentId) {
+        appModel.setCurrentScreenView(studentId, false);
     }
 
     public void registerWithModel(PropertyChangeListener propertyChangeListener){
@@ -174,7 +179,6 @@ public class AppController {
         // Filter out empty lines
         if (!phrase.trim().isEmpty() && !phrase.trim().equals(getLineMarker())) {
             Phrase phrase1 = new Phrase(phrase);
-            phrase1.incrementUsageCount();
             graphDatabase.addPhraseToCustomNode(phrase1);
             appModel.addNewCustomPhrase(phrase1);
         } else {
