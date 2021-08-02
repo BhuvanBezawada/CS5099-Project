@@ -4,8 +4,7 @@ import controller.AppController;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
@@ -146,8 +145,19 @@ public class FeedbackBox extends JPanel {
     }
 
     public void insertPhrase(String phrase) {
+        System.out.println("1 - CONTROLLER current doc in view: " + controller.getCurrentDocInView());
+        // insert phrase
         int caretPos = this.textPane.getCaretPosition();
-        textPane.insert(phrase, caretPos);
+        textPane.insert(phrase + "\n", caretPos);
+        System.out.println("2 - CONTROLLER current doc in view: " + controller.getCurrentDocInView());
+
+        // save new state
+        captureState();
+        System.out.println("3 - CONTROLLER current doc in view: " + controller.getCurrentDocInView());
+        System.out.println("Completed lines : " + currentBoxContents.size());
+        controller.updatePhrases(heading, previousBoxContents, currentBoxContents);
+        insertLineMarkerForNewLine();
+        System.out.println("4 - CONTROLLER current doc in view: " + controller.getCurrentDocInView());
     }
 
     private void insertLineMarkerForNewLine(){

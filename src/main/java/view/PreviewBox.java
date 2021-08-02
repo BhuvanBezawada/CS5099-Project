@@ -11,6 +11,8 @@ import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
 
@@ -73,16 +75,10 @@ public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
         this.textPane.setLineWrap(false);
 
         // Listen for clicks on the text area
-        this.textPane.addFocusListener(new FocusListener() {
+        this.textPane.addMouseListener(new MouseAdapter() {
             @Override
-            public void focusGained(FocusEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 controller.displayNewDocument(assignment, heading);
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                //controller.saveFeedbackDocument(heading);
-                //unhighlight();
             }
         });
 
