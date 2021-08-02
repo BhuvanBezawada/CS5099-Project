@@ -13,11 +13,11 @@ public class EditingPopupMenu {
     private String selectedText;
     private Map<PhraseType, PhrasesPanel> phrasesPanelsMap;
 
-    private JMenuItem cut = new JMenuItem("Cut");
+//    private JMenuItem cut = new JMenuItem("Cut");
     private JMenuItem copy = new JMenuItem("Copy");
     private JMenuItem paste = new JMenuItem("Paste");
-    private JMenuItem addPhrase = new JMenuItem("Add phrase to bank");
-    private JMenuItem excludePhrase = new JMenuItem("Exclude phrase from bank");
+//    private JMenuItem addPhrase = new JMenuItem("Add phrase to bank");
+//    private JMenuItem excludePhrase = new JMenuItem("Exclude phrase from bank");
 
     public EditingPopupMenu() {
         this.popupMenu = new JPopupMenu();
@@ -26,7 +26,7 @@ public class EditingPopupMenu {
     }
 
     private void setupPopupMenu() {
-        popupMenu.add(cut);
+//        popupMenu.add(cut);
 
         popupMenu.add(copy);
         setupCopyOperation();
@@ -36,10 +36,10 @@ public class EditingPopupMenu {
 
         popupMenu.addSeparator();
 
-        popupMenu.add(addPhrase);
-        setupAddPhraseOperation();
-
-        popupMenu.add(excludePhrase);
+//        popupMenu.add(addPhrase);
+//        setupAddPhraseOperation();
+//
+//        popupMenu.add(excludePhrase);
     }
 
     public void registerFeedbackBox(FeedbackBox feedbackBox) {
@@ -78,11 +78,11 @@ public class EditingPopupMenu {
         });
     }
 
-    private void setupAddPhraseOperation() {
-        addPhrase.addActionListener(e -> {
-            JTextArea invoker = (JTextArea) popupMenu.getInvoker();
-            selectedText = invoker.getSelectedText();
-            phrasesPanelsMap.get(PhraseType.CUSTOM).addPhrase(selectedText, 1);
-        });
-    }
+//    private void setupAddPhraseOperation() {
+//        addPhrase.addActionListener(e -> {
+//            JTextArea invoker = (JTextArea) popupMenu.getInvoker();
+//            selectedText = invoker.getSelectedText();
+//            phrasesPanelsMap.get(PhraseType.CUSTOM).addPhrase(selectedText, 1);
+//        });
+//    }
 }

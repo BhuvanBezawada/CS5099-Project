@@ -58,6 +58,9 @@ public class AppController {
 
     public Assignment loadAssignment(String assignmentFilePath) {
         Assignment assignment = appModel.loadAssignment(assignmentFilePath);
+        System.out.println("ASSIGNMENT LOADING DETAILS: " + assignment);
+        System.out.println("ASSIGNMENT LOADING DETAILS: " + assignment.getLineMarker());
+
         loadFeedbackDocuments(assignment);
 //        assignment.getAssignmentHeadings().forEach(heading -> {
 //            List<Phrase> phrasesForHeading = graphDatabase.getPhrasesForHeading(heading);

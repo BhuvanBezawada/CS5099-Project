@@ -216,6 +216,10 @@ public class CreateAssignmentScreen {
 
                 Assignment assignment = controller.createAssignment(assignmentTitle, assignmentHeadings, studentManifestFile, assignmentDirectoryPath);
                 controller.setAssignmentPreferences(assignment, headingStyles.get(headingStyle), underlineStyles.get(headingUnderlineStyle), lineSpacing, lineMarker);
+                controller.saveAssignment(assignment, assignment.getAssignmentTitle()
+                        .toLowerCase()
+                        .replace(" ", "-")
+                        .replace(".db", ""));
 
                 FeedbackScreen feedbackScreen = new FeedbackScreen(controller, assignment);
             } else {

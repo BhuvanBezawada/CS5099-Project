@@ -6,13 +6,18 @@ import java.util.stream.Collectors;
 
 public class Assignment implements Serializable {
 
-    private static final long serialVersionUID = 1200109309800080026L;
+    private static final long serialVersionUID = 1200109309800080100L;
 
     private String assignmentTitle;
     private List<String> assignmentHeadings;
     private List<String> studentIds;
     private List<FeedbackDocument> feedbackDocuments;
     private Map<String, FeedbackDocument> studentIdAndFeedbackDocumentMap;
+
+    private String headingStyle;
+    private String underlineStyle;
+    private int lineSpacing;
+    private String lineMarker;
 
     private static final List<String> headingStyles = Collections.unmodifiableList(
             new ArrayList<String>() {{
@@ -95,11 +100,6 @@ public class Assignment implements Serializable {
             this.lineMarker = "- ";
         }
     }
-
-    private String headingStyle;
-    private String underlineStyle;
-    private int lineSpacing;
-    private String lineMarker;
 
     public String getAssignmentDirectoryPath() {
         return assignmentDirectoryPath;

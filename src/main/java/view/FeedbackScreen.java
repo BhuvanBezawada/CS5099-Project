@@ -134,7 +134,7 @@ public class FeedbackScreen implements PropertyChangeListener {
         editorPanel.registerPopupMenu(editingPopupMenu);
 
         // Set the document data if it exists
-        editorPanel.setData(assignment.getFeedbackDocuments().get(0));
+        editorPanel.setData(assignment.getFeedbackDocumentForStudent(controller.getCurrentDocInView()));
 
         editorPanelScrollPane.add(editorPanel);
         editorPanelScrollPane.getViewport().setView(editorPanel);
