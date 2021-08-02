@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.io.File;
 
 public class SetupOptionsScreen {
 
@@ -57,11 +58,16 @@ public class SetupOptionsScreen {
                 configFilePath = fileChooser.getSelectedFile().getPath();
                 System.out.println("Config file path: " + configFilePath);
 
-                setupOptionsScreen.dispose();
-                new Thread(SetupOptionsScreen::showLoadingScreen).start();
+                File configFile = new File(configFilePath);
+                if (configFile.exists()) {
+                    setupOptionsScreen.dispose();
+                    new Thread(SetupOptionsScreen::showLoadingScreen).start();
 
-                Assignment assignment = controller.createAssignmentFromConfig(configFilePath);
-                FeedbackScreen feedbackScreen = new FeedbackScreen(controller, assignment);
+                    Assignment assignment = controller.createAssignmentFromConfig(configFilePath);
+                    FeedbackScreen feedbackScreen = new FeedbackScreen(controller, assignment);
+                } else {
+                    JOptionPane.showMessageDialog(setupOptionsScreen, "Please select a JSON config file!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 

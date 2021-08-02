@@ -248,7 +248,7 @@ public class FeedbackScreen implements PropertyChangeListener {
                 double grade = editorPanel.getGrade();
                 if (grade >= 0) {
                     controller.saveFeedbackDocument(assignment, studentId, headingsAndData, grade);
-                    previewPanel.updatePreviewBox(studentId, controller.getRandomLineFromDoc(assignment, studentId), grade);
+                    previewPanel.updatePreviewBox(studentId, "<still implementing preview text>", grade);
                 }
                 break;
             case "updatePhrases":
