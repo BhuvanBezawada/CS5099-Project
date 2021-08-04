@@ -184,7 +184,8 @@ public class FeedbackScreen implements PropertyChangeListener {
         });
 
         sentimentOption.addActionListener(l -> {
-            JOptionPane.showMessageDialog(feedbackScreen, "Feature still to be implemented!");
+//            JOptionPane.showMessageDialog(feedbackScreen, "Feature still to be implemented!");
+            new SentimentViewer(controller, assignment.getFeedbackDocumentForStudent(controller.getCurrentDocInView()));
         });
 
         exportDocsOption.addActionListener(l -> {

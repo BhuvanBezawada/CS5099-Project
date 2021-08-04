@@ -11,6 +11,7 @@ import model.Assignment;
 import model.FeedbackDocument;
 import model.Phrase;
 import nlp.BasicPipelineExample;
+import org.checkerframework.checker.units.qual.C;
 import view.PhraseType;
 
 import java.beans.PropertyChangeListener;
@@ -176,6 +177,12 @@ public class AppController {
         sentenceList.forEach(e -> System.out.println( e + " - " + e.sentiment()));
 
         return sentenceList.get(0).sentiment();
+    }
+
+    public CoreDocument getSentimentForText(String text) {
+        CoreDocument coreDocument = new CoreDocument(text);
+        nlp.annotate(coreDocument);
+        return coreDocument;
     }
 
     public void addNewCustomPhraseFromView(String phrase) {
