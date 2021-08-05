@@ -2,6 +2,7 @@ package database;
 
 import controller.Pair;
 import controller.Utilities;
+import model.LinkedPhrases;
 import model.Phrase;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -51,7 +52,7 @@ public class GraphDatabaseManager {
         }
     }
 
-    public void managePhraseLinks(List<String> oldList, List<String> newList) {
+    public void managePhraseLinks(String heading, List<String> oldList, List<String> newList) {
         
         List<Pair<String>> oldPairs = Utilities.getPairs(oldList);
         List<Pair<String>> newPairs = Utilities.getPairs(newList);
@@ -63,16 +64,16 @@ public class GraphDatabaseManager {
         System.out.println("Pairs to add: " + pairsToAdd);
 
         pairsToRemove.forEach(pair -> {
-            if (linkExists(pair.getItemOne(), pair.getItemTwo())) {
-                updateLinkUsageCount(pair.getItemOne(), pair.getItemTwo(), -1);
+            if (linkExists(heading, pair.getItemOne(), pair.getItemTwo())) {
+                updateLinkUsageCount(heading, pair.getItemOne(), pair.getItemTwo(), -1);
             } // else the node has been deleted, so no need to do anything
         });
 
         pairsToAdd.forEach(pair -> {
-            if (linkExists(pair.getItemOne(), pair.getItemTwo())) {
-                updateLinkUsageCount(pair.getItemOne(), pair.getItemTwo(), 1);
+            if (linkExists(heading, pair.getItemOne(), pair.getItemTwo())) {
+                updateLinkUsageCount(heading, pair.getItemOne(), pair.getItemTwo(), 1);
             } else {
-                createFollowedByLink(pair.getItemOne(), pair.getItemTwo());
+                createFollowedByLink(heading, pair.getItemOne(), pair.getItemTwo());
             }
         });
 
@@ -95,14 +96,16 @@ public class GraphDatabaseManager {
 //        }
     }
 
-    private void updateLinkUsageCount(String first, String second, int update) {
+    private void updateLinkUsageCount(String heading, String first, String second, int update) {
         Map<String, Object> params = new HashMap<>();
+        params.put( "heading", heading);
         params.put( "phrase1", first);
         params.put( "phrase2", second);
         params.put( "update", update);
 
-        String query = "MATCH (p1:Phrase {phrase: $phrase1})" +
-                "-[rel:FOLLOWED_BY]->(p2:Phrase {phrase: $phrase2})" +
+        String query =
+                "MATCH (h:Heading {heading: $heading}) " +
+                "MATCH (p1:Phrase {phrase: $phrase1}) -[rel:FOLLOWED_BY]-> (p2:Phrase {phrase: $phrase2}) " +
                 "SET rel.usage = rel.usage + $update";
 
         try (Transaction tx = graphDb.beginTx()){
@@ -114,13 +117,15 @@ public class GraphDatabaseManager {
         }
     }
 
-    private boolean linkExists(String first, String second) {
+    private boolean linkExists(String heading, String first, String second) {
         Map<String, Object> params = new HashMap<>();
+        params.put( "heading", heading);
         params.put( "phrase1", first);
         params.put( "phrase2", second);
 
-        String query = "MATCH (p1:Phrase {phrase: $phrase1})" +
-                "-[rel:FOLLOWED_BY]->(p2:Phrase {phrase: $phrase2})" +
+        String query =
+                "MATCH (h:Heading {heading: $heading}) " +
+                "MATCH (p1:Phrase {phrase: $phrase1}) -[rel:FOLLOWED_BY]-> (p2:Phrase {phrase: $phrase2})" +
                 "RETURN p1.phrase, p2.phrase";
 
         boolean retVal = false;
@@ -136,12 +141,15 @@ public class GraphDatabaseManager {
         return retVal;
     }
 
-    private void createFollowedByLink(String first, String second) {
+    private void createFollowedByLink(String heading, String first, String second) {
         Map<String, Object> params = new HashMap<>();
+        params.put( "heading", heading);
         params.put( "phrase1", first);
         params.put( "phrase2", second);
 
-        String query = "MATCH (p1:Phrase {phrase: $phrase1}) " +
+        String query =
+                "MATCH (h:Heading {heading: $heading}) " +
+                "MATCH (p1:Phrase {phrase: $phrase1}) " +
                 "MATCH (p2:Phrase {phrase: $phrase2}) " +
                 "CREATE (p1)-[rel:FOLLOWED_BY]->(p2)" +
                 "SET rel.usage = 1";
@@ -155,19 +163,42 @@ public class GraphDatabaseManager {
         }
     }
 
-    public void getLinkedPhrases(String heading) {
+    public List<LinkedPhrases> getLinkedPhrases(String heading) {
         Map<String, Object> params = new HashMap<>();
         params.put( "heading", heading);
 
         String query = "MATCH (h:Heading {heading: $heading})" +
                 "MATCH (p1:Phrase) -[rel:FOLLOWED_BY]-> (p2:Phrase)" +
-                "RETURN h, p1.phrase, p2.phrase, rel.usage";
+                "RETURN h, p1, p2, rel";
+
+        List<LinkedPhrases> linkedPhrasesList = new ArrayList<LinkedPhrases>();
 
         try (Transaction tx = graphDb.beginTx()) {
             Result results = graphDb.execute(query, params);
 
-            System.out.println("LINKED PHRASES RESULTS : \n" + results.resultAsString());
+//            System.out.println("LINKED PHRASES RESULTS : \n" + results.resultAsString());
+
+            results.stream().forEach(result -> {
+                System.out.println("result" + result);
+                Node p1 = (Node) result.get("p1");
+                Node p2 = (Node) result.get("p2");
+                Relationship rel = (Relationship) result.get("rel");
+
+                Phrase phrase1 = new Phrase(p1.getProperty("phrase").toString());
+                phrase1.setUsageCount(Integer.parseInt(p1.getProperty("usageCount").toString()));
+
+                Phrase phrase2 = new Phrase(p2.getProperty("phrase").toString());
+                phrase1.setUsageCount(Integer.parseInt(p2.getProperty("usageCount").toString()));
+
+                int usage = Integer.parseInt(rel.getProperty("usage").toString());
+
+                LinkedPhrases linkedPhrases = new LinkedPhrases(phrase1, phrase2, usage);
+
+                linkedPhrasesList.add(linkedPhrases);
+            });
         }
+
+        return linkedPhrasesList;
     }
 
 

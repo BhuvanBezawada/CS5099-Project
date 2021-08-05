@@ -91,7 +91,7 @@ public class TestGraphDatabaseManager {
 //        graphDatabaseManager.addPhraseForHeading("Introduction", new Phrase("Phrase 3"));
 //        graphDatabaseManager.addPhraseForHeading("Introduction", new Phrase("Phrase 4"));
 
-        graphDatabaseManager.managePhraseLinks(oldPhraseList, newPhraseList);
+        graphDatabaseManager.managePhraseLinks("Introduction", oldPhraseList, newPhraseList);
         graphDatabaseManager.getLinkedPhrases("Introduction");
 
 //        List<Pair<Phrase>> oldPairs = Utilities.getPairs(oldPhraseList);

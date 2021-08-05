@@ -6,10 +6,7 @@ import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.CoreSentence;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import main.Vis;
-import model.AppModel;
-import model.Assignment;
-import model.FeedbackDocument;
-import model.Phrase;
+import model.*;
 import nlp.BasicPipelineExample;
 import org.checkerframework.checker.units.qual.C;
 import view.PhraseType;
@@ -198,8 +195,15 @@ public class AppController {
 
 
     public void managePhraseLinks(String heading, List<String> previousBoxContents, List<String> currentBoxContents) {
-        graphDatabase.managePhraseLinks(previousBoxContents, currentBoxContents);
-        graphDatabase.getLinkedPhrases(heading);
+        graphDatabase.managePhraseLinks(heading, previousBoxContents, currentBoxContents);
+    }
+
+    public List<LinkedPhrases> getLinkedPhrasesForHeading(String heading) {
+        return graphDatabase.getLinkedPhrases(heading);
+    }
+
+    public void requestLinkedPhrases() {
+        appModel.notifySubscribers("requestingLinkedPhrases", "");
     }
 
     public void updatePhrases(String heading, List<String> previousBoxContents, List<String> newBoxContents) {

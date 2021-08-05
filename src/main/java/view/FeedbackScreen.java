@@ -2,6 +2,7 @@ package view;
 
 import controller.AppController;
 import model.Assignment;
+import model.LinkedPhrases;
 import model.Phrase;
 import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.Has;
 
@@ -292,6 +293,13 @@ public class FeedbackScreen implements PropertyChangeListener {
                         phraseEntryBox.enablePhraseEntryBox();
                     } else {
                         phraseEntryBox.disablePhraseEntryBox();
+                    }
+
+                    if (panelInView == PhraseType.INSIGHTS) {
+                        List<LinkedPhrases> linkedPhrasesForHeading = controller.getLinkedPhrasesForHeading(controller.getCurrentHeadingBeingEdited());
+                        linkedPhrasesForHeading.forEach(linkedPhrases -> {
+                            phrasesSection.addInsightToInsightPanel(linkedPhrases);
+                        });
                     }
                 }
                 break;

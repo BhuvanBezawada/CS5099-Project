@@ -1,6 +1,7 @@
 package view;
 
 import controller.AppController;
+import model.LinkedPhrases;
 import model.Phrase;
 
 import javax.swing.*;
@@ -75,5 +76,10 @@ public class PhrasesPanel extends JPanel {
     private void updatePhrasePanel() {
         this.revalidate();
         this.repaint();
+    }
+
+    public void addInsightBox(LinkedPhrases linkedPhrases) {
+        this.add(new InsightBox(controller, linkedPhrases));
+        updatePhrasePanel();
     }
 }

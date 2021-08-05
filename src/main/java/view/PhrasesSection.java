@@ -1,6 +1,7 @@
 package view;
 
 import controller.AppController;
+import model.LinkedPhrases;
 
 import javax.swing.*;
 import java.awt.*;
@@ -91,6 +92,10 @@ public class PhrasesSection extends JPanel {
         if (index >= 0) {
             tabbedPane.setSelectedIndex(index);
         }
+    }
+
+    public void addInsightToInsightPanel(LinkedPhrases linkedPhrases) {
+        phrasesPanelsByType.get(PhraseType.INSIGHTS).addInsightBox(linkedPhrases);
     }
 
 }
