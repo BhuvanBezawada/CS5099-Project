@@ -310,6 +310,19 @@ public class AppModel implements IAppModel {
     public String getLineMarker() {
         return assignment.getLineMarker();
     }
+
+    public String getHeadingStyle() {
+        return assignment.getHeadingStyle();
+    }
+
+    public String getUnderlineStyle() {
+        return assignment.getUnderlineStyle();
+    }
+
+    public int getLineSpacing() {
+        return assignment.getLineSpacing();
+    }
+
 }
 
 

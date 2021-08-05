@@ -305,4 +305,16 @@ public class AppController {
         customPhrases.forEach(customPhrase -> appModel.addNewCustomPhrase(customPhrase));
     }
 
+    public String getHeadingStyle() {
+        return appModel.getHeadingStyle();
+    }
+
+    public String getUnderlineStyle() {
+        return appModel.getUnderlineStyle();
+    }
+
+    public int getLineSpacing() {
+        return appModel.getLineSpacing();
+    }
+
 }

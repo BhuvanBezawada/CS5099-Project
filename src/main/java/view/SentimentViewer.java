@@ -6,6 +6,7 @@ import model.FeedbackDocument;
 import nlp.BasicPipelineExample;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
@@ -33,15 +34,20 @@ public class SentimentViewer extends JFrame {
 
     public SentimentViewer(AppController controller, FeedbackDocument feedbackDocument) {
         this.controller = controller;
-        this.documentPanel = new JPanel();
-        this.documentPanel.setLayout(new BoxLayout(this.documentPanel, BoxLayout.PAGE_AXIS));
+        this.documentPanel = new JPanel(new BorderLayout());
         this.documentPanel.setBorder(BorderCreator.createAllSidesEmptyBorder(50));
 
         this.textArea = new JTextArea();
-        this.titleLabel = new JLabel("Document for: " );
+        this.textArea.setBorder(BorderCreator.createAllSidesEmptyBorder(20));
+        this.textArea.setEditable(false);
 
-        this.documentPanel.add(titleLabel);
-        this.documentPanel.add(textArea);
+        this.titleLabel = new JLabel("Sentiment Overview of Document for: " + controller.getCurrentDocInView());
+        titleLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 18));
+        titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        titleLabel.setBorder(new EmptyBorder(0, 0,20,20));
+
+        this.documentPanel.add(titleLabel, BorderLayout.PAGE_START);
+        this.documentPanel.add(new JScrollPane(textArea), BorderLayout.CENTER);
         this.add(documentPanel);
 
 
@@ -68,13 +74,23 @@ public class SentimentViewer extends JFrame {
         Highlighter highlighter = textArea.getHighlighter();
 
         feedbackDocument.getHeadings().forEach(heading -> {
-            textArea.append(heading + "\n");
+            // Heading
+            textArea.append(controller.getHeadingStyle() + heading + "\n");
             lineNum.getAndIncrement();
 
+            // Underline heading if required
+            String underlineStyle = controller.getUnderlineStyle();
+            if (!underlineStyle.isEmpty()){
+                for (int i = 0; i < controller.getHeadingStyle().length() + heading.length(); i++) {
+                    textArea.append(underlineStyle);
+                }
+            }
+            textArea.append("\n");
+            lineNum.getAndIncrement();
+
+            // Section data
             String data = feedbackDocument.getHeadingData(heading).replace("\n", ".");
-
             CoreDocument sentimentForText = controller.getSentimentForText(data);
-
             sentimentForText.sentences().forEach(sentence -> {
 
                 if (!sentence.text().startsWith(".") && !sentence.text().trim().equals("-")) {
@@ -97,6 +113,11 @@ public class SentimentViewer extends JFrame {
                 }
             });
 
+            // End section spacing
+            for (int i = 0; i < controller.getLineSpacing(); i++) {
+                textArea.append("\n");
+                lineNum.getAndIncrement();
+            }
             textArea.append("\n");
             lineNum.getAndIncrement();
         });
