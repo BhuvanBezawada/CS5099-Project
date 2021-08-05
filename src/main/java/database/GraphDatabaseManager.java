@@ -1,5 +1,6 @@
 package database;
 
+import controller.Pair;
 import controller.Utilities;
 import model.Phrase;
 import org.neo4j.graphdb.*;
@@ -47,6 +48,125 @@ public class GraphDatabaseManager {
             tx.success();
         } catch (TransactionFailureException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void managePhraseLinks(List<String> oldList, List<String> newList) {
+        
+        List<Pair<String>> oldPairs = Utilities.getPairs(oldList);
+        List<Pair<String>> newPairs = Utilities.getPairs(newList);
+
+        List<Pair<String>> pairsToRemove = Utilities.getPairsToRemove(oldPairs, newPairs);
+        List<Pair<String>> pairsToAdd = Utilities.getPairsToAdd(oldPairs, newPairs);
+
+        System.out.println("Pairs to remove/update: " + pairsToRemove);
+        System.out.println("Pairs to add: " + pairsToAdd);
+
+        pairsToRemove.forEach(pair -> {
+            if (linkExists(pair.getItemOne(), pair.getItemTwo())) {
+                updateLinkUsageCount(pair.getItemOne(), pair.getItemTwo(), -1);
+            } // else the node has been deleted, so no need to do anything
+        });
+
+        pairsToAdd.forEach(pair -> {
+            if (linkExists(pair.getItemOne(), pair.getItemTwo())) {
+                updateLinkUsageCount(pair.getItemOne(), pair.getItemTwo(), 1);
+            } else {
+                createFollowedByLink(pair.getItemOne(), pair.getItemTwo());
+            }
+        });
+
+        //List<Phrase> phrasesForHeading = getPhrasesForHeading(heading);
+
+//        for (int i = 0; i < phrases.size() - 1; i++) {
+//            Phrase first = new Phrase(phrases.get(i));
+//            Phrase second = new Phrase(phrases.get(i+1));
+//
+//            // If both are in the db, check if they are linked otherwise link them
+//            if (phrasesForHeading.contains(first) && phrasesForHeading.contains(second)) {
+//                if (linkExists(first, second)) {
+//                    // Link exists, so update link usage count
+//                    updateLinkUsageCount(first, second);
+//                } else {
+//                    // Link does not exist, so create one
+//                    createFollowedByLink(first, second);
+//                }
+//            }
+//        }
+    }
+
+    private void updateLinkUsageCount(String first, String second, int update) {
+        Map<String, Object> params = new HashMap<>();
+        params.put( "phrase1", first);
+        params.put( "phrase2", second);
+        params.put( "update", update);
+
+        String query = "MATCH (p1:Phrase {phrase: $phrase1})" +
+                "-[rel:FOLLOWED_BY]->(p2:Phrase {phrase: $phrase2})" +
+                "SET rel.usage = rel.usage + $update";
+
+        try (Transaction tx = graphDb.beginTx()){
+            graphDb.execute(query, params);
+
+            tx.success();
+
+            System.out.println("Linked phrases with followed_by relationship");
+        }
+    }
+
+    private boolean linkExists(String first, String second) {
+        Map<String, Object> params = new HashMap<>();
+        params.put( "phrase1", first);
+        params.put( "phrase2", second);
+
+        String query = "MATCH (p1:Phrase {phrase: $phrase1})" +
+                "-[rel:FOLLOWED_BY]->(p2:Phrase {phrase: $phrase2})" +
+                "RETURN p1.phrase, p2.phrase";
+
+        boolean retVal = false;
+
+        try (Transaction tx = graphDb.beginTx()) {
+            Result results = graphDb.execute(query, params);
+
+            retVal = results.hasNext();
+
+            System.out.println("LINK EXISTENCE CHECK : \n" + results.resultAsString());
+        }
+
+        return retVal;
+    }
+
+    private void createFollowedByLink(String first, String second) {
+        Map<String, Object> params = new HashMap<>();
+        params.put( "phrase1", first);
+        params.put( "phrase2", second);
+
+        String query = "MATCH (p1:Phrase {phrase: $phrase1}) " +
+                "MATCH (p2:Phrase {phrase: $phrase2}) " +
+                "CREATE (p1)-[rel:FOLLOWED_BY]->(p2)" +
+                "SET rel.usage = 1";
+
+        try (Transaction tx = graphDb.beginTx()){
+            graphDb.execute(query, params);
+
+            tx.success();
+
+            System.out.println("Linked phrases with followed_by relationship");
+        }
+    }
+
+    public void getLinkedPhrases(String heading) {
+        Map<String, Object> params = new HashMap<>();
+        params.put( "heading", heading);
+
+        String query = "MATCH (h:Heading {heading: $heading})" +
+                "MATCH (p1:Phrase) -[rel:FOLLOWED_BY]-> (p2:Phrase)" +
+                "RETURN h, p1.phrase, p2.phrase, rel.usage";
+
+        try (Transaction tx = graphDb.beginTx()) {
+            Result results = graphDb.execute(query, params);
+
+            System.out.println("LINKED PHRASES RESULTS : \n" + results.resultAsString());
         }
     }
 

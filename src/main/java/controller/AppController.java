@@ -196,6 +196,12 @@ public class AppController {
         }
     }
 
+
+    public void managePhraseLinks(String heading, List<String> previousBoxContents, List<String> currentBoxContents) {
+        graphDatabase.managePhraseLinks(previousBoxContents, currentBoxContents);
+        graphDatabase.getLinkedPhrases(heading);
+    }
+
     public void updatePhrases(String heading, List<String> previousBoxContents, List<String> newBoxContents) {
         System.out.println("[DEBUG] in controller updatePhrases method");
         // Store previous phrase set

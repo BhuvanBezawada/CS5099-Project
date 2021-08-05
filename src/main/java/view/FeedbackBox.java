@@ -101,6 +101,7 @@ public class FeedbackBox extends JPanel {
                     captureState();
                     System.out.println("Completed lines : " + currentBoxContents.size());
                     controller.updatePhrases(heading, previousBoxContents, currentBoxContents);
+                    controller.managePhraseLinks(heading, previousBoxContents, currentBoxContents);
                     insertLineMarkerForNewLine();
                 }
             }
@@ -156,6 +157,7 @@ public class FeedbackBox extends JPanel {
         System.out.println("3 - CONTROLLER current doc in view: " + controller.getCurrentDocInView());
         System.out.println("Completed lines : " + currentBoxContents.size());
         controller.updatePhrases(heading, previousBoxContents, currentBoxContents);
+        controller.managePhraseLinks(heading, previousBoxContents, currentBoxContents);
         insertLineMarkerForNewLine();
         System.out.println("4 - CONTROLLER current doc in view: " + controller.getCurrentDocInView());
     }
