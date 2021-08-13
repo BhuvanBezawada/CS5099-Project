@@ -8,7 +8,7 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import model.*;
 import nlp.NLPPipline;
 import view.PhraseType;
-import visualisation.Vis;
+import visualisation.Visualisations;
 
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -62,7 +62,7 @@ public class AppController {
         documentDatabase.createFeedbackDocuments(assignment);
 
         // Create the graph database
-        graphDatabase.openOrCreateGraphDatabase(assignment.getAssignmentDirectoryPath() + File.separator + "graphDB" + File.separator + assignment.getDatabaseName());
+        graphDatabase.createGraphDatabase(assignment.getAssignmentDirectoryPath() + File.separator + "graphDB" + File.separator + assignment.getDatabaseName());
         graphDatabase.setUpGraphDbForAssignment(assignment.getAssignmentHeadings());
 
         return assignment;
@@ -101,7 +101,7 @@ public class AppController {
     private void loadFeedbackDocuments(Assignment assignment) {
         // Open the databases
         documentDatabase.openDocumentDatabase(assignment.getAssignmentDirectoryPath() + File.separator + assignment.getDatabaseName());
-        graphDatabase.openOrCreateGraphDatabase(assignment.getAssignmentDirectoryPath() + File.separator + "graphDB" + File.separator + assignment.getDatabaseName());
+        graphDatabase.openGraphDatabase(assignment.getAssignmentDirectoryPath() + File.separator + "graphDB" + File.separator + assignment.getDatabaseName());
 
         // Get the feedback documents from the document database
         List<FeedbackDocument> feedbackDocuments = documentDatabase.loadFeedbackDocumentsForAssignment(assignment);
@@ -171,7 +171,7 @@ public class AppController {
      */
     public void displayNewDocument(Assignment assignment, String studentId) {
         // Get the latest data for the requested document
-        documentDatabase.updateAndStoreFeedbackDocument(assignment, studentId);
+        documentDatabase.updateFeedbackDocument(assignment, studentId);
         appModel.setCurrentDocumentInView(studentId, true);
     }
 
@@ -221,7 +221,7 @@ public class AppController {
 
         // Extract the grades and visualise them
         List<Integer> grades = appModel.getGrades(assignment);
-        Vis.createBarChart(grades);
+        Visualisations.createBarChart(grades);
     }
 
 
@@ -433,7 +433,7 @@ public class AppController {
         documentDatabase.createFeedbackDocuments(assignment);
 
         // Setup the graph database
-        graphDatabase.openOrCreateGraphDatabase(assignment.getAssignmentDirectoryPath() + File.separator + "graphDB" + File.separator + assignment.getDatabaseName());
+        graphDatabase.createGraphDatabase(assignment.getAssignmentDirectoryPath() + File.separator + "graphDB" + File.separator + assignment.getDatabaseName());
         graphDatabase.setUpGraphDbForAssignment(assignment.getAssignmentHeadings());
 
         return assignment;
