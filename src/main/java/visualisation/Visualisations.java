@@ -11,7 +11,8 @@ import java.util.List;
 /**
  * Visualisation Class.
  */
-public class Vis {
+public class Visualisations {
+
     /**
      * Create a bar chart of the grades.
      *
