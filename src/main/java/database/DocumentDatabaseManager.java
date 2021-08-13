@@ -12,51 +12,71 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DocumentDatabaseManager {//implements IDocumentDatabase {
+/**
+ * Document Database Manager Class.
+ */
+public class DocumentDatabaseManager {
 
+    // Database variable
     private Nitrite databaseConnection;
 
+    /**
+     * Create a collection in the database.
+     *
+     * @param collectionName The name of the collection to create.
+     * @return The newly created collection.
+     */
     public NitriteCollection createCollection(String collectionName) {
         return databaseConnection.getCollection(collectionName);
     }
 
-    public void saveChanges() {
-        databaseConnection.commit();
-    }
-
-
+    /**
+     * Check if the database connection is open.
+     *
+     * @return True if open/ready, false otherwise.
+     */
     public boolean documentDatabaseIsReady() {
         return !databaseConnection.isClosed();
     }
 
+    /**
+     * Open the database.
+     *
+     * @param databasePath The database file to open.
+     * @return True if the database was successfully opened, false otherwise.
+     */
     public boolean openDocumentDatabase(String databasePath) {
-        databaseConnection = Nitrite.builder()
+        this.databaseConnection = Nitrite.builder()
                 .compressed()
-                .filePath(databasePath) // "./test.db"
+                .filePath(databasePath)
                 .openOrCreate("user", "password");
 
-        return !databaseConnection.isClosed();
+        return !this.databaseConnection.isClosed();
     }
 
+    /**
+     * Create a database.
+     *
+     * @param databasePath The database file to create.
+     * @return True if the database was successfully opened, false otherwise.
+     */
     public boolean createDocumentDatabase(String databasePath) {
         return openDocumentDatabase(databasePath);
     }
 
-    public boolean closeDocumentDatabaseConnection() {
-        if (!databaseConnection.isClosed()) {
-            databaseConnection.close();
-        }
-        return databaseConnection.isClosed();
-    }
-
+    /**
+     * Create the feedback documents in the database.
+     *
+     * @param assignment The assignment the database is for.
+     * @return True if the documents were created, false otherwise.
+     */
     public boolean createFeedbackDocuments(Assignment assignment) {
-
-        System.out.println("In createFeedbackDocuments: " + assignment.getDatabaseName() + "-feedback-docs");
-
         // Store the assignment's feedback documents into the database
         NitriteCollection assignmentCollection = databaseConnection.getCollection(assignment.getDatabaseCollectionName());
 
-        assignment.getFeedbackDocuments().forEach( feedbackDocument -> {
+        // Create each feedback document
+        assignment.getFeedbackDocuments().forEach(feedbackDocument -> {
+            // Store the actual FeedbackDocument object.
             Document dbDoc = Document.createDocument("feedbackFor", feedbackDocument.getStudentId());
             dbDoc.put("feedbackDocObject", feedbackDocument);
 
@@ -65,8 +85,10 @@ public class DocumentDatabaseManager {//implements IDocumentDatabase {
                 dbDoc.put(heading, "");
             }
 
+            // Store grade
             dbDoc.put("grade", feedbackDocument.getGrade());
 
+            // Commit the document
             assignmentCollection.insert(dbDoc);
         });
 
@@ -76,29 +98,38 @@ public class DocumentDatabaseManager {//implements IDocumentDatabase {
         return databaseConnection.hasCollection(assignment.getDatabaseName());
     }
 
+    /**
+     * Load the feedback documents for a given assignment.
+     *
+     * @param assignment The assignment to load the feedback documents for.
+     * @return A list of feedback documents for the given assignment.
+     */
     public List<FeedbackDocument> loadFeedbackDocumentsForAssignment(Assignment assignment) {
-
         if (documentDatabaseIsReady()) {
+            // Get the collection name and check if it exists
             String collectionName = assignment.getDatabaseCollectionName();
-            System.out.println(databaseConnection.listCollectionNames());
-
             if (databaseConnection.hasCollection(collectionName)) {
-                System.out.println("Found collection");
+                // Get the collection
                 NitriteCollection assignmentCollection = databaseConnection.getCollection(collectionName);
                 Cursor results = assignmentCollection.find();
 
-                System.out.println("Found " + results.size() + " results");
-
+                // Create a list of feedback documents
                 List<FeedbackDocument> feedbackDocuments = new ArrayList<FeedbackDocument>();
+
+                // For each document in the collection, load it into the list of feedback documents
                 results.forEach(result -> {
+                    // Get the feedback document from the database document
                     FeedbackDocument feedbackDocument = (FeedbackDocument) result.get("feedbackDocObject");
 
-                    // Assign data into feedback doc
+                    // Assign data into feedback document
                     assignment.getAssignmentHeadings().forEach(heading -> {
                         feedbackDocument.setDataForHeading(heading, (String) result.get(heading));
                     });
 
+                    // Assign the grade
                     feedbackDocument.setGrade((double) result.get("grade"));
+
+                    // Store the feedback document
                     feedbackDocuments.add(feedbackDocument);
                 });
                 return feedbackDocuments;
@@ -109,23 +140,34 @@ public class DocumentDatabaseManager {//implements IDocumentDatabase {
         return null;
     }
 
+    /**
+     * Save a feedback document.
+     *
+     * @param assignment      The assignment the feedback document belongs to.
+     * @param studentId       The student ID of the feedback document.
+     * @param headingsAndData The data of the feedback document.
+     * @param grade           The grade assigned to the feedback document.
+     * @return True id the document was saved, false otherwise.
+     */
     public boolean saveFeedbackDocument(Assignment assignment, String studentId, Map<String, String> headingsAndData, double grade) {
+        // Check the collection exists
         if (databaseConnection.hasCollection(assignment.getDatabaseCollectionName())) {
-
+            // Get the collection
             NitriteCollection collection = databaseConnection.getCollection(assignment.getDatabaseCollectionName());
+
+            // Find the document to update
             Cursor documents = collection.find(Filters.eq("feedbackFor", studentId));
             Document document = documents.toList().get(0);
 
-            System.out.println("Doc found is: " + document);
-
-            System.out.println("Going to save data: " + headingsAndData.keySet());
-            System.out.println("Going to save data: " + headingsAndData.values());
+            // Save all the data
             headingsAndData.keySet().forEach(heading -> {
                 document.put(heading, headingsAndData.get(heading));
             });
 
+            // Save the grade
             document.put("grade", grade);
 
+            // Update the document and commit changes
             collection.update(document);
             databaseConnection.commit();
             return true;
@@ -133,27 +175,36 @@ public class DocumentDatabaseManager {//implements IDocumentDatabase {
         return false;
     }
 
-    public void updateAndStoreFeedbackDocument(Assignment assignment, String studentId) {
+    /**
+     * Update a feedback document.
+     *
+     * @param assignment The assignment the feedback document belongs to.
+     * @param studentId  The student ID of the feedback document.
+     */
+    public void updateFeedbackDocument(Assignment assignment, String studentId) {
+        // Check if the collection exists
         if (databaseConnection.hasCollection(assignment.getDatabaseCollectionName())) {
 
+            // Get the collection
             NitriteCollection collection = databaseConnection.getCollection(assignment.getDatabaseCollectionName());
+
+            // Get the document
             Cursor documents = collection.find(Filters.eq("feedbackFor", studentId));
             Document document = documents.toList().get(0);
 
-            System.out.println("Doc found is: " + document);
+            // Extract the currently stored feedback document
             FeedbackDocument feedbackDocument = (FeedbackDocument) document.get("feedbackDocObject");
 
+            // Update the feedback document's data
             feedbackDocument.getHeadings().forEach(heading -> {
                 feedbackDocument.setDataForHeading(heading, (String) document.get(heading));
             });
 
+            // Update the feedback document's grade
             feedbackDocument.setGrade((double) document.get("grade"));
 
+            // Store the updated feedback document in the assignment
             assignment.setFeedbackDocument(studentId, feedbackDocument);
         }
-    }
-
-    public boolean updateFeedbackDocument(FeedbackDocument feedbackDocument) {
-        return false;
     }
 }

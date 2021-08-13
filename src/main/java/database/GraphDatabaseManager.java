@@ -1,7 +1,7 @@
 package database;
 
-import controller.Pair;
-import controller.Utilities;
+import model.Pair;
+import model.Utilities;
 import model.LinkedPhrases;
 import model.Phrase;
 import org.neo4j.graphdb.*;
@@ -13,16 +13,35 @@ import java.util.stream.Collectors;
 
 public class GraphDatabaseManager {
 
-    GraphDatabaseService graphDb;
+    // Graph database variable
+    private GraphDatabaseService graphDb;
 
-    public GraphDatabaseManager() {
-    }
-
-    public boolean openOrCreateGraphDatabase(String path) {
-        graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(new File(path));
+    /**
+     * Open the database.
+     *
+     * @param databasePath The database file to open.
+     * @return True if the database was successfully opened, false otherwise.
+     */
+    public boolean openGraphDatabase(String databasePath) {
+        graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(new File(databasePath));
         return graphDb != null;
     }
 
+    /**
+     * Create a database.
+     *
+     * @param databasePath The database file to create.
+     * @return True if the database was successfully opened, false otherwise.
+     */
+    public boolean createGraphDatabase(String databasePath) {
+        return openGraphDatabase(databasePath);
+    }
+
+
+    /**
+     * Setup the graph database for an assignment.
+     * @param headings A list of headings to be used in the assignment feedback documents.
+     */
     public void setUpGraphDbForAssignment(List<String> headings) {
         try (Transaction tx = graphDb.beginTx()) {
 
@@ -41,6 +60,8 @@ public class GraphDatabaseManager {
                 node.addLabel(Label.label("Heading"));
                 node.setProperty("heading", currentHeading);
                 node.setProperty("followed_by", nextHeading);
+
+                // TODO does this match the report?
             }
 
             // Setup a node for the custom phrases
@@ -52,6 +73,12 @@ public class GraphDatabaseManager {
         }
     }
 
+    /**
+     * Manage the links between phrases in the graph databases.
+     * @param heading The heading the phrases are for.
+     * @param oldList The old set of phrases.
+     * @param newList The new set of phrases.
+     */
     public void managePhraseLinks(String heading, List<String> oldList, List<String> newList) {
         
         List<Pair<String>> oldPairs = Utilities.getPairs(oldList);
@@ -64,36 +91,18 @@ public class GraphDatabaseManager {
         System.out.println("Pairs to add: " + pairsToAdd);
 
         pairsToRemove.forEach(pair -> {
-            if (linkExists(heading, pair.getItemOne(), pair.getItemTwo())) {
-                updateLinkUsageCount(heading, pair.getItemOne(), pair.getItemTwo(), -1);
+            if (linkExists(heading, pair.getFirst(), pair.getSecond())) {
+                updateLinkUsageCount(heading, pair.getFirst(), pair.getSecond(), -1);
             } // else the node has been deleted, so no need to do anything
         });
 
         pairsToAdd.forEach(pair -> {
-            if (linkExists(heading, pair.getItemOne(), pair.getItemTwo())) {
-                updateLinkUsageCount(heading, pair.getItemOne(), pair.getItemTwo(), 1);
+            if (linkExists(heading, pair.getFirst(), pair.getSecond())) {
+                updateLinkUsageCount(heading, pair.getFirst(), pair.getSecond(), 1);
             } else {
-                createFollowedByLink(heading, pair.getItemOne(), pair.getItemTwo());
+                createFollowedByLink(heading, pair.getFirst(), pair.getSecond());
             }
         });
-
-        //List<Phrase> phrasesForHeading = getPhrasesForHeading(heading);
-
-//        for (int i = 0; i < phrases.size() - 1; i++) {
-//            Phrase first = new Phrase(phrases.get(i));
-//            Phrase second = new Phrase(phrases.get(i+1));
-//
-//            // If both are in the db, check if they are linked otherwise link them
-//            if (phrasesForHeading.contains(first) && phrasesForHeading.contains(second)) {
-//                if (linkExists(first, second)) {
-//                    // Link exists, so update link usage count
-//                    updateLinkUsageCount(first, second);
-//                } else {
-//                    // Link does not exist, so create one
-//                    createFollowedByLink(first, second);
-//                }
-//            }
-//        }
     }
 
     private void updateLinkUsageCount(String heading, String first, String second, int update) {
