@@ -8,29 +8,21 @@ public class Assignment implements Serializable {
 
     private static final long serialVersionUID = 1200109309800080100L;
 
-    private String assignmentTitle;
-    private List<String> assignmentHeadings;
-    private List<String> studentIds;
-    private List<FeedbackDocument> feedbackDocuments;
-    private Map<String, FeedbackDocument> studentIdAndFeedbackDocumentMap;
-
-    private String headingStyle;
-    private String underlineStyle;
-    private int lineSpacing;
-    private String lineMarker;
-
+    // Heading styles map
     private static final List<String> headingStyles = Collections.unmodifiableList(
             new ArrayList<String>() {{
                 add("#");
                 add("##");
             }});
 
+    // Heading underline style map
     private final List<String> underlineStyles = Collections.unmodifiableList(
             new ArrayList<String>() {{
                 add("-");
                 add("=");
             }});
 
+    // Line spacing map
     private final List<Integer> lineSpacings = Collections.unmodifiableList(
             new ArrayList<Integer>() {{
                 add(1);
@@ -38,6 +30,7 @@ public class Assignment implements Serializable {
                 add(3);
             }});
 
+    // Line marker map
     private final List<String> lineMarkers = Collections.unmodifiableList(
             new ArrayList<String>() {{
                 add("-");
@@ -47,71 +40,20 @@ public class Assignment implements Serializable {
                 add("+");
             }});
 
+    // Instance variables
+    private String assignmentTitle;
+    private List<String> assignmentHeadings;
+    private List<String> studentIds;
+    private List<FeedbackDocument> feedbackDocuments;
+    private Map<String, FeedbackDocument> studentIdAndFeedbackDocumentMap;
+    private String headingStyle;
+    private String underlineStyle;
+    private int lineSpacing;
+    private String lineMarker;
     private String databaseName;
     private String databaseCollectionName;
-
     private String assignmentDirectoryPath;
 
-
-    public String getHeadingStyle() {
-        return headingStyle;
-    }
-
-    public void setHeadingStyle(String headingStyle) {
-        if (headingStyles.contains(headingStyle)) {
-            this.headingStyle = headingStyle.trim() + " ";
-        } else {
-            this.headingStyle = "";
-        }
-    }
-
-    public String getUnderlineStyle() {
-        return underlineStyle;
-    }
-
-    public void setUnderlineStyle(String underlineStyle) {
-        if (underlineStyles.contains(underlineStyle)) {
-            this.underlineStyle = underlineStyle;
-        } else {
-            this.underlineStyle = "";
-        }
-    }
-
-    public int getLineSpacing() {
-        return lineSpacing;
-    }
-
-    public void setLineSpacing(int lineSpacing) {
-        if (lineSpacings.contains(lineSpacing)) {
-            this.lineSpacing = lineSpacing;
-        } else {
-            this.lineSpacing = 1;
-        }
-    }
-
-    public String getLineMarker() {
-        return lineMarker;
-    }
-
-    public void setLineMarker(String lineMarker) {
-        if (lineSpacings.contains(lineSpacing)) {
-            this.lineMarker = lineMarker.trim() + " ";
-        } else {
-            this.lineMarker = "- ";
-        }
-    }
-
-    public String getAssignmentDirectoryPath() {
-        return assignmentDirectoryPath;
-    }
-
-    public void setAssignmentDirectoryPath(String assignmentDirectoryPath) {
-        this.assignmentDirectoryPath = assignmentDirectoryPath;
-    }
-
-    public String getDatabaseCollectionName() {
-        return this.databaseCollectionName;
-    }
 
     public Assignment() {
         this.studentIds = new ArrayList<String>();
@@ -119,10 +61,12 @@ public class Assignment implements Serializable {
         studentIdAndFeedbackDocumentMap = new HashMap<String, FeedbackDocument>();
     }
 
-    public void setFeedbackDocument(String studentId, FeedbackDocument feedbackDocument) {
-        studentIdAndFeedbackDocumentMap.put(studentId, feedbackDocument);
-    }
-
+    /**
+     * Load an assignment from an FHT file.
+     *
+     * @param filePath The location of the FHT file.
+     * @return The Assignment object stored in the file.
+     */
     public static Assignment loadAssignment(String filePath) {
         Assignment loadedAssignment = null;
         try (FileInputStream fileInputStream = new FileInputStream(filePath);
@@ -135,59 +79,219 @@ public class Assignment implements Serializable {
         return loadedAssignment;
     }
 
-    public String getAssignmentTitle() {
-        return assignmentTitle;
+    /**
+     * Get the heading style to use for headings when files are exported.
+     *
+     * @return The heading style.
+     */
+    public String getHeadingStyle() {
+        return headingStyle;
     }
 
+    /**
+     * Set the heading style to use for headings when files are exported.
+     *
+     * @param headingStyle The heading style.
+     */
+    public void setHeadingStyle(String headingStyle) {
+        // Check if the heading style is allowed, if its not use a default
+        if (headingStyles.contains(headingStyle)) {
+            this.headingStyle = headingStyle.trim() + " ";
+        } else {
+            this.headingStyle = "";
+        }
+    }
+
+    /**
+     * Get the heading underline style to use for headings when files are exported.
+     *
+     * @return The heading underline style.
+     */
+    public String getUnderlineStyle() {
+        return underlineStyle;
+    }
+
+    /**
+     * Set the heading underline style to use for headings when files are exported.
+     *
+     * @param underlineStyle The heading underline style.
+     */
+    public void setUnderlineStyle(String underlineStyle) {
+        // Check if the underline style is allowed, if its not use a default
+        if (underlineStyles.contains(underlineStyle)) {
+            this.underlineStyle = underlineStyle;
+        } else {
+            this.underlineStyle = "";
+        }
+    }
+
+    /**
+     * Get the number of line spaces to use between sections when files are exported.
+     *
+     * @return The number of line spaces.
+     */
+    public int getLineSpacing() {
+        return lineSpacing;
+    }
+
+    /**
+     * Set the number of line spaces to use between sections when files are exported.
+     *
+     * @param lineSpacing The number of line spaces.
+     */
+    public void setLineSpacing(int lineSpacing) {
+        // Check if the line spacing style is allowed, if its not use a default
+        if (lineSpacings.contains(lineSpacing)) {
+            this.lineSpacing = lineSpacing;
+        } else {
+            this.lineSpacing = 1;
+        }
+    }
+
+    /**
+     * Get the line marker to use for denoting new lines.
+     *
+     * @return The line marker.
+     */
+    public String getLineMarker() {
+        return lineMarker;
+    }
+
+    /**
+     * Set the line marker to use for denoting new lines.
+     *
+     * @param lineMarker The line marker.
+     */
+    public void setLineMarker(String lineMarker) {
+        if (lineSpacings.contains(lineSpacing)) {
+            this.lineMarker = lineMarker.trim() + " ";
+        } else {
+            this.lineMarker = "- ";
+        }
+    }
+
+    /**
+     * Get the assignment directory path.
+     *
+     * @return The assignment directory path.
+     */
+    public String getAssignmentDirectoryPath() {
+        return assignmentDirectoryPath;
+    }
+
+    /**
+     * Set the assignment directory path.
+     *
+     * @param assignmentDirectoryPath The assignment directory path.
+     */
+    public void setAssignmentDirectoryPath(String assignmentDirectoryPath) {
+        this.assignmentDirectoryPath = assignmentDirectoryPath;
+    }
+
+    /**
+     * Get the database collection name used for the assignment's documents.
+     *
+     * @return The database collection name.
+     */
+    public String getDatabaseCollectionName() {
+        return this.databaseCollectionName;
+    }
+
+    /**
+     * Store the feedback document for a given student ID.
+     *
+     * @param studentId        The student ID the feedback document is for.
+     * @param feedbackDocument The feedback document for the student.
+     */
+    public void setFeedbackDocument(String studentId, FeedbackDocument feedbackDocument) {
+        this.studentIdAndFeedbackDocumentMap.put(studentId, feedbackDocument);
+    }
+
+    /**
+     * Get the assignment title.
+     *
+     * @return The assignment title.
+     */
+    public String getAssignmentTitle() {
+        return this.assignmentTitle;
+    }
+
+    /**
+     * Set the assignment title and use it to generate the database name and database collection name.
+     *
+     * @param assignmentTitle The assignment title.
+     */
     public void setAssignmentTitle(String assignmentTitle) {
         this.assignmentTitle = assignmentTitle;
         this.databaseName = assignmentTitle.replace(" ", "-").toLowerCase() + ".db";
         this.databaseCollectionName = assignmentTitle.replace(" ", "-").toLowerCase() + "-feedback-docs";
     }
 
+    /**
+     * Get a list of the headings to be used in the feedback documents.
+     *
+     * @return A list of the headings to be used in the feedback documents.
+     */
     public List<String> getAssignmentHeadings() {
-        return assignmentHeadings;
+        return this.assignmentHeadings;
     }
 
+    /**
+     * Set a list of the headings to be used in the feedback documents.
+     *
+     * @param assignmentHeadings A string containing a list of the headings to be used in the feedback documents, separated by a new line.
+     */
     public void setAssignmentHeadings(String assignmentHeadings) {
         this.assignmentHeadings = new ArrayList<String>(Arrays.asList(assignmentHeadings.split("\n")));
         // Remove empty lines
         this.assignmentHeadings = this.assignmentHeadings.stream().filter(heading -> !heading.trim().isEmpty()).collect(Collectors.toList());
-        System.out.println("Converting to list: " + this.assignmentHeadings);
     }
 
-    public List<String> getStudentIds() {
-        return studentIds;
-    }
-
+    /**
+     * Set a list of the student ids.
+     *
+     * @param studentManifestFile The student list file to read from.
+     */
     public void setStudentIds(File studentManifestFile) {
-        System.out.println("Loading file: " + studentManifestFile);
-        this.studentIds = new ArrayList<String>();
-        this.feedbackDocuments = new ArrayList<FeedbackDocument>();
-
+        // Read the file and store the student id and feedback document in a map
         try (BufferedReader reader = new BufferedReader(new FileReader(studentManifestFile))) {
             while (reader.ready()) {
                 String studentId = reader.readLine().trim();
                 if (!studentId.isEmpty()) {
                     FeedbackDocument feedbackDocument = new FeedbackDocument(this, studentId);
-
-                    this.studentIds.add(studentId);
-                    this.feedbackDocuments.add(feedbackDocument);
-
                     this.studentIdAndFeedbackDocumentMap.put(studentId, feedbackDocument);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        System.out.println("Student ids: " + studentIds);
     }
 
+    /**
+     * Get a list of the feedback documents.
+     *
+     * @return A list of the feedback documents.
+     */
     public List<FeedbackDocument> getFeedbackDocuments() {
         return new ArrayList<FeedbackDocument>(this.studentIdAndFeedbackDocumentMap.values());
     }
 
+    /**
+     * Set the feedback documents.
+     *
+     * @param feedbackDocuments The list of feedback documents to set in the student id feedback document map.
+     */
+    public void setFeedbackDocuments(List<FeedbackDocument> feedbackDocuments) {
+        feedbackDocuments.forEach(feedbackDocument -> {
+            this.studentIdAndFeedbackDocumentMap.put(feedbackDocument.getStudentId(), feedbackDocument);
+        });
+    }
+
+    /**
+     * Save assignment details into an FHT file.
+     *
+     * @param fileName The file name to save the assignment to.
+     */
     public void saveAssignmentDetails(String fileName) {
         try (FileOutputStream fileOutputStream = new FileOutputStream(assignmentDirectoryPath + File.separator + fileName + ".fht");
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
@@ -196,21 +300,23 @@ public class Assignment implements Serializable {
             e.printStackTrace();
         }
     }
-    public void setFeedbackDocuments(List<FeedbackDocument> feedbackDocuments) {
-        this.feedbackDocuments = feedbackDocuments;
-        feedbackDocuments.forEach(feedbackDocument -> {
-            studentIdAndFeedbackDocumentMap.put(feedbackDocument.getStudentId(), feedbackDocument);
-        });
-    }
 
+    /**
+     * Get the database name.
+     *
+     * @return The database name.
+     */
     public String getDatabaseName() {
         return this.databaseName;
     }
 
-    public AssignmentConfig getAssignmentConfig() {
-        return null;
-    }
 
+    /**
+     * Get a feedback document for a given student ID.
+     *
+     * @param studentId The student ID to get the feedback document for.
+     * @return The feedback document for the given student ID.
+     */
     public FeedbackDocument getFeedbackDocumentForStudent(String studentId) {
         return studentIdAndFeedbackDocumentMap.get(studentId);
     }
