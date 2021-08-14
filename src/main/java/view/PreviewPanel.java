@@ -5,43 +5,71 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Preview Panel Class.
+ */
 public class PreviewPanel extends JPanel {
 
+    // Instance variables
     private List<PreviewBox> previewBoxes;
     private Map<String, PreviewBox> headingAndPreviewBoxMap;
 
+    /**
+     * Constructor.
+     *
+     * @param previewBoxes The list of preview boxes to display on the preview panel.
+     */
     public PreviewPanel(List<PreviewBox> previewBoxes) {
+        // Store the preview boxes and keep a map of them for easy access
         this.previewBoxes = previewBoxes;
         this.headingAndPreviewBoxMap = new HashMap<String, PreviewBox>();
         previewBoxes.forEach(previewBox -> {
             this.headingAndPreviewBoxMap.put(previewBox.getHeading(), previewBox);
         });
 
-        // Highlight top preview box
-        previewBoxes.get(0).highlight();
-
+        // Set layout top to bottom
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
+        // Setup the preview boxes and make the panel visible
         setupPreviewBoxes();
         this.setVisible(true);
     }
 
+    /**
+     * Setup the preview boxes.
+     */
     private void setupPreviewBoxes() {
+        // Add all the boxes and highlight top preview box
         previewBoxes.forEach(this::add);
+        previewBoxes.get(0).highlight();
     }
 
+    /**
+     * Highlight a given preview box.
+     *
+     * @param heading The heading of the preview box to highlight.
+     */
     public void highlightPreviewBox(String heading) {
-        System.out.println("Highlighting preview box for: " + headingAndPreviewBoxMap.get(heading).getHeading());
         headingAndPreviewBoxMap.get(heading).highlight();
     }
 
+    /**
+     * Unhighlight a given preview box.
+     *
+     * @param heading The heading of the preview box to unhighlight.
+     */
     public void unhighlightPreviewBox(String heading) {
-        System.out.println("Unhighlighting " + heading);
         headingAndPreviewBoxMap.get(heading).unhighlight();
     }
 
+    /**
+     * Update the contents of a given preview box.
+     *
+     * @param heading The heading of the preview box to update.
+     * @param line    The new line text to display.
+     * @param grade   The new grade to display.
+     */
     public void updatePreviewBox(String heading, String line, double grade) {
-        System.out.println("Updating preview box for: " + headingAndPreviewBoxMap.get(heading).getHeading());
         headingAndPreviewBoxMap.get(heading).setUniqueLine(line);
         headingAndPreviewBoxMap.get(heading).setGrade(grade);
     }

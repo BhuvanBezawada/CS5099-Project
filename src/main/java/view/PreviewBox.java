@@ -5,68 +5,74 @@ import model.Assignment;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.MatteBorder;
 import java.awt.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+/**
+ * Preview Box Class.
+ */
 public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
 
+    // Instance variables
     private String heading;
     private String uniqueLine;
     private double grade;
     private JTextArea textPane;
-
     private Border unselectedBorder;
     private Border selectedBorder;
-
     private AppController controller;
-    private Assignment assignment;
+    private Assignment assignment; // TODO is assignment needed here?
 
+    /**
+     * Constructor.
+     *
+     * @param controller The controller.
+     * @param heading    The heading of the preview box (usually student ID)
+     * @param grade      The grade of the student.
+     * @param uniqueLine A unique line from the student's feedback document.
+     */
     public PreviewBox(AppController controller, String heading, double grade, String uniqueLine) {
-        this.controller = controller;
-
         // Store variables
+        this.controller = controller;
         this.heading = heading;
         this.uniqueLine = uniqueLine;
         this.grade = grade;
+
+        // Layout components from top to bottom on this panel
+        this.setLayout(new BorderLayout());
 
         // Setup components
         setupBorders();
         setupTextArea();
 
-        // Layout components from top to bottom on this panel
-        this.setLayout(new BorderLayout());
-
-        // Add components to the panel
-        this.add(textPane, BorderLayout.CENTER);
-
         // Add some padding to the bottom on the panel and make it visible
-        this.setBorder(new EmptyBorder(20, 20, 0, 20));
+        this.setBorder(BorderCreator.createEmptyBorderLeavingBottom(BorderCreator.PADDING_20_PIXELS));
         this.setVisible(true);
     }
 
+    /**
+     * Setup the borders for when a box is selected and unselected.
+     */
     private void setupBorders() {
-        this.unselectedBorder = new CompoundBorder(
-                new MatteBorder(1, 5, 1, 1, Color.LIGHT_GRAY),
-                new EmptyBorder(10, 10, 10, 10)
-        );
-
-        this.selectedBorder = new CompoundBorder(
-                new MatteBorder(1, 5, 1, 1, Color.GREEN),
-                new EmptyBorder(10, 10, 10, 10)
-        );
+        this.unselectedBorder = BorderCreator.unselectedBorder();
+        this.selectedBorder = BorderCreator.selectedBorder();
     }
 
+    /**
+     * Set the assignment.
+     *
+     * @param assignment The assignment. // TODO is this really needed here?
+     */
     public void setAssignment(Assignment assignment) {
         this.assignment = assignment;
     }
 
+    /**
+     * Setup the text area.
+     */
     private void setupTextArea() {
+        // Set properties
         this.textPane = new JTextArea();
         this.textPane.setRows(5);
         this.textPane.setBackground(Color.WHITE);
@@ -82,41 +88,74 @@ public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
             }
         });
 
+        // Set the contents of the preview box
         this.textPane.setText(heading + "\n\n" + uniqueLine + "\n" + "Grade: " + grade);
+        this.add(textPane, BorderLayout.CENTER);
     }
 
+    /**
+     * Get the heading of the preview box.
+     *
+     * @return The heading of the preview box.
+     */
     public String getHeading() {
         return this.heading;
     }
 
+    /**
+     * Highlight the preview box.
+     */
     public void highlight() {
         textPane.setBorder(selectedBorder);
         textPane.repaint();
         textPane.revalidate();
     }
 
+    /**
+     * Unhighlight the preview box.
+     */
     public void unhighlight() {
         textPane.setBorder(unselectedBorder);
         textPane.repaint();
         textPane.revalidate();
     }
 
+    /**
+     * Set the grade in the preview box.
+     *
+     * @param grade The grade to display.
+     */
     public void setGrade(double grade) {
         this.grade = grade;
-        this.textPane.setText("");
-        this.textPane.setText(heading + "\n\n" + uniqueLine + "\n" + "Grade: " + grade);
-        textPane.repaint();
-        textPane.revalidate();
+        updatePreviewBox();
     }
 
+    /**
+     * Set the unique line in the preview box.
+     *
+     * @param line The unique line to display.
+     */
     public void setUniqueLine(String line) {
         this.uniqueLine = line;
+        updatePreviewBox();
+    }
+
+    /**
+     * Update the preview box.
+     */
+    private void updatePreviewBox() {
         this.textPane.setText("");
         this.textPane.setText(heading + "\n\n" + uniqueLine + "\n" + "Grade: " + grade);
         textPane.repaint();
         textPane.revalidate();
     }
 
+    /**
+     * Compare the preview box to another preview box. Used to order the boxes.
+     *
+     * @param o The preview box to compare with.
+     * @return An integer >0, <0 or equal to 0.
+     */
     @Override
     public int compareTo(PreviewBox o) {
         try {
