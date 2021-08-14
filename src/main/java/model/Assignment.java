@@ -163,7 +163,7 @@ public class Assignment implements Serializable {
      * @param lineMarker The line marker.
      */
     public void setLineMarker(String lineMarker) {
-        if (lineSpacings.contains(lineSpacing)) {
+        if (lineMarkers.contains(lineMarker)) {
             this.lineMarker = lineMarker.trim() + " ";
         } else {
             this.lineMarker = "- ";
