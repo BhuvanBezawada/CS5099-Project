@@ -7,15 +7,13 @@ import edu.stanford.nlp.pipeline.CoreSentence;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import model.*;
 import nlp.NLPPipline;
+import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.Str;
 import view.PhraseType;
 import visualisation.Visualisations;
 
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -522,5 +520,27 @@ public class AppController {
      */
     public int getLineSpacing() {
         return appModel.getLineSpacing();
+    }
+
+    public Map<String, List<String>> getSummary(Assignment assignment) {
+        Map<String, List<String>> summary = new HashMap<String, List<String>>();
+
+        assignment.getAssignmentHeadings().forEach(heading -> {
+            summary.put(heading, new ArrayList<>());
+
+            List<Phrase> phrasesForHeading = graphDatabase.getPhrasesForHeading(heading);
+            Collections.sort(phrasesForHeading);
+
+            if (phrasesForHeading.size() > 3) {
+                List<String> phrases = new ArrayList<String>();
+                for (int i = 0; i < 3; i++) {
+                    phrases.add(phrasesForHeading.get(i).getPhraseAsString());
+                }
+
+                summary.put(heading, phrases);
+            }
+        });
+
+        return summary;
     }
 }

@@ -3,7 +3,6 @@ package view;
 import controller.AppController;
 import edu.stanford.nlp.pipeline.CoreDocument;
 import model.FeedbackDocument;
-import nlp.BasicPipelineExample;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -11,18 +10,13 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import java.awt.*;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SentimentViewer extends JFrame {
-
-    private AppController controller;
-    private JPanel documentPanel;
-    private JTextArea textArea;
-    private JLabel titleLabel;
+public class SentimentViewer extends DocumentViewer {
 
     private Map<String, Color> sentimentColourMap = Collections.unmodifiableMap(new HashMap<String, Color>() {{
         put("Very positive", Color.GREEN);
@@ -32,44 +26,11 @@ public class SentimentViewer extends JFrame {
         put("Very negative", Color.RED);
     }});
 
-    public SentimentViewer(AppController controller, FeedbackDocument feedbackDocument) {
-        this.controller = controller;
-        this.documentPanel = new JPanel(new BorderLayout());
-        this.documentPanel.setBorder(BorderCreator.createAllSidesEmptyBorder(50));
-
-        this.textArea = new JTextArea();
-        this.textArea.setBorder(BorderCreator.createAllSidesEmptyBorder(20));
-        this.textArea.setEditable(false);
-
-        this.titleLabel = new JLabel("Sentiment Overview of Document for: " + controller.getCurrentDocInView());
-        titleLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 18));
-        titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        titleLabel.setBorder(new EmptyBorder(0, 0,20,20));
-
-        this.documentPanel.add(titleLabel, BorderLayout.PAGE_START);
-        this.documentPanel.add(new JScrollPane(textArea), BorderLayout.CENTER);
-        this.add(documentPanel);
-
-
-        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.setSize(700, 900);
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-        int x = (screenSize.width - this.getWidth())/2;
-        int y = (screenSize.height - this.getHeight())/2;
-        this.setLocation(x, y);
-
-        displaySentimentOfDocument(feedbackDocument);
-
-        this.setVisible(true);
+    public SentimentViewer(AppController controller, String title) {
+        super(controller, title);
     }
 
-    public static void main(String[] args) {
-        //SentimentViewer sentimentViewer = new SentimentViewer("That is great work! \n Hello. \n That is bad work.");
-//        sentimentViewer.displaySentimentOfDocument();
-    }
-
-    public void displaySentimentOfDocument(FeedbackDocument feedbackDocument) {
+    public void displayData(FeedbackDocument feedbackDocument) {
         AtomicInteger lineNum = new AtomicInteger();
         Highlighter highlighter = textArea.getHighlighter();
 
@@ -121,32 +82,5 @@ public class SentimentViewer extends JFrame {
             textArea.append("\n");
             lineNum.getAndIncrement();
         });
-//        feedbackDocument.getHeadings().forEach(heading -> {
-//            try {
-//                // Heading
-//                writer.write(assignment.getHeadingStyle() + heading);
-//                writer.newLine();
-//
-//                // Underline heading if required
-//                String underlineStyle = assignment.getUnderlineStyle();
-//                if (!underlineStyle.isEmpty()){
-//                    for (int i = 0; i < assignment.getHeadingStyle().length() + heading.length(); i++) {
-//                        writer.write(underlineStyle);
-//                    }
-//                }
-//
-//                // Data
-//                writer.newLine();
-//                writer.write(feedbackDocument.getHeadingData(heading));
-//
-//                // End section spacing
-//                for (int i = 0; i < assignment.getLineSpacing(); i++) {
-//                    writer.newLine();
-//                }
-//                writer.newLine();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        });
     }
 }

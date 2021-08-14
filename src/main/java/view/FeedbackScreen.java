@@ -214,6 +214,7 @@ public class FeedbackScreen implements PropertyChangeListener {
         JMenuItem exportDocsOption = new JMenuItem("Export feedback documents");
         JMenuItem exportGradesOption = new JMenuItem("Export grades");
         JMenuItem visGradesOption = new JMenuItem("Visualise grades");
+        JMenuItem summaryOption = new JMenuItem("Create summary");
 
         // Save operation
         saveOption.addActionListener(l -> {
@@ -223,7 +224,8 @@ public class FeedbackScreen implements PropertyChangeListener {
 
         // View sentiment option
         sentimentOption.addActionListener(l -> {
-            new SentimentViewer(controller, assignment.getFeedbackDocumentForStudent(controller.getCurrentDocumentInView()));
+            SentimentViewer sentimentViewer = new SentimentViewer(controller, "Sentiment Overview of Document for: " + controller.getCurrentDocumentInView());
+            sentimentViewer.displayData(assignment.getFeedbackDocumentForStudent(controller.getCurrentDocumentInView()));
         });
 
         // Export documents option
@@ -244,12 +246,21 @@ public class FeedbackScreen implements PropertyChangeListener {
             JOptionPane.showMessageDialog(feedbackScreen, "Generating visualisation of assignment grades...");
         });
 
+        // Visualise grades option
+        summaryOption.addActionListener(l -> {
+            Map<String, List<String>> summary = controller.getSummary(assignment);
+            System.out.println(summary);
+            DocumentViewer documentViewer = new DocumentViewer(controller, "Summary of All Feedback Documents");
+            documentViewer.displayData(summary, assignment.getAssignmentHeadings());
+        });
+
         // Add all options to menu
         fileMenu.add(saveOption);
         fileMenu.add(sentimentOption);
         fileMenu.add(exportDocsOption);
         fileMenu.add(exportGradesOption);
         fileMenu.add(visGradesOption);
+        fileMenu.add(summaryOption);
 
         // Add the menu bar to the screen
         menuBar.add(fileMenu);
