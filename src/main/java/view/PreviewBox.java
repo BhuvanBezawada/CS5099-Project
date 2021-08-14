@@ -16,7 +16,7 @@ public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
 
     // Instance variables
     private String heading;
-    private String uniqueLine;
+    private String firstLine;
     private double grade;
     private JTextArea textPane;
     private Border unselectedBorder;
@@ -30,13 +30,13 @@ public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
      * @param controller The controller.
      * @param heading    The heading of the preview box (usually student ID)
      * @param grade      The grade of the student.
-     * @param uniqueLine A unique line from the student's feedback document.
+     * @param firstLine A unique line from the student's feedback document.
      */
-    public PreviewBox(AppController controller, String heading, double grade, String uniqueLine) {
+    public PreviewBox(AppController controller, String heading, double grade, String firstLine) {
         // Store variables
         this.controller = controller;
         this.heading = heading;
-        this.uniqueLine = uniqueLine;
+        this.firstLine = firstLine;
         this.grade = grade;
 
         // Layout components from top to bottom on this panel
@@ -89,7 +89,7 @@ public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
         });
 
         // Set the contents of the preview box
-        this.textPane.setText(heading + "\n\n" + uniqueLine + "\n" + "Grade: " + grade);
+        this.textPane.setText(heading + "\n\n" + firstLine + "\n\n" + "Grade: " + grade);
         this.add(textPane, BorderLayout.CENTER);
     }
 
@@ -135,8 +135,8 @@ public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
      *
      * @param line The unique line to display.
      */
-    public void setUniqueLine(String line) {
-        this.uniqueLine = line;
+    public void setFirstLine(String line) {
+        this.firstLine = line;
         updatePreviewBox();
     }
 
@@ -144,8 +144,9 @@ public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
      * Update the preview box.
      */
     private void updatePreviewBox() {
+        System.out.println("IN UPDATE PREVIEW BOX for: " + heading + " line " + firstLine);
         this.textPane.setText("");
-        this.textPane.setText(heading + "\n\n" + uniqueLine + "\n" + "Grade: " + grade);
+        this.textPane.setText(heading + "\n\n" + firstLine + "\n\n" + "Grade: " + grade);
         textPane.repaint();
         textPane.revalidate();
     }

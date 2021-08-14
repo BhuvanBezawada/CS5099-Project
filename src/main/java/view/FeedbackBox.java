@@ -99,6 +99,7 @@ public class FeedbackBox extends JPanel {
                     captureState();
                     controller.updatePhrases(heading, previousBoxContents, currentBoxContents);
                     controller.managePhraseLinks(heading, previousBoxContents, currentBoxContents);
+                    controller.saveFeedbackDocument(controller.getCurrentDocumentInView());
                     insertLineMarkerForNewLine();
                 }
             }

@@ -184,7 +184,7 @@ public class FeedbackScreen implements PropertyChangeListener {
         // Create preview boxes
         List<PreviewBox> previewBoxes = new ArrayList<PreviewBox>();
         assignment.getFeedbackDocuments().forEach(feedbackDocument -> {
-            PreviewBox previewBox = new PreviewBox(controller, feedbackDocument.getStudentId(), feedbackDocument.getGrade(), "<empty file>");
+            PreviewBox previewBox = new PreviewBox(controller, feedbackDocument.getStudentId(), feedbackDocument.getGrade(), controller.getFirstLineFromDocument(assignment, feedbackDocument.getStudentId()));
             previewBox.setAssignment(assignment);
             previewBoxes.add(previewBox);
         });
@@ -366,8 +366,8 @@ public class FeedbackScreen implements PropertyChangeListener {
      * @param event The event notification from the model.
      */
     private void performDeletePhrase(PropertyChangeEvent event) {
-        String phraseToDelete = (String) event.getNewValue();
-        phrasesSection.removePhraseFromPanel(phraseToDelete, PhraseType.FREQUENTLY_USED);
+        Phrase phraseToDelete = (Phrase) event.getNewValue();
+        phrasesSection.removePhraseFromPanel(phraseToDelete.getPhraseAsString(), PhraseType.FREQUENTLY_USED);
     }
 
     /**
@@ -404,7 +404,7 @@ public class FeedbackScreen implements PropertyChangeListener {
         double grade = editorPanel.getGrade();
         if (grade >= 0) {
             controller.saveFeedbackDocument(assignment, studentId, headingsAndData, grade);
-            previewPanel.updatePreviewBox(studentId, "<still implementing preview text>", grade);
+            previewPanel.updatePreviewBox(studentId, controller.getFirstLineFromDocument(assignment, studentId), grade);
         }
     }
 
@@ -419,6 +419,10 @@ public class FeedbackScreen implements PropertyChangeListener {
         editorPanel.setData(assignment.getFeedbackDocumentForStudent(newDocInView));
 
         if (controller.getLastDocumentInView() != null) {
+            previewPanel.updatePreviewBoxLine(
+                    controller.getLastDocumentInView(),
+                    controller.getFirstLineFromDocument(assignment, controller.getLastDocumentInView())
+            );
             previewPanel.unhighlightPreviewBox(controller.getLastDocumentInView());
         }
 

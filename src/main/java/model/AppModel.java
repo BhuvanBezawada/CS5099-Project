@@ -183,9 +183,6 @@ public class AppModel implements IAppModel {
      * @return A list of grades.
      */
     public List<Integer> getGrades(Assignment assignment) {
-
-        // TODO: need to ensure .3 .7 etc grades get rounded
-
         // Create a linked hashmap of grades and their counts
         Map<Double, Integer> gradeAndNumber = new LinkedHashMap<Double, Integer>();
         for (double i = 0.0; i <= 20.0; i += 0.5) {

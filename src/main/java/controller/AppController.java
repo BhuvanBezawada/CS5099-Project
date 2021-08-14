@@ -12,8 +12,11 @@ import visualisation.Visualisations;
 
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * App Controller Class.
@@ -134,6 +137,11 @@ public class AppController {
      */
     public void saveFeedbackDocument(Assignment assignment, String studentId, Map<String, String> headingsAndData, double grade) {
         documentDatabase.saveFeedbackDocument(assignment, studentId, headingsAndData, grade);
+        FeedbackDocument feedbackDocumentForStudent = assignment.getFeedbackDocumentForStudent(studentId);
+        feedbackDocumentForStudent.getHeadings().forEach(heading -> {
+            feedbackDocumentForStudent.setDataForHeading(heading, headingsAndData.get(heading));
+        });
+        feedbackDocumentForStudent.setGrade(grade);
     }
 
     /**
@@ -402,13 +410,24 @@ public class AppController {
         appModel.notifySubscribers("error", errorMessage);
     }
 
-    public String getRandomLineFromDoc(Assignment assignment, String studentId) {
-//        documentDatabase.loadFeedbackDocumentsForAssignment(assignment);
-//        FeedbackDocument feedbackDocumentForStudent = assignment.getFeedbackDocumentForStudent(studentId);
-//        String headingData = feedbackDocumentForStudent.getHeadingData(getCurrentHeadingBeingEdited());
-//        String[] split = headingData.split("\n");
-//        return split[new Random().nextInt(split.length)];
-        return "Random line";
+    public String getFirstLineFromDocument(Assignment assignment, String studentId) {
+        String returnString = "<no preview available>";
+        FeedbackDocument feedbackDocumentForStudent = assignment.getFeedbackDocumentForStudent(studentId);
+
+        for (String heading : feedbackDocumentForStudent.getHeadings()) {
+            if (!feedbackDocumentForStudent.getHeadingData(heading).isEmpty()) {
+                List<String> dataAsList = Arrays
+                        .stream(feedbackDocumentForStudent.getHeadingData(heading).split("\n"))
+                        .filter(line -> line.startsWith(getLineMarker()))
+                        .collect(Collectors.toList());
+
+                if (dataAsList.size() > 0) {
+                    return heading + ": " + dataAsList.get(0).replace(getLineMarker(), "");
+                }
+            }
+        }
+
+        return returnString;
     }
 
 
@@ -504,5 +523,4 @@ public class AppController {
     public int getLineSpacing() {
         return appModel.getLineSpacing();
     }
-
 }
