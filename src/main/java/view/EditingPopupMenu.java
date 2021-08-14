@@ -4,69 +4,66 @@ import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
-import java.util.Map;
 
+/**
+ * Editing Popup Menu Class.
+ */
 public class EditingPopupMenu {
 
+    // Instance variables
     private JPopupMenu popupMenu;
     private String selectedText;
-    private Map<PhraseType, PhrasesPanel> phrasesPanelsMap;
-
-//    private JMenuItem cut = new JMenuItem("Cut");
     private JMenuItem copy = new JMenuItem("Copy");
     private JMenuItem paste = new JMenuItem("Paste");
-//    private JMenuItem addPhrase = new JMenuItem("Add phrase to bank");
-//    private JMenuItem excludePhrase = new JMenuItem("Exclude phrase from bank");
 
+    /**
+     * Constructor.
+     */
     public EditingPopupMenu() {
-        this.popupMenu = new JPopupMenu();
-        this.phrasesPanelsMap = new HashMap<PhraseType, PhrasesPanel>();
         setupPopupMenu();
     }
 
+    /**
+     * Setup the popup menu.
+     */
     private void setupPopupMenu() {
-//        popupMenu.add(cut);
+        this.popupMenu = new JPopupMenu();
 
         popupMenu.add(copy);
         setupCopyOperation();
 
         popupMenu.add(paste);
         setupPasteOperation();
-
-        popupMenu.addSeparator();
-
-//        popupMenu.add(addPhrase);
-//        setupAddPhraseOperation();
-//
-//        popupMenu.add(excludePhrase);
     }
 
+    /**
+     * Register the popup menu with a given feedback box.
+     * @param feedbackBox The feedback box to register.
+     */
     public void registerFeedbackBox(FeedbackBox feedbackBox) {
-        feedbackBox.getTextPane().addMouseListener(new MouseAdapter() {
+        feedbackBox.getTextArea().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) {
-                    popupMenu.setInvoker(feedbackBox.getTextPane());
-                    popupMenu.show(feedbackBox.getTextPane(), e.getX(), e.getY());
+                    popupMenu.setInvoker(feedbackBox.getTextArea());
+                    popupMenu.show(feedbackBox.getTextArea(), e.getX(), e.getY());
                 }
             }
         });
-
-        System.out.println("added listener");
     }
 
-    public void registerPhrasesPanel(PhrasesPanel phrasesPanel) {
-        phrasesPanelsMap.put(phrasesPanel.getPhraseType(), phrasesPanel);
-    }
-
+    /**
+     * Setup the copy operation.
+     */
     private void setupCopyOperation() {
         copy.addActionListener(e -> {
             selectedText = ((JTextArea) popupMenu.getInvoker()).getSelectedText();
-            System.out.println("Copying: " + selectedText);
         });
     }
 
+    /**
+     * Setup the paste operation.
+     */
     private void setupPasteOperation() {
         paste.addActionListener(e -> {
             try {
@@ -77,12 +74,4 @@ public class EditingPopupMenu {
             }
         });
     }
-
-//    private void setupAddPhraseOperation() {
-//        addPhrase.addActionListener(e -> {
-//            JTextArea invoker = (JTextArea) popupMenu.getInvoker();
-//            selectedText = invoker.getSelectedText();
-//            phrasesPanelsMap.get(PhraseType.CUSTOM).addPhrase(selectedText, 1);
-//        });
-//    }
 }
