@@ -154,7 +154,7 @@ public class HomeScreen {
 
             // Ensure selected file is valid and show feedback screen
             if (assignmentFilePath != null) {
-                new Thread(SetupOptionsScreen::showLoadingScreen).start(); // TODO extraact loading screens into class
+                new Thread(LoadingScreens::showLoadingScreen).start();
                 Assignment assignment = controller.loadAssignment(assignmentFilePath);
                 new FeedbackScreen(controller, assignment);
             }

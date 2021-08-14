@@ -48,35 +48,6 @@ public class SetupOptionsScreen {
     }
 
     /**
-     * Show the loading screen // TODO move loading screens to new class?
-     */
-    public static void showLoadingScreen() {
-        // Splash screen adapted from:
-        // https://www.tutorialspoint.com/how-can-we-implement-a-splash-screen-using-jwindow-in-java
-
-        JWindow splash = new JWindow();
-        ImageIcon imageIcon = new ImageIcon(SetupOptionsScreen.class.getResource("/loadingscreen.png"));
-
-        splash.setSize(imageIcon.getIconWidth(), imageIcon.getIconHeight());
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = (screenSize.width - imageIcon.getIconWidth()) / 2;
-        int y = (screenSize.height - imageIcon.getIconHeight()) / 2;
-        splash.setLocation(x, y);
-        splash.setVisible(true);
-
-        Graphics graphics = splash.getGraphics();
-        splash.paint(graphics);
-        graphics.drawImage(imageIcon.getImage(), 0, 0, splash);
-
-        try {
-            Thread.sleep(3000);
-            splash.dispose();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Setup the back button.
      */
     private void setupBackButton() {
@@ -135,7 +106,7 @@ public class SetupOptionsScreen {
                 // Check file exists
                 if (configFile.exists()) {
                     setupOptionsScreen.dispose();
-                    new Thread(SetupOptionsScreen::showLoadingScreen).start();
+                    new Thread(LoadingScreens::showLoadingScreen).start();
 
                     // Create the assignment using the config file
                     Assignment assignment = controller.createAssignmentFromConfig(configFilePath);

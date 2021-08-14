@@ -273,7 +273,7 @@ public class CreateAssignmentScreen {
             // Ensure student list exists before creating the feedback screen
             if (studentManifestFile != null && studentManifestFile.exists()) {
                 // Setup assignment and db for it
-                new Thread(SetupOptionsScreen::showLoadingScreen).start();
+                new Thread(LoadingScreens::showLoadingScreen).start();
                 createAssignmentScreen.dispose();
 
                 // Create the assignment
