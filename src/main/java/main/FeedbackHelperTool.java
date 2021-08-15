@@ -1,14 +1,11 @@
 package main;
 
 import controller.AppController;
+import controller.IAppController;
 import model.AppModel;
-import model.IAppModel;
 import view.AppView;
 import view.IAppView;
 import view.LoadingScreens;
-
-import javax.swing.*;
-import java.awt.*;
 
 public class FeedbackHelperTool {
 
@@ -26,9 +23,9 @@ public class FeedbackHelperTool {
         new Thread(LoadingScreens::showSplashScreen).start();
 
         AppModel model = new AppModel();
-        AppController controller = new AppController(model);
+        IAppController controller = new AppController(model);
         IAppView view = new AppView(controller);
 
-        ((AppView) view).start();
+        view.start();
     }
 }

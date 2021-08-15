@@ -8,7 +8,7 @@ import java.util.Properties;
  * NLP Pipeline
  * Code adapted from: https://www.youtube.com/watch?v=pUwNTGyxIOc&list=PLK0V_H0fCvPjKcUPjdXNZ6k4LueCJjsBN&index=3
  */
-public class NLPPipline {
+public class NLPPipeline {
 
     // Instance variables
     private static final Properties properties;

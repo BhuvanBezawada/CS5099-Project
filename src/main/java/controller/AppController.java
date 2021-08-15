@@ -2,17 +2,19 @@ package controller;
 
 import database.DocumentDatabaseManager;
 import database.GraphDatabaseManager;
+import database.IDocumentDatabase;
+import database.IGraphDatabase;
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.CoreSentence;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import model.AppModel;
 import model.Assignment;
 import model.FeedbackDocument;
+import model.IAppModel;
 import model.LinkedPhrases;
 import model.Phrase;
 import model.Sentiment;
 import model.Utilities;
-import nlp.NLPPipline;
+import nlp.NLPPipeline;
 import view.PhraseType;
 import visualisation.Visualisations;
 
@@ -32,9 +34,9 @@ import java.util.stream.Collectors;
 public class AppController implements IAppController {
 
     // Instance variables
-    private final AppModel appModel;
-    private final DocumentDatabaseManager documentDatabase;
-    private final GraphDatabaseManager graphDatabase;
+    private final IAppModel appModel;
+    private final IDocumentDatabase documentDatabase;
+    private final IGraphDatabase graphDatabase;
     private final StanfordCoreNLP nlp;
 
     /**
@@ -42,11 +44,11 @@ public class AppController implements IAppController {
      *
      * @param appModel - The model to interact with.
      */
-    public AppController(AppModel appModel) {
+    public AppController(IAppModel appModel) {
         this.appModel = appModel;
         this.documentDatabase = new DocumentDatabaseManager();
         this.graphDatabase = new GraphDatabaseManager();
-        this.nlp = NLPPipline.getPipeline();
+        this.nlp = NLPPipeline.getPipeline();
     }
 
     /**
@@ -88,7 +90,7 @@ public class AppController implements IAppController {
 
         // Create the graph database
         graphDatabase.createGraphDatabase(assignment.getAssignmentDirectoryPath() + File.separator + "graphDB" + File.separator + assignment.getDatabaseName());
-        graphDatabase.setUpGraphDbForAssignment(assignment.getAssignmentHeadings());
+        graphDatabase.setUpGraphDatabaseForAssignment(assignment.getAssignmentHeadings());
 
         return assignment;
     }
@@ -116,7 +118,7 @@ public class AppController implements IAppController {
 
         // Setup the graph database
         graphDatabase.createGraphDatabase(assignment.getAssignmentDirectoryPath() + File.separator + "graphDB" + File.separator + assignment.getDatabaseName());
-        graphDatabase.setUpGraphDbForAssignment(assignment.getAssignmentHeadings());
+        graphDatabase.setUpGraphDatabaseForAssignment(assignment.getAssignmentHeadings());
 
         return assignment;
     }
@@ -496,13 +498,9 @@ public class AppController implements IAppController {
      */
     @Override
     public void showPhrasesForHeading(String heading) {
-        System.out.println("IN SHOW PHRASES FOR HEADING");
         List<Phrase> currentPhraseSet = appModel.getCurrentPhraseSet(heading);
-        System.out.println("CURRENT PHRASE SET: " + heading + " : " + currentPhraseSet);
         if (currentPhraseSet != null) {
-            currentPhraseSet.forEach(phrase -> {
-                appModel.addNewPhraseToView(phrase);
-            });
+            currentPhraseSet.forEach(appModel::addNewPhraseToView);
         }
     }
 
@@ -518,8 +516,6 @@ public class AppController implements IAppController {
             Phrase phrase1 = new Phrase(phrase);
             graphDatabase.addPhraseToCustomNode(phrase1);
             appModel.addNewCustomPhraseToView(phrase1);
-        } else {
-            System.out.println("[DEBUG]: empty string detected, not creating a phrase");
         }
     }
 
@@ -544,7 +540,6 @@ public class AppController implements IAppController {
      */
     @Override
     public void updatePhrases(String heading, List<String> previousBoxContents, List<String> currentBoxContents) {
-        System.out.println("[DEBUG] in controller updatePhrases method");
         // Store previous phrase set
         List<Phrase> previousPhrasesForHeading = graphDatabase.getPhrasesForHeading(heading);
         appModel.setPreviousHeadingPhraseSet(heading, previousPhrasesForHeading);
@@ -561,23 +556,12 @@ public class AppController implements IAppController {
         // Find what's stayed same and update the usage counts
         List<Phrase> stayedSameList = Utilities.getIntersection(previousPhrasesForHeading, currentPhrasesForHeading);
 
-        System.out.println("DEBUG: removals -> " + removalsFromList);
-        System.out.println("DEBUG: additions -> " + additionsToList);
-        System.out.println("DEBUG: stayed same -> " + stayedSameList);
+        // Perform updates
+        removalsFromList.forEach(appModel::removePhraseFromView);
+        additionsToList.forEach(appModel::addNewPhraseToView);
+        stayedSameList.forEach(appModel::updatePhraseCounterInView);
 
-        removalsFromList.forEach(phraseToRemove -> {
-            appModel.removePhraseFromView(phraseToRemove);
-        });
-
-        additionsToList.forEach(phraseToAdd -> {
-            appModel.addNewPhraseToView(phraseToAdd);
-        });
-
-        stayedSameList.forEach(phrase -> {
-            appModel.updatePhraseCounterInView(phrase);
-        });
-
-        // Update counts on custom panel
+        // Update custom panel
         resetPhrasesPanel(PhraseType.CUSTOM);
         showCustomPhrases();
 
