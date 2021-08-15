@@ -1,7 +1,10 @@
 package view;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.ImageIcon;
+import javax.swing.JWindow;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Toolkit;
 
 /**
  * Loading Screens Class.
@@ -57,4 +60,5 @@ public class LoadingScreens {
             e.printStackTrace();
         }
     }
+
 }

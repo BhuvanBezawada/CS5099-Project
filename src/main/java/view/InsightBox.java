@@ -1,13 +1,16 @@
 package view;
 
-import controller.AppController;
+import controller.IAppController;
 import model.LinkedPhrases;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
 
 /**
  * Insight Box Class.
@@ -15,17 +18,18 @@ import java.awt.*;
 public class InsightBox extends JPanel {
 
     // Instance variables
+    private final IAppController controller;
     private LinkedPhrases linkedPhrases;
     private PhraseBox phraseBox1;
     private PhraseBox phraseBox2;
-    private AppController controller;
 
     /**
      * Constructor.
-     * @param controller The controller.
+     *
+     * @param controller    The controller.
      * @param linkedPhrases The pair of linked phrases.
      */
-    public InsightBox(AppController controller, LinkedPhrases linkedPhrases) {
+    public InsightBox(IAppController controller, LinkedPhrases linkedPhrases) {
         this.controller = controller;
         this.linkedPhrases = linkedPhrases;
 
@@ -49,21 +53,22 @@ public class InsightBox extends JPanel {
      * Setup the phrase boxes.
      */
     private void setupPhraseBoxes() {
-        this.phraseBox1 = new PhraseBox(controller, linkedPhrases.getFirst().getPhraseAsString(), linkedPhrases.getFirst().getUsageCount());
-        this.phraseBox2 = new PhraseBox(controller, linkedPhrases.getSecond().getPhraseAsString(), linkedPhrases.getSecond().getUsageCount());
-        this.add(phraseBox1);
-        this.add(phraseBox2);
+        this.phraseBox1 = new PhraseBox(this.controller, this.linkedPhrases.getFirst().getPhraseAsString(), this.linkedPhrases.getFirst().getUsageCount());
+        this.phraseBox2 = new PhraseBox(this.controller, this.linkedPhrases.getSecond().getPhraseAsString(), this.linkedPhrases.getSecond().getUsageCount());
+        this.add(this.phraseBox1);
+        this.add(this.phraseBox2);
     }
 
     /**
      * Setup the info text.
      */
     private void setupInfoText() {
-        JTextArea infoText = new JTextArea("The following phrases have been paired together " + linkedPhrases.getCount() + " times.");
+        JTextArea infoText = new JTextArea("The following phrases have been paired together " + this.linkedPhrases.getCount() + " times.");
         infoText.setBackground(Color.WHITE);
         infoText.setBorder(BorderCreator.createAllSidesEmptyBorder(BorderCreator.PADDING_10_PIXELS));
         infoText.setWrapStyleWord(true);
         infoText.setLineWrap(true);
         this.add(infoText);
     }
+
 }
