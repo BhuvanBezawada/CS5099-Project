@@ -1,12 +1,24 @@
 package view;
 
-import controller.AppController;
+import controller.IAppController;
 import model.Assignment;
 import model.LinkedPhrases;
 import model.Phrase;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -19,7 +31,11 @@ import java.util.Map;
  */
 public class FeedbackScreen implements PropertyChangeListener {
 
+    // Class variable
+    private static final int INSIGHT_LEVEL = 3;
+
     // Instance variables
+    private final IAppController controller;
     private JFrame feedbackScreen;
     private JPanel feedbackScreenPanel;
     private JSplitPane previewAndEditorSplitPane;
@@ -33,9 +49,6 @@ public class FeedbackScreen implements PropertyChangeListener {
     private PhraseEntryBox phraseEntryBox;
     private GridBagConstraints gridBagConstraints;
     private Assignment assignment;
-    private AppController controller;
-
-    private static final int INSIGHT_LEVEL = 3;
 
     /**
      * Constructor.
@@ -43,7 +56,7 @@ public class FeedbackScreen implements PropertyChangeListener {
      * @param controller The controller.
      * @param assignment The assignment.
      */
-    public FeedbackScreen(AppController controller, Assignment assignment) {
+    public FeedbackScreen(IAppController controller, Assignment assignment) {
         this.controller = controller;
         this.controller.registerWithModel(this);
         this.assignment = assignment;
@@ -61,154 +74,155 @@ public class FeedbackScreen implements PropertyChangeListener {
         positionPhrasesSplitPane();
 
         // Add the main panel to the screen and set visibility
-        feedbackScreen.add(feedbackScreenPanel, BorderLayout.CENTER);
-        feedbackScreen.setVisible(true);
+        this.feedbackScreen.add(this.feedbackScreenPanel, BorderLayout.CENTER);
+        this.feedbackScreen.setVisible(true);
     }
 
     /**
      * Position the phrases split pane with the gridbag constraints.
      */
     private void positionPhrasesSplitPane() {
-        gridBagConstraints.fill = GridBagConstraints.BOTH;
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        feedbackScreenPanel.add(phrasesAndPhraseEntrySplitPane, gridBagConstraints);
+        this.gridBagConstraints.fill = GridBagConstraints.BOTH;
+        this.gridBagConstraints.gridx = 2;
+        this.gridBagConstraints.gridy = 0;
+        this.feedbackScreenPanel.add(this.phrasesAndPhraseEntrySplitPane, this.gridBagConstraints);
     }
 
     /**
      * Position the editor split pane with the gridbag constraints.
      */
     private void positionEditorSplitPane() {
-        gridBagConstraints.fill = GridBagConstraints.BOTH;
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        feedbackScreenPanel.add(previewAndEditorSplitPane, gridBagConstraints);
+        this.gridBagConstraints.fill = GridBagConstraints.BOTH;
+        this.gridBagConstraints.gridx = 0;
+        this.gridBagConstraints.gridy = 0;
+        this.feedbackScreenPanel.add(this.previewAndEditorSplitPane, this.gridBagConstraints);
     }
 
     /**
      * Setup the feedback screen.
      */
     private void setupFeedbackScreen() {
-        feedbackScreen = new JFrame("Feedback Composition");
-        feedbackScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        feedbackScreen.setSize(1200, 800);
-        feedbackScreen.setLayout(new BorderLayout());
+        this.feedbackScreen = new JFrame("Feedback Composition");
+        this.feedbackScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.feedbackScreen.setSize(1200, 800);
+        this.feedbackScreen.setLayout(new BorderLayout());
 
         // Centre the screen
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = (screenSize.width - feedbackScreen.getWidth()) / 2;
-        int y = (screenSize.height - feedbackScreen.getHeight()) / 2;
-        feedbackScreen.setLocation(x, y);
+        int x = (screenSize.width - this.feedbackScreen.getWidth()) / 2;
+        int y = (screenSize.height - this.feedbackScreen.getHeight()) / 2;
+        this.feedbackScreen.setLocation(x, y);
     }
 
     /**
      * Setup the feedback screen panel.
      */
     private void setupFeedbackScreenPanel() {
-        feedbackScreenPanel = new JPanel(new GridBagLayout());
+        this.feedbackScreenPanel = new JPanel(new GridBagLayout());
         this.gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
+        this.gridBagConstraints.weightx = 1.0;
+        this.gridBagConstraints.weighty = 1.0;
     }
 
     /**
      * Setup the phrases section and phrase entry box.
      */
     private void setupPhrasesAndPhraseEntrySplitPane() {
-        this.phraseEntryBox = new PhraseEntryBox(controller);
+        this.phraseEntryBox = new PhraseEntryBox(this.controller);
         this.phraseEntryBox.disablePhraseEntryBox();
-        phrasesAndPhraseEntrySplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, phrasesSection, phraseEntryBox);
-        phrasesAndPhraseEntrySplitPane.setOneTouchExpandable(false);
-        phrasesAndPhraseEntrySplitPane.setDividerLocation(600);
-        phrasesAndPhraseEntrySplitPane.setMaximumSize(new Dimension(300, 800));
-        phrasesAndPhraseEntrySplitPane.setPreferredSize(new Dimension(300, 800));
-        phrasesAndPhraseEntrySplitPane.setMinimumSize(new Dimension(300, 800));
+        this.phrasesAndPhraseEntrySplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, this.phrasesSection, this.phraseEntryBox);
+        this.phrasesAndPhraseEntrySplitPane.setOneTouchExpandable(false);
+        this.phrasesAndPhraseEntrySplitPane.setDividerLocation(600);
+        this.phrasesAndPhraseEntrySplitPane.setMaximumSize(new Dimension(300, 800));
+        this.phrasesAndPhraseEntrySplitPane.setPreferredSize(new Dimension(300, 800));
+        this.phrasesAndPhraseEntrySplitPane.setMinimumSize(new Dimension(300, 800));
     }
 
     /**
      * Setup the phrase panels and the phrases section.
      */
     private void setupPhrasesSection() {
-        phrasesSection = new PhrasesSection(controller);
+        this.phrasesSection = new PhrasesSection(this.controller);
 
         // Create panels
-        PhrasesPanel customPhrasesPanel = new PhrasesPanel(controller, PhraseType.CUSTOM);
-        PhrasesPanel frequentlyUsedPhrasesPanel = new PhrasesPanel(controller, PhraseType.FREQUENTLY_USED);
-        PhrasesPanel insightsPhrasesPanel = new PhrasesPanel(controller, PhraseType.INSIGHTS);
+        PhrasesPanel customPhrasesPanel = new PhrasesPanel(this.controller, PhraseType.CUSTOM);
+        PhrasesPanel frequentlyUsedPhrasesPanel = new PhrasesPanel(this.controller, PhraseType.FREQUENTLY_USED);
+        PhrasesPanel insightsPhrasesPanel = new PhrasesPanel(this.controller, PhraseType.INSIGHTS);
 
         // Add panels
-        phrasesSection.addPhrasesPanel(customPhrasesPanel);
-        phrasesSection.addPhrasesPanel(frequentlyUsedPhrasesPanel);
-        phrasesSection.addPhrasesPanel(insightsPhrasesPanel);
+        this.phrasesSection.addPhrasesPanel(customPhrasesPanel);
+        this.phrasesSection.addPhrasesPanel(frequentlyUsedPhrasesPanel);
+        this.phrasesSection.addPhrasesPanel(insightsPhrasesPanel);
 
         // Start on frequently used pane
-        phrasesSection.setHighlightedPane(1);
-        controller.setCurrentPhrasePanelInView(PhraseType.FREQUENTLY_USED);
+        this.phrasesSection.setHighlightedPane(1);
+        this.controller.setCurrentPhrasePanelInView(PhraseType.FREQUENTLY_USED);
     }
 
     /**
      * Setup the preview and editor split pane.
      */
     private void setupPreviewAndEditorSplitPane() {
-        previewAndEditorSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, previewPanelScrollPane, editorPanelScrollPane);
-        previewAndEditorSplitPane.setMaximumSize(new Dimension(900, 800));
-        previewAndEditorSplitPane.setPreferredSize(new Dimension(900, 800));
-        previewAndEditorSplitPane.setMinimumSize(new Dimension(900, 800));
-        previewAndEditorSplitPane.setOneTouchExpandable(true);
-        previewAndEditorSplitPane.setDividerLocation(300);
+        this.previewAndEditorSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.previewPanelScrollPane, this.editorPanelScrollPane);
+        this.previewAndEditorSplitPane.setMaximumSize(new Dimension(900, 800));
+        this.previewAndEditorSplitPane.setPreferredSize(new Dimension(900, 800));
+        this.previewAndEditorSplitPane.setMinimumSize(new Dimension(900, 800));
+        this.previewAndEditorSplitPane.setOneTouchExpandable(true);
+        this.previewAndEditorSplitPane.setDividerLocation(300);
     }
 
     /**
      * Setup the editor panel.
      */
     private void setupEditorPanel() {
-        editorPanelScrollPane = new JScrollPane();
+        this.editorPanelScrollPane = new JScrollPane();
 
         // Create editor panel with popup menu
-        editorPanel = new EditorPanel(controller, assignment.getAssignmentTitle(), assignment.getAssignmentHeadings());
-        editingPopupMenu = new EditingPopupMenu();
-        editorPanel.registerPopupMenu(editingPopupMenu);
+        this.editorPanel = new EditorPanel(this.controller, this.assignment.getAssignmentTitle(), this.assignment.getAssignmentHeadings());
+        this.editingPopupMenu = new EditingPopupMenu();
+        this.editorPanel.registerPopupMenu(this.editingPopupMenu);
 
         // Set the document data if it exists
-        editorPanel.setData(assignment.getFeedbackDocumentForStudent(controller.getCurrentDocumentInView()));
+        this.editorPanel.setData(this.assignment.getFeedbackDocumentForStudent(this.controller.getCurrentDocumentInView()));
 
         // Make the panel scrollable
-        editorPanelScrollPane.add(editorPanel);
-        editorPanelScrollPane.getViewport().setView(editorPanel);
+        this.editorPanelScrollPane.add(this.editorPanel);
+        this.editorPanelScrollPane.getViewport().setView(this.editorPanel);
     }
 
     /**
      * Setup the preview panel.
      */
     private void setupPreviewPanel() {
-        previewPanelScrollPane = new JScrollPane();
+        this.previewPanelScrollPane = new JScrollPane();
 
         // Create preview boxes
         List<PreviewBox> previewBoxes = new ArrayList<PreviewBox>();
-        assignment.getFeedbackDocuments().forEach(feedbackDocument -> {
-            PreviewBox previewBox = new PreviewBox(controller, feedbackDocument.getStudentId(), feedbackDocument.getGrade(), controller.getFirstLineFromDocument(assignment, feedbackDocument.getStudentId()));
-            previewBox.setAssignment(assignment);
+        this.assignment.getFeedbackDocuments().forEach(feedbackDocument -> {
+            PreviewBox previewBox = new PreviewBox(this.controller, feedbackDocument.getStudentId(), feedbackDocument.getGrade(), this.controller.getFirstLineFromDocument(this.assignment, feedbackDocument.getStudentId()));
+            previewBox.setAssignment(this.assignment);
             previewBoxes.add(previewBox);
         });
 
         // Order the preview boxes by the id if possible
         Collections.sort(previewBoxes);
-        controller.setCurrentDocumentInView(previewBoxes.get(0).getHeading());
+        this.controller.setCurrentDocumentInView(previewBoxes.get(0).getHeading());
 
         // Make the preview panel scrollable
-        previewPanel = new PreviewPanel(previewBoxes);
-        previewPanelScrollPane.add(previewPanel);
-        previewPanelScrollPane.getViewport().setView(previewPanel);
+        this.previewPanel = new PreviewPanel(previewBoxes);
+        this.previewPanelScrollPane.add(this.previewPanel);
+        this.previewPanelScrollPane.getViewport().setView(this.previewPanel);
 
         // Set scroll position to top
         // The following line is adapted from: https://stackoverflow.com/questions/1166072/setting-scroll-bar-on-a-jscrollpane
-        SwingUtilities.invokeLater(() -> previewPanelScrollPane.getVerticalScrollBar().setValue(0));
+        SwingUtilities.invokeLater(() -> this.previewPanelScrollPane.getVerticalScrollBar().setValue(0));
     }
 
     /**
      * Setup the menubar.
      */
     private void setupMenuBar() {
+        // Menu bar and items
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
         JMenuItem saveOption = new JMenuItem("Save current document");
@@ -220,44 +234,43 @@ public class FeedbackScreen implements PropertyChangeListener {
 
         // Save operation
         saveOption.addActionListener(l -> {
-            JOptionPane.showMessageDialog(feedbackScreen, "Saving document for student: " + controller.getCurrentDocumentInView());
-            controller.saveFeedbackDocument(controller.getCurrentDocumentInView());
+            JOptionPane.showMessageDialog(this.feedbackScreen, "Saving document for student: " + this.controller.getCurrentDocumentInView());
+            this.controller.saveFeedbackDocument(controller.getCurrentDocumentInView());
         });
 
         // View sentiment option
         sentimentOption.addActionListener(l -> {
-            SentimentViewer sentimentViewer = new SentimentViewer(controller, "Sentiment Overview of Document for: " + controller.getCurrentDocumentInView());
-            sentimentViewer.displayData(assignment.getFeedbackDocumentForStudent(controller.getCurrentDocumentInView()));
+            SentimentViewer sentimentViewer = new SentimentViewer(this.controller, "Sentiment Overview of Document for: " + this.controller.getCurrentDocumentInView());
+            sentimentViewer.displayData(this.assignment.getFeedbackDocumentForStudent(this.controller.getCurrentDocumentInView()));
         });
 
         // Export documents option
         exportDocsOption.addActionListener(l -> {
-            controller.exportFeedbackDocuments(assignment);
-            JOptionPane.showMessageDialog(feedbackScreen,
+            this.controller.exportFeedbackDocuments(this.assignment);
+            JOptionPane.showMessageDialog(this.feedbackScreen,
                     "Exporting feedback documents... \n" +
-                            "Please check the directory: " + assignment.getAssignmentDirectoryPath());
+                            "Please check the directory: " + this.assignment.getAssignmentDirectoryPath());
         });
 
         // Export grades option
         exportGradesOption.addActionListener(l -> {
-            controller.exportGrades(assignment);
-            JOptionPane.showMessageDialog(feedbackScreen,
+            this.controller.exportGrades(this.assignment);
+            JOptionPane.showMessageDialog(this.feedbackScreen,
                     "Exporting assignment grades... \n" +
-                            "Please check the directory: " + assignment.getAssignmentDirectoryPath());
+                            "Please check the directory: " + this.assignment.getAssignmentDirectoryPath());
         });
 
         // Visualise grades option
         visGradesOption.addActionListener(l -> {
-            controller.visualiseGrades(assignment);
-            JOptionPane.showMessageDialog(feedbackScreen, "Generating visualisation of assignment grades...");
+            this.controller.visualiseGrades(assignment);
+            JOptionPane.showMessageDialog(this.feedbackScreen, "Generating visualisation of assignment grades...");
         });
 
         // Visualise grades option
         summaryOption.addActionListener(l -> {
-            Map<String, List<String>> summary = controller.getSummary(assignment);
-            System.out.println(summary);
-            DocumentViewer documentViewer = new DocumentViewer(controller, "Summary of All Feedback Documents");
-            documentViewer.displayData(summary, assignment.getAssignmentHeadings());
+            Map<String, List<String>> summary = this.controller.getSummary(this.assignment);
+            DocumentViewer documentViewer = new DocumentViewer(this.controller, "Summary of All Feedback Documents");
+            documentViewer.displayData(summary, this.assignment.getAssignmentHeadings());
         });
 
         // Add all options to menu
@@ -270,7 +283,7 @@ public class FeedbackScreen implements PropertyChangeListener {
 
         // Add the menu bar to the screen
         menuBar.add(fileMenu);
-        feedbackScreen.add(menuBar, BorderLayout.PAGE_START);
+        this.feedbackScreen.add(menuBar, BorderLayout.PAGE_START);
     }
 
     /**
@@ -288,10 +301,6 @@ public class FeedbackScreen implements PropertyChangeListener {
                 break;
             case "saveDoc":
                 performDocumentSave(event);
-                break;
-            case "updatePhrases":
-                Phrase samplePhrase = (Phrase) event.getNewValue();
-                phrasesSection.addPhraseToPanel(samplePhrase.getPhraseAsString(), samplePhrase.getUsageCount(), PhraseType.FREQUENTLY_USED);
                 break;
             case "insertPhrase":
                 performInsertPhrase(event);
@@ -334,7 +343,7 @@ public class FeedbackScreen implements PropertyChangeListener {
      */
     private void displayError(PropertyChangeEvent event) {
         String errorMessage = (String) event.getNewValue();
-        JOptionPane.showMessageDialog(feedbackScreen, errorMessage, "Error!", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this.feedbackScreen, errorMessage, "Error!", JOptionPane.ERROR_MESSAGE);
     }
 
     /**
@@ -343,30 +352,31 @@ public class FeedbackScreen implements PropertyChangeListener {
      * @param event The event notification from the model.
      */
     private void performPhrasePanelChange(PropertyChangeEvent event) {
-        if (phraseEntryBox != null) {
+        if (this.phraseEntryBox != null) {
             PhraseType panelInView = (PhraseType) event.getNewValue();
+            // Show custom phrases
             if (panelInView == PhraseType.CUSTOM) {
-                phrasesSection.resetPhrasesPanel(PhraseType.CUSTOM);
-                controller.showCustomPhrases();
-                phraseEntryBox.enablePhraseEntryBox();
+                this.phrasesSection.resetPhrasesPanel(PhraseType.CUSTOM);
+                this.controller.showCustomPhrases();
+                this.phraseEntryBox.enablePhraseEntryBox();
             } else {
-                phraseEntryBox.disablePhraseEntryBox();
+                this.phraseEntryBox.disablePhraseEntryBox();
             }
 
+            // Show insights
             if (panelInView == PhraseType.INSIGHTS) {
-                controller.resetPhrasesPanel(PhraseType.INSIGHTS);
-                controller.showInsights();
+                this.controller.resetPhrasesPanel(PhraseType.INSIGHTS);
+                this.controller.showInsights();
             }
         }
     }
 
     /**
-     * Reset the panels. // TODO need to know which panel to reset.
+     * Reset the panels.
      */
     private void performResetPanel(PropertyChangeEvent event) {
-        System.out.println("removing all phrases from panel");
         PhraseType phrasePanel = (PhraseType) event.getNewValue();
-        phrasesSection.resetPhrasesPanel(phrasePanel);
+        this.phrasesSection.resetPhrasesPanel(phrasePanel);
     }
 
     /**
@@ -376,9 +386,9 @@ public class FeedbackScreen implements PropertyChangeListener {
      */
     private void performUpdatePhrase(PropertyChangeEvent event) {
         Phrase phraseToUpdate = (Phrase) event.getNewValue();
-        phrasesSection.updatePhraseCounter(PhraseType.FREQUENTLY_USED, phraseToUpdate.getPhraseAsString(), phraseToUpdate.getUsageCount());
-        phrasesSection.updatePhraseCounter(PhraseType.CUSTOM, phraseToUpdate.getPhraseAsString(), phraseToUpdate.getUsageCount());
-        phrasesSection.updatePhraseCounter(PhraseType.INSIGHTS, phraseToUpdate.getPhraseAsString(), phraseToUpdate.getUsageCount());
+        this.phrasesSection.updatePhraseCounter(PhraseType.FREQUENTLY_USED, phraseToUpdate.getPhraseAsString(), phraseToUpdate.getUsageCount());
+        this.phrasesSection.updatePhraseCounter(PhraseType.CUSTOM, phraseToUpdate.getPhraseAsString(), phraseToUpdate.getUsageCount());
+        this.phrasesSection.updatePhraseCounter(PhraseType.INSIGHTS, phraseToUpdate.getPhraseAsString(), phraseToUpdate.getUsageCount());
     }
 
     /**
@@ -388,7 +398,7 @@ public class FeedbackScreen implements PropertyChangeListener {
      */
     private void performDeletePhrase(PropertyChangeEvent event) {
         Phrase phraseToDelete = (Phrase) event.getNewValue();
-        phrasesSection.removePhraseFromPanel(phraseToDelete.getPhraseAsString(), PhraseType.FREQUENTLY_USED);
+        this.phrasesSection.removePhraseFromPanel(phraseToDelete.getPhraseAsString(), PhraseType.FREQUENTLY_USED);
     }
 
     /**
@@ -399,18 +409,18 @@ public class FeedbackScreen implements PropertyChangeListener {
      */
     private void performAddNewPhrase(PropertyChangeEvent event, PhraseType phraseType) {
         Phrase newPhrase = (Phrase) event.getNewValue();
-        phrasesSection.addPhraseToPanel(newPhrase.getPhraseAsString(), newPhrase.getUsageCount(), phraseType);
+        this.phrasesSection.addPhraseToPanel(newPhrase.getPhraseAsString(), newPhrase.getUsageCount(), phraseType);
     }
 
     /**
      * Add a phrase to the given panel.
      *
-     * @param event      The event notification from the model.
+     * @param event The event notification from the model.
      */
     private void performAddNewLinkedPhrase(PropertyChangeEvent event) {
         LinkedPhrases newLinkedPhrases = (LinkedPhrases) event.getNewValue();
         if (newLinkedPhrases.getCount() >= INSIGHT_LEVEL) {
-            phrasesSection.addInsightToInsightPanel(newLinkedPhrases);
+            this.phrasesSection.addInsightToInsightPanel(newLinkedPhrases);
         }
     }
 
@@ -421,8 +431,8 @@ public class FeedbackScreen implements PropertyChangeListener {
      */
     private void performInsertPhrase(PropertyChangeEvent event) {
         String phrase = (String) event.getNewValue();
-        String heading = controller.getCurrentHeadingBeingEdited();
-        editorPanel.insertPhraseIntoFeedbackBox(phrase, heading);
+        String heading = this.controller.getCurrentHeadingBeingEdited();
+        this.editorPanel.insertPhraseIntoFeedbackBox(phrase, heading);
     }
 
     /**
@@ -432,12 +442,11 @@ public class FeedbackScreen implements PropertyChangeListener {
      */
     private void performDocumentSave(PropertyChangeEvent event) {
         String studentId = (String) event.getNewValue();
-        System.out.println("Saving doc: " + studentId);
-        Map<String, String> headingsAndData = editorPanel.saveDataAsMap();
-        double grade = editorPanel.getGrade();
+        Map<String, String> headingsAndData = this.editorPanel.saveDataAsMap();
+        double grade = this.editorPanel.getGrade();
         if (grade >= 0) {
-            controller.saveFeedbackDocument(assignment, studentId, headingsAndData, grade);
-            previewPanel.updatePreviewBox(studentId, controller.getFirstLineFromDocument(assignment, studentId), grade);
+            this.controller.saveFeedbackDocument(this.assignment, studentId, headingsAndData, grade);
+            this.previewPanel.updatePreviewBox(studentId, this.controller.getFirstLineFromDocument(this.assignment, studentId), grade);
         }
     }
 
@@ -447,21 +456,22 @@ public class FeedbackScreen implements PropertyChangeListener {
      * @param event The event notification from the model.
      */
     private void performDocumentViewChange(PropertyChangeEvent event) {
-        System.out.println("Got event from model, will update editor...");
         String newDocInView = (String) event.getNewValue();
-        editorPanel.setData(assignment.getFeedbackDocumentForStudent(newDocInView));
+        this.editorPanel.setData(this.assignment.getFeedbackDocumentForStudent(newDocInView));
 
-        if (controller.getLastDocumentInView() != null) {
-            previewPanel.updatePreviewBoxLine(
-                    controller.getLastDocumentInView(),
-                    controller.getFirstLineFromDocument(assignment, controller.getLastDocumentInView())
+        // Update the preview boxes
+        if (this.controller.getLastDocumentInView() != null) {
+            this.previewPanel.updatePreviewBoxLine(
+                    this.controller.getLastDocumentInView(),
+                    this.controller.getFirstLineFromDocument(this.assignment, this.controller.getLastDocumentInView())
             );
-            previewPanel.unhighlightPreviewBox(controller.getLastDocumentInView());
+            this.previewPanel.unhighlightPreviewBox(this.controller.getLastDocumentInView());
         }
+        this.previewPanel.highlightPreviewBox(newDocInView);
 
-        previewPanel.highlightPreviewBox(newDocInView);
-
-        previewPanel.repaint();
-        previewPanel.revalidate();
+        // Refresh UI
+        this.previewPanel.repaint();
+        this.previewPanel.revalidate();
     }
+
 }

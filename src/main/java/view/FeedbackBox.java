@@ -1,9 +1,13 @@
 package view;
 
-import controller.AppController;
+import controller.IAppController;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
@@ -23,8 +27,8 @@ public class FeedbackBox extends JPanel {
     private static final String NEWLINE = "\n";
 
     // Instance variables
-    private final String heading;
-    private final AppController controller;
+    private final IAppController controller;
+    private String heading;
     private JLabel headingLabel;
     private JTextArea textArea;
     private List<String> currentBoxContents;
@@ -36,7 +40,7 @@ public class FeedbackBox extends JPanel {
      * @param controller The controller.
      * @param heading    The heading the feedback box is for.
      */
-    public FeedbackBox(AppController controller, String heading) {
+    public FeedbackBox(IAppController controller, String heading) {
         // Store heading
         this.heading = heading;
         this.controller = controller;
@@ -53,8 +57,8 @@ public class FeedbackBox extends JPanel {
         this.setLayout(new BorderLayout());
 
         // Add components to the panel
-        this.add(headingLabel, BorderLayout.PAGE_START);
-        this.add(textArea, BorderLayout.CENTER);
+        this.add(this.headingLabel, BorderLayout.PAGE_START);
+        this.add(this.textArea, BorderLayout.CENTER);
 
         // Add some padding to the bottom on the panel and make it visible
         this.setBorder(BorderCreator.createEmptyBorderLeavingTop(BorderCreator.PADDING_20_PIXELS));
@@ -67,14 +71,14 @@ public class FeedbackBox extends JPanel {
      * @return The heading string.
      */
     public String getHeading() {
-        return heading;
+        return this.heading;
     }
 
     /**
      * Setup the heading label.
      */
     private void setupLabel() {
-        this.headingLabel = new JLabel(heading, SwingConstants.LEFT);
+        this.headingLabel = new JLabel(this.heading, SwingConstants.LEFT);
         this.headingLabel.setBorder(BorderCreator.createEmptyBorderBottomOnly(BorderCreator.PADDING_10_PIXELS));
     }
 
@@ -132,9 +136,9 @@ public class FeedbackBox extends JPanel {
     }
 
     /**
-     * Get the text pane.
+     * Get the text area.
      *
-     * @return The
+     * @return The text area.
      */
     public JTextArea getTextArea() {
         return this.textArea;
@@ -145,14 +149,14 @@ public class FeedbackBox extends JPanel {
      */
     private void captureState() {
         // Clear previous contents and store most recent contents
-        previousBoxContents = new ArrayList<>(currentBoxContents);
+        this.previousBoxContents = new ArrayList<>(this.currentBoxContents);
 
         // Store the realtime contents (and remove line marker for storage)
-        currentBoxContents = Arrays.asList(textArea.getText().split(NEWLINE));
-        currentBoxContents = currentBoxContents.stream()
+        this.currentBoxContents = Arrays.asList(this.textArea.getText().split(NEWLINE));
+        this.currentBoxContents = this.currentBoxContents.stream()
                 .map(String::trim)
-                .filter(line -> line.startsWith(controller.getLineMarker()))
-                .map(line -> line.replace(controller.getLineMarker(), ""))
+                .filter(line -> line.startsWith(this.controller.getLineMarker()))
+                .map(line -> line.replace(this.controller.getLineMarker(), ""))
                 .collect(Collectors.toList());
     }
 
@@ -164,10 +168,10 @@ public class FeedbackBox extends JPanel {
     public void setTextAreaText(String data) {
         // Store the realtime contents (and remove line marker for storage)
         this.currentBoxContents = Arrays.asList(data.split(NEWLINE));
-        this.currentBoxContents = currentBoxContents.stream()
+        this.currentBoxContents = this.currentBoxContents.stream()
                 .map(String::trim)
-                .filter(line -> line.startsWith(controller.getLineMarker()))
-                .map(line -> line.replace(controller.getLineMarker(), ""))
+                .filter(line -> line.startsWith(this.controller.getLineMarker()))
+                .map(line -> line.replace(this.controller.getLineMarker(), ""))
                 .collect(Collectors.toList());
         this.textArea.setText(data);
     }
@@ -189,12 +193,12 @@ public class FeedbackBox extends JPanel {
     public void insertPhrase(String phrase) {
         // Insert phrase
         int caretPos = this.textArea.getCaretPosition();
-        textArea.insert(phrase + NEWLINE, caretPos);
+        this.textArea.insert(phrase + NEWLINE, caretPos);
 
         // Save new state
         captureState();
-        controller.updatePhrases(heading, previousBoxContents, currentBoxContents);
-        controller.managePhraseLinks(heading, previousBoxContents, currentBoxContents);
+        this.controller.updatePhrases(this.heading, this.previousBoxContents, this.currentBoxContents);
+        this.controller.managePhraseLinks(this.heading, this.previousBoxContents, this.currentBoxContents);
         insertLineMarkerForNewLine();
     }
 
@@ -202,7 +206,8 @@ public class FeedbackBox extends JPanel {
      * Insert a line marker at the beginning of a new line.
      */
     private void insertLineMarkerForNewLine() {
-        int caretPos = textArea.getCaretPosition();
-        textArea.insert(controller.getLineMarker(), caretPos);
+        int caretPos = this.textArea.getCaretPosition();
+        this.textArea.insert(this.controller.getLineMarker(), caretPos);
     }
+
 }

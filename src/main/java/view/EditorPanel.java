@@ -1,11 +1,15 @@
 package view;
 
-import controller.AppController;
+import controller.IAppController;
 import model.FeedbackDocument;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +21,7 @@ import java.util.Map;
 public class EditorPanel extends JPanel {
 
     // Instance variables
+    private final IAppController controller;
     private String titleText;
     private List<String> headings;
     private JLabel titleLabel;
@@ -24,7 +29,6 @@ public class EditorPanel extends JPanel {
     private List<FeedbackBox> feedbackBoxes;
     private GradeBox gradeBox;
     private Map<String, FeedbackBox> headingAndFeedbackBox;
-    private AppController controller;
 
     /**
      * Constructor.
@@ -33,7 +37,7 @@ public class EditorPanel extends JPanel {
      * @param titleText  The title text for the editor panel.
      * @param headings   The headings of the feedback boxes to create.
      */
-    public EditorPanel(AppController controller, String titleText, List<String> headings) {
+    public EditorPanel(IAppController controller, String titleText, List<String> headings) {
         // Set data variables
         this.titleText = titleText;
         this.headings = headings;
@@ -57,15 +61,15 @@ public class EditorPanel extends JPanel {
      */
     private void setupFeedbackBoxesPanel() {
         this.feedbackBoxesPanel = new JPanel();
-        this.feedbackBoxesPanel.setLayout(new BoxLayout(feedbackBoxesPanel, BoxLayout.PAGE_AXIS));
+        this.feedbackBoxesPanel.setLayout(new BoxLayout(this.feedbackBoxesPanel, BoxLayout.PAGE_AXIS));
     }
 
     /**
      * Setup the grade box.
      */
     private void setupGradeBox() {
-        this.gradeBox = new GradeBox(controller);
-        this.add(gradeBox, BorderLayout.PAGE_END);
+        this.gradeBox = new GradeBox(this.controller);
+        this.add(this.gradeBox, BorderLayout.PAGE_END);
     }
 
 
@@ -87,22 +91,22 @@ public class EditorPanel extends JPanel {
         this.titleLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 20));
         this.titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
         this.titleLabel.setBorder(new EmptyBorder(20, 20, 20, 20));
-        this.add(titleLabel, BorderLayout.PAGE_START);
+        this.add(this.titleLabel, BorderLayout.PAGE_START);
     }
 
     /**
      * Setup the feedback boxes.
      */
     private void setupFeedbackBoxes() {
-        headings.forEach(heading -> {
-            FeedbackBox feedbackBox = new FeedbackBox(controller, heading);
-            feedbackBoxes.add(feedbackBox);
-            headingAndFeedbackBox.put(heading, feedbackBox);
-            feedbackBoxesPanel.add(feedbackBox);
+        this.headings.forEach(heading -> {
+            FeedbackBox feedbackBox = new FeedbackBox(this.controller, heading);
+            this.feedbackBoxes.add(feedbackBox);
+            this.headingAndFeedbackBox.put(heading, feedbackBox);
+            this.feedbackBoxesPanel.add(feedbackBox);
         });
 
-        feedbackBoxesPanel.setVisible(true);
-        this.add(feedbackBoxesPanel, BorderLayout.CENTER);
+        this.feedbackBoxesPanel.setVisible(true);
+        this.add(this.feedbackBoxesPanel, BorderLayout.CENTER);
     }
 
     /**
@@ -111,7 +115,7 @@ public class EditorPanel extends JPanel {
      * @param editingPopupMenu The editing menu to register with.
      */
     public void registerPopupMenu(EditingPopupMenu editingPopupMenu) {
-        feedbackBoxes.forEach(feedbackBox -> feedbackBox.registerPopupMenu(editingPopupMenu));
+        this.feedbackBoxes.forEach(feedbackBox -> feedbackBox.registerPopupMenu(editingPopupMenu));
     }
 
     /**
@@ -124,14 +128,14 @@ public class EditorPanel extends JPanel {
         setTitleLabel("Document for: " + feedbackDocument.getStudentId());
 
         // Set the data for each feedback box
-        feedbackBoxes.forEach(feedbackBox -> {
+        this.feedbackBoxes.forEach(feedbackBox -> {
             feedbackBox.setTextAreaText("");
             feedbackBox.setTextAreaText(feedbackDocument.getHeadingData(feedbackBox.getHeading()));
         });
 
         // Set the grade box
-        gradeBox.setStudentId(feedbackDocument.getStudentId());
-        gradeBox.setGrade(feedbackDocument.getGrade());
+        this.gradeBox.setStudentId(feedbackDocument.getStudentId());
+        this.gradeBox.setGrade(feedbackDocument.getGrade());
 
         // Refresh the UI
         revalidate();
@@ -155,7 +159,7 @@ public class EditorPanel extends JPanel {
      */
     public Map<String, String> saveDataAsMap() {
         Map<String, String> headingsAndData = new HashMap<String, String>();
-        feedbackBoxes.forEach(feedbackBox -> {
+        this.feedbackBoxes.forEach(feedbackBox -> {
             headingsAndData.put(feedbackBox.getHeading(), feedbackBox.getTextArea().getText());
         });
 

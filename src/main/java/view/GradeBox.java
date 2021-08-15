@@ -1,8 +1,12 @@
 package view;
 
-import controller.AppController;
+import controller.IAppController;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 /**
  * Grade Box Class.
@@ -13,18 +17,18 @@ public class GradeBox extends JPanel {
     final static private String GRADE = "Grade: ";
 
     // Instance variables
+    private final IAppController controller;
     private JLabel gradeLabel;
     private JTextField textField;
     private JButton confirmButton;
     private String studentId;
-    private AppController controller;
 
     /**
      * Constructor.
      *
      * @param controller The controller.
      */
-    public GradeBox(AppController controller) {
+    public GradeBox(IAppController controller) {
         this.controller = controller;
 
         // Setup components
@@ -44,7 +48,7 @@ public class GradeBox extends JPanel {
      */
     private void setupLabel() {
         this.gradeLabel = new JLabel(GRADE);
-        this.add(gradeLabel);
+        this.add(this.gradeLabel);
     }
 
     /**
@@ -53,7 +57,7 @@ public class GradeBox extends JPanel {
     private void setupTextField() {
         this.textField = new JTextField(10);
         this.textField.setEditable(true);
-        this.add(textField);
+        this.add(this.textField);
     }
 
     /**
@@ -63,11 +67,11 @@ public class GradeBox extends JPanel {
         this.confirmButton = new JButton("Confirm");
         this.confirmButton.addActionListener(l -> {
             if (getGrade() > 0) {
-                JOptionPane.showMessageDialog(confirmButton, "Saving grade of " + getGrade() + " for student " + studentId);
-                controller.saveFeedbackDocument(studentId);
+                JOptionPane.showMessageDialog(this.confirmButton, "Saving grade of " + getGrade() + " for student " + this.studentId);
+                this.controller.saveFeedbackDocument(this.studentId);
             }
         });
-        this.add(confirmButton);
+        this.add(this.confirmButton);
     }
 
     /**
@@ -92,7 +96,7 @@ public class GradeBox extends JPanel {
                 throw new NumberFormatException();
             }
         } catch (NumberFormatException e) {
-            controller.error("Grade must be a real number from 0.0 to 20.0!");
+            this.controller.error("Grade must be a real number from 0.0 to 20.0!");
             setGrade(0.0);
             return -1.0;
         }
@@ -117,4 +121,5 @@ public class GradeBox extends JPanel {
     public void setStudentId(String studentId) {
         this.studentId = studentId;
     }
+
 }
