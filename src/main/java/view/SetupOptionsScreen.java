@@ -1,12 +1,22 @@
 package view;
 
-import controller.AppController;
+import controller.IAppController;
 import model.Assignment;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Toolkit;
 import java.io.File;
 
 /**
@@ -15,6 +25,7 @@ import java.io.File;
 public class SetupOptionsScreen {
 
     // Instance variables
+    private final IAppController controller;
     private JFrame setupOptionsScreen;
     private JPanel setupOptionsScreenPanel;
     private JButton useConfigFileButton;
@@ -22,15 +33,13 @@ public class SetupOptionsScreen {
     private JButton backButton;
     private JLabel titleLabel;
     private JTextPane instructions;
-    private AppController controller;
-
 
     /**
      * Constructor.
      *
      * @param controller The controller.
      */
-    public SetupOptionsScreen(AppController controller) {
+    public SetupOptionsScreen(IAppController controller) {
         this.controller = controller;
 
         // Setup components
@@ -43,22 +52,22 @@ public class SetupOptionsScreen {
         setupSetupOptionScreenPanel();
 
         // Add the options screen panel to the main screen and set visibility
-        setupOptionsScreen.add(setupOptionsScreenPanel);
-        setupOptionsScreen.setVisible(true);
+        this.setupOptionsScreen.add(this.setupOptionsScreenPanel);
+        this.setupOptionsScreen.setVisible(true);
     }
 
     /**
      * Setup the back button.
      */
     private void setupBackButton() {
-        backButton = new JButton("Back");
-        backButton.setMinimumSize(new Dimension(200, 50));
-        backButton.setPreferredSize(new Dimension(200, 50));
-        backButton.setMaximumSize(new Dimension(200, 50));
-        backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        backButton.addActionListener(l -> {
-            setupOptionsScreen.dispose();
-            HomeScreen homeScreen = new HomeScreen(controller);
+        this.backButton = new JButton("Back");
+        this.backButton.setMinimumSize(new Dimension(200, 50));
+        this.backButton.setPreferredSize(new Dimension(200, 50));
+        this.backButton.setMaximumSize(new Dimension(200, 50));
+        this.backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.backButton.addActionListener(l -> {
+            this.setupOptionsScreen.dispose();
+            new HomeScreen(this.controller);
         });
     }
 
@@ -66,14 +75,14 @@ public class SetupOptionsScreen {
      * Setup the manual setup button.
      */
     private void setupManualButton() {
-        useManualSetupButton = new JButton("Use manual setup");
-        useManualSetupButton.setMinimumSize(new Dimension(200, 50));
-        useManualSetupButton.setPreferredSize(new Dimension(200, 50));
-        useManualSetupButton.setMaximumSize(new Dimension(200, 50));
-        useManualSetupButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        useManualSetupButton.addActionListener(l -> {
-            setupOptionsScreen.dispose();
-            CreateAssignmentScreen createAssignmentScreen = new CreateAssignmentScreen(controller);
+        this.useManualSetupButton = new JButton("Use manual setup");
+        this.useManualSetupButton.setMinimumSize(new Dimension(200, 50));
+        this.useManualSetupButton.setPreferredSize(new Dimension(200, 50));
+        this.useManualSetupButton.setMaximumSize(new Dimension(200, 50));
+        this.useManualSetupButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.useManualSetupButton.addActionListener(l -> {
+            this.setupOptionsScreen.dispose();
+            new CreateAssignmentScreen(this.controller);
         });
     }
 
@@ -81,12 +90,12 @@ public class SetupOptionsScreen {
      * Setup config file button.
      */
     private void setupConfigFileButton() {
-        useConfigFileButton = new JButton("Use config file...");
-        useConfigFileButton.setMinimumSize(new Dimension(200, 50));
-        useConfigFileButton.setPreferredSize(new Dimension(200, 50));
-        useConfigFileButton.setMaximumSize(new Dimension(200, 50));
-        useConfigFileButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        useConfigFileButton.addActionListener(l -> {
+        this.useConfigFileButton = new JButton("Use config file...");
+        this.useConfigFileButton.setMinimumSize(new Dimension(200, 50));
+        this.useConfigFileButton.setPreferredSize(new Dimension(200, 50));
+        this.useConfigFileButton.setMaximumSize(new Dimension(200, 50));
+        this.useConfigFileButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.useConfigFileButton.addActionListener(l -> {
             // Show file chooser
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Choose a config file...");
@@ -97,7 +106,7 @@ public class SetupOptionsScreen {
             fileChooser.addChoosableFileFilter(filter);
 
             // Get the selected file and continue if it is valid
-            int returnValue = fileChooser.showDialog(useConfigFileButton, "Select this config file");
+            int returnValue = fileChooser.showDialog(this.useConfigFileButton, "Select this config file");
             String configFilePath = null;
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 configFilePath = fileChooser.getSelectedFile().getPath();
@@ -105,14 +114,14 @@ public class SetupOptionsScreen {
 
                 // Check file exists
                 if (configFile.exists()) {
-                    setupOptionsScreen.dispose();
+                    this.setupOptionsScreen.dispose();
                     new Thread(LoadingScreens::showLoadingScreen).start();
 
                     // Create the assignment using the config file
-                    Assignment assignment = controller.createAssignmentFromConfig(configFilePath);
-                    new FeedbackScreen(controller, assignment);
+                    Assignment assignment = this.controller.createAssignmentFromConfig(configFilePath);
+                    new FeedbackScreen(this.controller, assignment);
                 } else {
-                    JOptionPane.showMessageDialog(setupOptionsScreen, "Please select a JSON config file!", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this.setupOptionsScreen, "Please select a JSON config file!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -123,45 +132,46 @@ public class SetupOptionsScreen {
      */
     private void setupSetupOptionScreenPanel() {
         // Create the panel
-        setupOptionsScreenPanel = new JPanel();
-        setupOptionsScreenPanel.setLayout(new BoxLayout(setupOptionsScreenPanel, BoxLayout.PAGE_AXIS));
-        setupOptionsScreenPanel.setBorder(BorderCreator.createEmptyBorderLeavingBottom(50));
+        this.setupOptionsScreenPanel = new JPanel();
+        this.setupOptionsScreenPanel.setLayout(new BoxLayout(this.setupOptionsScreenPanel, BoxLayout.PAGE_AXIS));
+        this.setupOptionsScreenPanel.setBorder(BorderCreator.createEmptyBorderLeavingBottom(50));
 
         // Add all the components
-        setupOptionsScreenPanel.add(titleLabel);
-        setupOptionsScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
-        setupOptionsScreenPanel.add(instructions);
-        setupOptionsScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
-        setupOptionsScreenPanel.add(useConfigFileButton);
-        setupOptionsScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
-        setupOptionsScreenPanel.add(useManualSetupButton);
-        setupOptionsScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
-        setupOptionsScreenPanel.add(backButton);
+        Component spacer = Box.createRigidArea(new Dimension(100, 20));
+        this.setupOptionsScreenPanel.add(this.titleLabel);
+        this.setupOptionsScreenPanel.add(spacer);
+        this.setupOptionsScreenPanel.add(this.instructions);
+        this.setupOptionsScreenPanel.add(spacer);
+        this.setupOptionsScreenPanel.add(this.useConfigFileButton);
+        this.setupOptionsScreenPanel.add(spacer);
+        this.setupOptionsScreenPanel.add(this.useManualSetupButton);
+        this.setupOptionsScreenPanel.add(spacer);
+        this.setupOptionsScreenPanel.add(this.backButton);
     }
 
     /**
      * Setup the title label
      */
     private void setupTitleLabel() {
-        titleLabel = new JLabel("Setup Options");
-        titleLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 28));
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        titleLabel.setBorder(new EmptyBorder(0, 0, 20, 0));//top,left,bottom,right
+        this.titleLabel = new JLabel("Setup Options");
+        this.titleLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 28));
+        this.titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.titleLabel.setBorder(BorderCreator.createEmptyBorderBottomOnly(BorderCreator.PADDING_20_PIXELS));
     }
 
     /**
      * Setup the setup options screen.
      */
     private void setupSetupOptionsScreen() {
-        setupOptionsScreen = new JFrame("Please select a setup option");
-        setupOptionsScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setupOptionsScreen.setSize(800, 600);
+        this.setupOptionsScreen = new JFrame("Please select a setup option");
+        this.setupOptionsScreen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setupOptionsScreen.setSize(800, 600);
 
         // Centre the screen
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = (screenSize.width - setupOptionsScreen.getWidth()) / 2;
-        int y = (screenSize.height - setupOptionsScreen.getHeight()) / 2;
-        setupOptionsScreen.setLocation(x, y);
+        int x = (screenSize.width - this.setupOptionsScreen.getWidth()) / 2;
+        int y = (screenSize.height - this.setupOptionsScreen.getHeight()) / 2;
+        this.setupOptionsScreen.setLocation(x, y);
     }
 
     /**
@@ -170,17 +180,18 @@ public class SetupOptionsScreen {
     public void setupInstructions() {
         this.instructions = new JTextPane();
 
-        instructions.setText(
+        this.instructions.setText(
                 "Please select 'Use config file...' if you have a JSON config file ready. " +
                         "Otherwise, please select 'Use manual setup' where you will be guided through a configuration setup."
         );
 
-        instructions.setMaximumSize(new Dimension(400, 130));
-        instructions.setPreferredSize(new Dimension(400, 130));
-        instructions.setMinimumSize(new Dimension(400, 130));
-        instructions.setBorder(BorderCreator.createEmptyBorderLeavingBottom(20));
-        instructions.setFont(new Font("Helvetica Neue", Font.PLAIN, 18));
-        instructions.setEditable(false);
-        instructions.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.instructions.setMaximumSize(new Dimension(400, 130));
+        this.instructions.setPreferredSize(new Dimension(400, 130));
+        this.instructions.setMinimumSize(new Dimension(400, 130));
+        this.instructions.setBorder(BorderCreator.createEmptyBorderLeavingBottom(20));
+        this.instructions.setFont(new Font("Helvetica Neue", Font.PLAIN, 18));
+        this.instructions.setEditable(false);
+        this.instructions.setAlignmentX(Component.CENTER_ALIGNMENT);
     }
+
 }

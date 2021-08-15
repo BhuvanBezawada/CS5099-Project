@@ -1,24 +1,25 @@
 package view;
 
-import controller.AppController;
+import controller.IAppController;
 import edu.stanford.nlp.pipeline.CoreDocument;
+import edu.stanford.nlp.pipeline.CoreSentence;
 import model.FeedbackDocument;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
-import java.awt.*;
+import java.awt.Color;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Sentiment Viewer Class.
+ */
 public class SentimentViewer extends DocumentViewer {
 
-    private Map<String, Color> sentimentColourMap = Collections.unmodifiableMap(new HashMap<String, Color>() {{
+    // Sentiment and colour map
+    private static final Map<String, Color> SENTIMENT_COLOUR_MAP = Collections.unmodifiableMap(new HashMap<String, Color>() {{
         put("Very positive", Color.GREEN);
         put("Positive", Color.GREEN);
         put("Neutral", Color.WHITE);
@@ -26,61 +27,74 @@ public class SentimentViewer extends DocumentViewer {
         put("Very negative", Color.RED);
     }});
 
-    public SentimentViewer(AppController controller, String title) {
+    /**
+     * Constructor.
+     *
+     * @param controller The controller.
+     * @param title      The title of the document.
+     */
+    public SentimentViewer(IAppController controller, String title) {
         super(controller, title);
     }
 
+    /**
+     * Display the data.
+     *
+     * @param feedbackDocument The feedback document to display.
+     */
     public void displayData(FeedbackDocument feedbackDocument) {
-        AtomicInteger lineNum = new AtomicInteger();
-        Highlighter highlighter = textArea.getHighlighter();
+        int lineNum = 0;
+        Highlighter highlighter = this.textArea.getHighlighter();
 
-        feedbackDocument.getHeadings().forEach(heading -> {
+        // Loop through each heading
+        for (String heading : feedbackDocument.getHeadings()) {
             // Heading
-            textArea.append(controller.getHeadingStyle() + heading + "\n");
-            lineNum.getAndIncrement();
+            this.textArea.append(this.controller.getHeadingStyle() + heading + "\n");
+            lineNum++;
 
             // Underline heading if required
-            String underlineStyle = controller.getUnderlineStyle();
-            if (!underlineStyle.isEmpty()){
-                for (int i = 0; i < controller.getHeadingStyle().length() + heading.length(); i++) {
-                    textArea.append(underlineStyle);
+            String underlineStyle = this.controller.getUnderlineStyle();
+            if (!underlineStyle.isEmpty()) {
+                for (int i = 0; i < this.controller.getHeadingStyle().length() + heading.length(); i++) {
+                    this.textArea.append(underlineStyle);
                 }
             }
-            textArea.append("\n");
-            lineNum.getAndIncrement();
+            this.textArea.append("\n");
+            lineNum++;
 
             // Section data
             String data = feedbackDocument.getHeadingData(heading).replace("\n", ".");
-            CoreDocument sentimentForText = controller.getSentimentForText(data);
-            sentimentForText.sentences().forEach(sentence -> {
+            CoreDocument sentimentForText = this.controller.getSentimentForText(data);
 
+            // Loop through each sentence in the section
+            for (CoreSentence sentence : sentimentForText.sentences()) {
+                // Don't process empty sentences
                 if (!sentence.text().startsWith(".") && !sentence.text().trim().equals("-")) {
-                    System.out.println("Line: " + sentence.text() + " - " + sentence.sentiment() + "\n");
-                    textArea.append(sentence.text() + "\n");
+                    // Write the sentence
+                    this.textArea.append(sentence.text() + "\n");
 
                     // Highlighting code adapted from:
                     // https://stackoverflow.com/questions/20341719/how-to-highlight-a-single-word-in-a-jtextarea
-
-                    Highlighter.HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(sentimentColourMap.get(sentence.sentiment()));
-
+                    Highlighter.HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(SENTIMENT_COLOUR_MAP.get(sentence.sentiment()));
                     try {
-                        int p0 = textArea.getLineStartOffset(lineNum.get());
+                        int p0 = this.textArea.getLineStartOffset(lineNum);
                         int p1 = p0 + sentence.text().length();
-                        highlighter.addHighlight(p0, p1, painter );
-                        lineNum.getAndIncrement();
+                        highlighter.addHighlight(p0, p1, painter);
+                        lineNum++;
                     } catch (BadLocationException e) {
                         e.printStackTrace();
                     }
                 }
-            });
+            }
 
             // End section spacing
-            for (int i = 0; i < controller.getLineSpacing(); i++) {
-                textArea.append("\n");
-                lineNum.getAndIncrement();
+            for (int i = 0; i < this.controller.getLineSpacing(); i++) {
+                this.textArea.append("\n");
+                lineNum++;
             }
-            textArea.append("\n");
-            lineNum.getAndIncrement();
-        });
+            this.textArea.append("\n");
+            lineNum++;
+        }
     }
+
 }

@@ -1,9 +1,10 @@
 package view;
 
-import controller.AppController;
+import controller.IAppController;
 import model.LinkedPhrases;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,9 +15,9 @@ import java.util.List;
 public class PhrasesPanel extends JPanel {
 
     // Instance variables
-    private final PhraseType phraseType;
-    private final List<PhraseBox> phraseBoxes;
-    private final AppController controller;
+    private final IAppController controller;
+    private PhraseType phraseType;
+    private List<PhraseBox> phraseBoxes;
 
     /**
      * Constructor.
@@ -24,11 +25,12 @@ public class PhrasesPanel extends JPanel {
      * @param controller The controller.
      * @param phraseType The type of phrases to show on the panel.
      */
-    public PhrasesPanel(AppController controller, PhraseType phraseType) {
+    public PhrasesPanel(IAppController controller, PhraseType phraseType) {
         this.phraseType = phraseType;
         this.phraseBoxes = new ArrayList<PhraseBox>();
         this.controller = controller;
 
+        // Set layout and visbility
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         this.setVisible(true);
     }
@@ -39,7 +41,7 @@ public class PhrasesPanel extends JPanel {
      * @return The phrase type of the panel.
      */
     public PhraseType getPhraseType() {
-        return phraseType;
+        return this.phraseType;
     }
 
     /**
@@ -49,10 +51,10 @@ public class PhrasesPanel extends JPanel {
      * @param phraseCount The usage count of the phrase.
      */
     public void addPhrase(String phrase, int phraseCount) {
-        PhraseBox phraseBox = new PhraseBox(controller, phrase, phraseCount);
-        phraseBoxes.add(phraseBox);
+        PhraseBox phraseBox = new PhraseBox(this.controller, phrase, phraseCount);
+        this.phraseBoxes.add(phraseBox);
         this.add(phraseBox);
-        updatePhrasePanel();
+        this.updatePhrasePanel();
     }
 
     /**
@@ -63,16 +65,16 @@ public class PhrasesPanel extends JPanel {
     public void removePhrase(String phrase) {
         // Find the index of the phrase box
         int toRemove = 0;
-        for (int i = 0; i < phraseBoxes.size(); i++) {
-            if (phraseBoxes.get(i).getPhrase().equals(phrase)) {
+        for (int i = 0; i < this.phraseBoxes.size(); i++) {
+            if (this.phraseBoxes.get(i).getPhrase().equals(phrase)) {
                 toRemove = i;
             }
         }
 
         // Remove the component and then remove it from the list
-        this.remove(phraseBoxes.get(toRemove));
-        phraseBoxes.remove(toRemove);
-        updatePhrasePanel();
+        this.remove(this.phraseBoxes.get(toRemove));
+        this.phraseBoxes.remove(toRemove);
+        this.updatePhrasePanel();
     }
 
     /**
@@ -91,9 +93,9 @@ public class PhrasesPanel extends JPanel {
 
         // Sort the list
         this.removeAll();
-        Collections.sort(phraseBoxes);
-        phraseBoxes.forEach(this::add);
-        updatePhrasePanel();
+        Collections.sort(this.phraseBoxes);
+        this.phraseBoxes.forEach(this::add);
+        this.updatePhrasePanel();
     }
 
     /**
@@ -102,7 +104,7 @@ public class PhrasesPanel extends JPanel {
     public void clearPanel() {
         this.removeAll();
         this.phraseBoxes.clear();
-        updatePhrasePanel();
+        this.updatePhrasePanel();
     }
 
     /**
@@ -121,7 +123,8 @@ public class PhrasesPanel extends JPanel {
     public void addInsightBox(LinkedPhrases linkedPhrases) {
         if (this.phraseType == PhraseType.INSIGHTS) {
             this.add(new InsightBox(controller, linkedPhrases));
-            updatePhrasePanel();
+            this.updatePhrasePanel();
         }
     }
+
 }

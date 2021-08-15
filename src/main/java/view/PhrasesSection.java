@@ -1,10 +1,13 @@
 package view;
 
-import controller.AppController;
+import controller.IAppController;
 import model.LinkedPhrases;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,20 +17,21 @@ import java.util.Map;
 public class PhrasesSection extends JPanel {
 
     // Instance variables
-    private final JTabbedPane tabbedPane;
-    private final Map<PhraseType, PhrasesPanel> phrasesPanelsByType;
-    private final AppController controller;
+    private final IAppController controller;
+    private JTabbedPane tabbedPane;
+    private Map<PhraseType, PhrasesPanel> phrasesPanelsByType;
 
     /**
      * Constructor.
      *
      * @param controller The controller.
      */
-    public PhrasesSection(AppController controller) {
+    public PhrasesSection(IAppController controller) {
         this.controller = controller;
         this.tabbedPane = new JTabbedPane();
         this.phrasesPanelsByType = new HashMap<PhraseType, PhrasesPanel>();
 
+        // Set layout, pane and visibility
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         this.setupTabbedPane();
         this.setVisible(true);
@@ -40,9 +44,9 @@ public class PhrasesSection extends JPanel {
      */
     public void addPhrasesPanel(PhrasesPanel phrasesPanel) {
         JScrollPane phrasesPanelScrollPane = new JScrollPane(phrasesPanel);
-        phrasesPanelsByType.put(phrasesPanel.getPhraseType(), phrasesPanel);
-        tabbedPane.addTab(phrasesPanel.getPhraseType().getPhraseTypeAsString(), phrasesPanelScrollPane);
-        updatePhrasesSection();
+        this.phrasesPanelsByType.put(phrasesPanel.getPhraseType(), phrasesPanel);
+        this.tabbedPane.addTab(phrasesPanel.getPhraseType().getPhraseTypeAsString(), phrasesPanelScrollPane);
+        this.updatePhrasesSection();
     }
 
     /**
@@ -51,8 +55,8 @@ public class PhrasesSection extends JPanel {
      * @param phraseType The type of the panel to reset.
      */
     public void resetPhrasesPanel(PhraseType phraseType) {
-        phrasesPanelsByType.get(phraseType).clearPanel();
-        updatePhrasesSection();
+        this.phrasesPanelsByType.get(phraseType).clearPanel();
+        this.updatePhrasesSection();
     }
 
     /**
@@ -99,33 +103,32 @@ public class PhrasesSection extends JPanel {
      * Setup the tabbed pane of phrase panels.
      */
     public void setupTabbedPane() {
-        tabbedPane.addChangeListener(e -> {
+        this.tabbedPane.addChangeListener(l -> {
             // Set text colour
-            if (tabbedPane.getTabCount() > 0) {
-                tabbedPane.setForeground(Color.BLACK);
+            if (this.tabbedPane.getTabCount() > 0) {
+                this.tabbedPane.setForeground(Color.BLACK);
             }
 
             // Set un-highlighted colour
-            for (int i = 0; i < tabbedPane.getTabCount(); i++) {
-                tabbedPane.setBackgroundAt(i, Color.LIGHT_GRAY);
+            for (int i = 0; i < this.tabbedPane.getTabCount(); i++) {
+                this.tabbedPane.setBackgroundAt(i, Color.LIGHT_GRAY);
             }
 
             // Set selected colour
-            if (tabbedPane.getSelectedIndex() >= 0) {
-                tabbedPane.setBackgroundAt(tabbedPane.getSelectedIndex(), Color.BLUE);
+            if (this.tabbedPane.getSelectedIndex() >= 0) {
+                this.tabbedPane.setBackgroundAt(this.tabbedPane.getSelectedIndex(), Color.BLUE);
 
-                if (tabbedPane.getSelectedIndex() == 0) {
-                    controller.setCurrentPhrasePanelInView(PhraseType.CUSTOM);
+                if (this.tabbedPane.getSelectedIndex() == 0) {
+                    this.controller.setCurrentPhrasePanelInView(PhraseType.CUSTOM);
                 } else if (tabbedPane.getSelectedIndex() == 1) {
-                    controller.setCurrentPhrasePanelInView(PhraseType.FREQUENTLY_USED);
+                    this.controller.setCurrentPhrasePanelInView(PhraseType.FREQUENTLY_USED);
                 } else {
-                    controller.setCurrentPhrasePanelInView(PhraseType.INSIGHTS);
+                    this.controller.setCurrentPhrasePanelInView(PhraseType.INSIGHTS);
                 }
-
             }
         });
 
-        this.add(tabbedPane);
+        this.add(this.tabbedPane);
     }
 
     /**
@@ -135,7 +138,7 @@ public class PhrasesSection extends JPanel {
      */
     public void setHighlightedPane(int index) {
         if (index >= 0) {
-            tabbedPane.setSelectedIndex(index);
+            this.tabbedPane.setSelectedIndex(index);
         }
     }
 
@@ -145,6 +148,7 @@ public class PhrasesSection extends JPanel {
      * @param linkedPhrases The linked phrases to display as an insight.
      */
     public void addInsightToInsightPanel(LinkedPhrases linkedPhrases) {
-        phrasesPanelsByType.get(PhraseType.INSIGHTS).addInsightBox(linkedPhrases);
+        this.phrasesPanelsByType.get(PhraseType.INSIGHTS).addInsightBox(linkedPhrases);
     }
+
 }

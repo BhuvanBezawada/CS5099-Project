@@ -1,6 +1,7 @@
 package view;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +41,8 @@ public class PreviewPanel extends JPanel {
      */
     private void setupPreviewBoxes() {
         // Add all the boxes and highlight top preview box
-        previewBoxes.forEach(this::add);
-        previewBoxes.get(0).highlight();
+        this.previewBoxes.forEach(this::add);
+        this.previewBoxes.get(0).highlight();
     }
 
     /**
@@ -50,7 +51,7 @@ public class PreviewPanel extends JPanel {
      * @param heading The heading of the preview box to highlight.
      */
     public void highlightPreviewBox(String heading) {
-        headingAndPreviewBoxMap.get(heading).highlight();
+        this.headingAndPreviewBoxMap.get(heading).highlight();
     }
 
     /**
@@ -59,7 +60,7 @@ public class PreviewPanel extends JPanel {
      * @param heading The heading of the preview box to unhighlight.
      */
     public void unhighlightPreviewBox(String heading) {
-        headingAndPreviewBoxMap.get(heading).unhighlight();
+        this.headingAndPreviewBoxMap.get(heading).unhighlight();
     }
 
     /**
@@ -70,10 +71,10 @@ public class PreviewPanel extends JPanel {
      * @param grade   The new grade to display.
      */
     public void updatePreviewBox(String heading, String line, double grade) {
-        headingAndPreviewBoxMap.get(heading).setFirstLine(line);
-        headingAndPreviewBoxMap.get(heading).setGrade(grade);
-        revalidate();
-        repaint();
+        this.headingAndPreviewBoxMap.get(heading).setFirstLine(line);
+        this.headingAndPreviewBoxMap.get(heading).setGrade(grade);
+        this.revalidate();
+        this.repaint();
     }
 
     /**
@@ -83,21 +84,9 @@ public class PreviewPanel extends JPanel {
      * @param line    The new line text to display.
      */
     public void updatePreviewBoxLine(String heading, String line) {
-        System.out.println("In update box line - new line to use is: " + line);
-        headingAndPreviewBoxMap.get(heading).setFirstLine(line);
-        revalidate();
-        repaint();
+        this.headingAndPreviewBoxMap.get(heading).setFirstLine(line);
+        this.revalidate();
+        this.repaint();
     }
 
-    /**
-     * Update the contents of a given preview box.
-     *
-     * @param heading The heading of the preview box to update.
-     * @param grade   The new grade to display.
-     */
-    public void updatePreviewBoxGrade(String heading, double grade) {
-        headingAndPreviewBoxMap.get(heading).setGrade(grade);
-        revalidate();
-        repaint();
-    }
 }

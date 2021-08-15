@@ -1,11 +1,13 @@
 package view;
 
-import controller.AppController;
+import controller.IAppController;
 import model.Assignment;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.border.Border;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -15,14 +17,14 @@ import java.awt.event.MouseEvent;
 public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
 
     // Instance variables
+    private final IAppController controller;
     private String heading;
     private String firstLine;
     private double grade;
     private JTextArea textPane;
     private Border unselectedBorder;
     private Border selectedBorder;
-    private AppController controller;
-    private Assignment assignment; // TODO is assignment needed here?
+    private Assignment assignment;
 
     /**
      * Constructor.
@@ -30,9 +32,9 @@ public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
      * @param controller The controller.
      * @param heading    The heading of the preview box (usually student ID)
      * @param grade      The grade of the student.
-     * @param firstLine A unique line from the student's feedback document.
+     * @param firstLine  A unique line from the student's feedback document.
      */
-    public PreviewBox(AppController controller, String heading, double grade, String firstLine) {
+    public PreviewBox(IAppController controller, String heading, double grade, String firstLine) {
         // Store variables
         this.controller = controller;
         this.heading = heading;
@@ -89,8 +91,8 @@ public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
         });
 
         // Set the contents of the preview box
-        this.textPane.setText(heading + "\n\n" + firstLine + "\n\n" + "Grade: " + grade);
-        this.add(textPane, BorderLayout.CENTER);
+        this.textPane.setText(this.heading + "\n\n" + this.firstLine + "\n\n" + "Grade: " + this.grade);
+        this.add(this.textPane, BorderLayout.CENTER);
     }
 
     /**
@@ -106,18 +108,18 @@ public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
      * Highlight the preview box.
      */
     public void highlight() {
-        textPane.setBorder(selectedBorder);
-        textPane.repaint();
-        textPane.revalidate();
+        this.textPane.setBorder(this.selectedBorder);
+        this.textPane.repaint();
+        this.textPane.revalidate();
     }
 
     /**
      * Unhighlight the preview box.
      */
     public void unhighlight() {
-        textPane.setBorder(unselectedBorder);
-        textPane.repaint();
-        textPane.revalidate();
+        this.textPane.setBorder(this.unselectedBorder);
+        this.textPane.repaint();
+        this.textPane.revalidate();
     }
 
     /**
@@ -127,7 +129,7 @@ public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
      */
     public void setGrade(double grade) {
         this.grade = grade;
-        updatePreviewBox();
+        this.updatePreviewBox();
     }
 
     /**
@@ -137,18 +139,17 @@ public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
      */
     public void setFirstLine(String line) {
         this.firstLine = line;
-        updatePreviewBox();
+        this.updatePreviewBox();
     }
 
     /**
      * Update the preview box.
      */
     private void updatePreviewBox() {
-        System.out.println("IN UPDATE PREVIEW BOX for: " + heading + " line " + firstLine);
         this.textPane.setText("");
-        this.textPane.setText(heading + "\n\n" + firstLine + "\n\n" + "Grade: " + grade);
-        textPane.repaint();
-        textPane.revalidate();
+        this.textPane.setText(this.heading + "\n\n" + this.firstLine + "\n\n" + "Grade: " + this.grade);
+        this.textPane.repaint();
+        this.textPane.revalidate();
     }
 
     /**
@@ -167,4 +168,5 @@ public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
             return 0;
         }
     }
+
 }
