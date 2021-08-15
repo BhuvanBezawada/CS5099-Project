@@ -4,6 +4,7 @@ import java.util.Objects;
 
 /**
  * Generic Pair Class.
+ *
  * @param <T> The data type to use in the pair.
  */
 public class Pair<T> {
@@ -77,4 +78,5 @@ public class Pair<T> {
                 ", second=" + second +
                 '}';
     }
+
 }

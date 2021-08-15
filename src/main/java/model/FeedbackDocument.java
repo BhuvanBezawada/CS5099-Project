@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Feedback Document Class.
+ */
 public class FeedbackDocument implements Serializable {
 
     // Instance variables
@@ -108,4 +111,5 @@ public class FeedbackDocument implements Serializable {
                 ", studentId=" + studentId +
                 '}';
     }
+
 }

@@ -2,6 +2,9 @@ package model;
 
 import java.util.Objects;
 
+/**
+ * Phrase Class.
+ */
 public class Phrase implements Comparable<Phrase> {
 
     // Instance variables
@@ -16,24 +19,6 @@ public class Phrase implements Comparable<Phrase> {
      */
     public Phrase(String phraseAsString) {
         this.phraseAsString = phraseAsString;
-    }
-
-    /**
-     * Get the sentiment of the phrase.
-     *
-     * @return The sentiment of the phrase.
-     */
-    public Sentiment getSentiment() {
-        return this.sentiment;
-    }
-
-    /**
-     * Set the sentiment of the phrase.
-     *
-     * @param sentiment - The sentiment of the phrase.
-     */
-    public void setSentiment(Sentiment sentiment) {
-        this.sentiment = sentiment;
     }
 
     /**
@@ -122,4 +107,5 @@ public class Phrase implements Comparable<Phrase> {
     public int compareTo(Phrase o) {
         return o.getUsageCount() - this.getUsageCount();
     }
+
 }

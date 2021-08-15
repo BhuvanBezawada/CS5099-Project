@@ -10,6 +10,7 @@ import java.util.Map;
  * Sentiment Enum.
  */
 public enum Sentiment {
+
     // Enum values
     VERY_POSITIVE("Very positive"),
     POSITIVE("Positive"),
@@ -78,4 +79,5 @@ public enum Sentiment {
     public String getSentimentAsString() {
         return sentimentAsString;
     }
+
 }

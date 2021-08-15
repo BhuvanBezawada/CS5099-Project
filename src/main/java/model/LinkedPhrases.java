@@ -49,4 +49,5 @@ public class LinkedPhrases {
     public int getCount() {
         return count;
     }
+
 }

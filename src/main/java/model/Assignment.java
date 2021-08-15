@@ -1,9 +1,25 @@
 package model;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Assignment Class.
+ */
 public class Assignment implements Serializable {
 
     private static final long serialVersionUID = 1200109309800080100L;
@@ -54,7 +70,9 @@ public class Assignment implements Serializable {
     private String databaseCollectionName;
     private String assignmentDirectoryPath;
 
-
+    /**
+     * Constructor.
+     */
     public Assignment() {
         this.studentIds = new ArrayList<String>();
         this.assignmentHeadings = new ArrayList<String>();
@@ -320,6 +338,5 @@ public class Assignment implements Serializable {
     public FeedbackDocument getFeedbackDocumentForStudent(String studentId) {
         return studentIdAndFeedbackDocumentMap.get(studentId);
     }
-
 
 }

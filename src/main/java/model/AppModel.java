@@ -70,6 +70,7 @@ public class AppModel implements IAppModel {
      *
      * @param listener The observer that is subscribing to the model's changes.
      */
+    @Override
     public void subscribe(PropertyChangeListener listener) {
         subscribers.addPropertyChangeListener(listener);
     }
@@ -80,6 +81,7 @@ public class AppModel implements IAppModel {
      * @param property     The message indicating the change.
      * @param notification The new String value of the thing that has changed.
      */
+    @Override
     public void notifySubscribers(String property, String notification) {
         subscribers.firePropertyChange(property, OLD_VALUE_DUMMY_MESSAGE, notification);
     }
@@ -90,6 +92,7 @@ public class AppModel implements IAppModel {
      * @param property     The message indicating the change.
      * @param notification The new Object value of the thing that has changed.
      */
+    @Override
     public void notifySubscribers(String property, Object notification) {
         subscribers.firePropertyChange(property, OLD_VALUE_DUMMY_MESSAGE, notification);
     }
@@ -106,6 +109,7 @@ public class AppModel implements IAppModel {
      * @param assignmentDirectoryPath The directory location to save assignment related documents.
      * @return - The Assignment object that was created.
      */
+    @Override
     public Assignment createAssignment(String assignmentTitle, String assignmentHeadings, File studentManifestFile, String assignmentDirectoryPath) {
         // Create assignment object
         Assignment assignment = new Assignment();
@@ -132,6 +136,7 @@ public class AppModel implements IAppModel {
      * @param configFilePath The location of the configuration file.
      * @return The newly created Assignment object.
      */
+    @Override
     public Assignment createAssignmentFromConfig(String configFilePath) {
         try {
             // Load the assignment file as a JSON object
@@ -178,6 +183,7 @@ public class AppModel implements IAppModel {
      * @param lineSpacing    The line spacing after each section.
      * @param lineMarker     The line marker for each new line.
      */
+    @Override
     public void setAssignmentPreferences(String headingStyle, String underlineStyle, int lineSpacing, String lineMarker) {
         this.assignment.setHeadingStyle(headingStyle);
         this.assignment.setUnderlineStyle(underlineStyle);
@@ -191,6 +197,7 @@ public class AppModel implements IAppModel {
      * @param assignmentFilePath The location of the assignment FHT file.
      * @return The Assignment object for the assignment.
      */
+    @Override
     public Assignment loadAssignment(String assignmentFilePath) {
         this.assignment = Assignment.loadAssignment(assignmentFilePath);
         return this.assignment;
@@ -201,6 +208,7 @@ public class AppModel implements IAppModel {
      *
      * @return The line marker.
      */
+    @Override
     public String getLineMarker() {
         return assignment.getLineMarker();
     }
@@ -210,6 +218,7 @@ public class AppModel implements IAppModel {
      *
      * @return The heading style.
      */
+    @Override
     public String getHeadingStyle() {
         return assignment.getHeadingStyle();
     }
@@ -219,6 +228,7 @@ public class AppModel implements IAppModel {
      *
      * @return The heading underline style.
      */
+    @Override
     public String getUnderlineStyle() {
         return assignment.getUnderlineStyle();
     }
@@ -228,6 +238,7 @@ public class AppModel implements IAppModel {
      *
      * @return The number of line spaces.
      */
+    @Override
     public int getLineSpacing() {
         return assignment.getLineSpacing();
     }
@@ -240,6 +251,7 @@ public class AppModel implements IAppModel {
      *
      * @return The last document's ID.
      */
+    @Override
     public String getLastDocumentInView() {
         return this.lastStudentId;
     }
@@ -249,6 +261,7 @@ public class AppModel implements IAppModel {
      *
      * @return The current document's ID.
      */
+    @Override
     public String getCurrentDocumentInView() {
         return this.currentStudentId;
     }
@@ -258,6 +271,7 @@ public class AppModel implements IAppModel {
      *
      * @param studentId The current document's ID.
      */
+    @Override
     public void setCurrentDocumentInView(String studentId, boolean changeDoc) {
         this.lastStudentId = this.currentStudentId;
         this.currentStudentId = studentId;
@@ -274,6 +288,7 @@ public class AppModel implements IAppModel {
      *
      * @return The current heading being edited.
      */
+    @Override
     public String getCurrentHeadingBeingEdited() {
         return this.currentHeadingBeingEdited;
     }
@@ -283,6 +298,7 @@ public class AppModel implements IAppModel {
      *
      * @param currentHeadingBeingEdited The current heading being edited.
      */
+    @Override
     public void setCurrentHeadingBeingEdited(String currentHeadingBeingEdited) {
         this.previousHeadingBeingEdited = this.currentHeadingBeingEdited;
         this.currentHeadingBeingEdited = currentHeadingBeingEdited;
@@ -293,6 +309,7 @@ public class AppModel implements IAppModel {
      *
      * @return The previous heading that was edited.
      */
+    @Override
     public String getPreviousHeadingBeingEdited() {
         return this.previousHeadingBeingEdited;
     }
@@ -305,6 +322,7 @@ public class AppModel implements IAppModel {
      *
      * @param assignment The assignment the feedback documents belong to.
      */
+    @Override
     public void exportFeedbackDocuments(Assignment assignment) {
         // Create the output directory if it does not exist
         File outputDirectory = new File(assignment.getAssignmentDirectoryPath() + File.separator + assignment.getAssignmentTitle().trim().replace(" ", "-"));
@@ -356,6 +374,7 @@ public class AppModel implements IAppModel {
      *
      * @param assignment The assignment grades to export.
      */
+    @Override
     public void exportGrades(Assignment assignment) {
         // Create the output directory if it does not exist
         File outputDirectory = new File(assignment.getAssignmentDirectoryPath() + File.separator + assignment.getAssignmentTitle().trim().replace(" ", "-"));
@@ -381,6 +400,7 @@ public class AppModel implements IAppModel {
      * @param assignment The assignment the grades are for.
      * @return A list of grades.
      */
+    @Override
     public List<Integer> getGrades(Assignment assignment) {
         // Create a linked hashmap of grades and their counts
         Map<Double, Integer> gradeAndNumber = new LinkedHashMap<Double, Integer>();
@@ -410,6 +430,7 @@ public class AppModel implements IAppModel {
      *
      * @param phrase The string representation of the phrase to be inserted.
      */
+    @Override
     public void insertPhraseIntoCurrentFeedbackBox(String phrase) {
         notifySubscribers(INSERT_PHRASE_MESSAGE, phrase);
     }
@@ -419,6 +440,7 @@ public class AppModel implements IAppModel {
      *
      * @param phrase The phrase to add.
      */
+    @Override
     public void addNewPhraseToView(Phrase phrase) {
         notifySubscribers(NEW_PHRASE_MESSAGE, phrase);
     }
@@ -428,6 +450,7 @@ public class AppModel implements IAppModel {
      *
      * @param phrase The custom phrase to add.
      */
+    @Override
     public void addNewCustomPhraseToView(Phrase phrase) {
         notifySubscribers(NEW_CUSTOM_PHRASE_MESSAGE, phrase);
     }
@@ -437,6 +460,7 @@ public class AppModel implements IAppModel {
      *
      * @param linkedPhrases The linked phrases to add.
      */
+    @Override
     public void addNewLinkedPhrasesToView(LinkedPhrases linkedPhrases) {
         notifySubscribers(NEW_LINKED_PHRASES_MESSAGE, linkedPhrases);
     }
@@ -446,6 +470,7 @@ public class AppModel implements IAppModel {
      *
      * @param phrase The phrase to update.
      */
+    @Override
     public void updatePhraseCounterInView(Phrase phrase) {
         notifySubscribers(UPDATE_PHRASE_COUNTER_MESSAGE, phrase);
     }
@@ -455,6 +480,7 @@ public class AppModel implements IAppModel {
      *
      * @param phrase The phrase to remove.
      */
+    @Override
     public void removePhraseFromView(Phrase phrase) {
         notifySubscribers(DELETE_PHRASE_MESSAGE, phrase);
     }
@@ -462,6 +488,7 @@ public class AppModel implements IAppModel {
     /**
      * Reset the phrases panel.
      */
+    @Override
     public void resetPhrasesPanel(PhraseType phraseType) {
         notifySubscribers(RESET_PHRASES_PANEL_MESSAGE, phraseType);
     }
@@ -472,6 +499,7 @@ public class AppModel implements IAppModel {
      * @param heading The heading the phrases are for.
      * @return A list of phrases for the given heading.
      */
+    @Override
     public List<Phrase> getCurrentPhraseSet(String heading) {
         return this.currentHeadingAndUsedPhrases.get(heading);
     }
@@ -482,6 +510,7 @@ public class AppModel implements IAppModel {
      * @param heading The heading the phrases are for.
      * @param phrases A list of phrases for the given heading.
      */
+    @Override
     public void setCurrentHeadingPhraseSet(String heading, List<Phrase> phrases) {
         this.currentHeadingAndUsedPhrases.put(heading, phrases);
     }
@@ -492,6 +521,7 @@ public class AppModel implements IAppModel {
      * @param heading The heading the phrases are for.
      * @param phrases A list of phrases for the given heading.
      */
+    @Override
     public void setPreviousHeadingPhraseSet(String heading, List<Phrase> phrases) {
         this.previousHeadingAndUsedPhrases.put(heading, phrases);
     }
@@ -501,6 +531,7 @@ public class AppModel implements IAppModel {
      *
      * @param currentPhrasePanelInView The phrase panel type.
      */
+    @Override
     public void setCurrentPhrasePanelInView(PhraseType currentPhrasePanelInView) {
         this.currentPhrasePanelInView = currentPhrasePanelInView;
         notifySubscribers(PHRASE_PANEL_CHANGE_MESSAGE, currentPhrasePanelInView);
