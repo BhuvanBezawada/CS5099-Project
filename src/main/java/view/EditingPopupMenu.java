@@ -1,6 +1,9 @@
 package view;
 
-import javax.swing.*;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -29,15 +32,16 @@ public class EditingPopupMenu {
     private void setupPopupMenu() {
         this.popupMenu = new JPopupMenu();
 
-        popupMenu.add(copy);
+        this.popupMenu.add(this.copy);
         setupCopyOperation();
 
-        popupMenu.add(paste);
+        this.popupMenu.add(this.paste);
         setupPasteOperation();
     }
 
     /**
      * Register the popup menu with a given feedback box.
+     *
      * @param feedbackBox The feedback box to register.
      */
     public void registerFeedbackBox(FeedbackBox feedbackBox) {
@@ -56,8 +60,8 @@ public class EditingPopupMenu {
      * Setup the copy operation.
      */
     private void setupCopyOperation() {
-        copy.addActionListener(e -> {
-            selectedText = ((JTextArea) popupMenu.getInvoker()).getSelectedText();
+        this.copy.addActionListener(e -> {
+            this.selectedText = ((JTextArea) this.popupMenu.getInvoker()).getSelectedText();
         });
     }
 
@@ -65,13 +69,14 @@ public class EditingPopupMenu {
      * Setup the paste operation.
      */
     private void setupPasteOperation() {
-        paste.addActionListener(e -> {
+        this.paste.addActionListener(e -> {
             try {
-                JTextArea invoker = (JTextArea) popupMenu.getInvoker();
-                invoker.getDocument().insertString(invoker.getCaretPosition(), selectedText, null);
+                JTextArea invoker = (JTextArea) this.popupMenu.getInvoker();
+                invoker.getDocument().insertString(invoker.getCaretPosition(), this.selectedText, null);
             } catch (BadLocationException badLocationException) {
                 badLocationException.printStackTrace();
             }
         });
     }
+
 }

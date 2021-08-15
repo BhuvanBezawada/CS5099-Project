@@ -1,11 +1,28 @@
 package view;
 
-import controller.AppController;
+import controller.IAppController;
 import model.Assignment;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Toolkit;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,7 +51,7 @@ public class CreateAssignmentScreen {
             }});
 
     // Instance variables
-    private final AppController controller;
+    private final IAppController controller;
     private JFrame createAssignmentScreen;
     private JPanel createAssignmentScreenPanel;
     private JPanel configFormPanel;
@@ -46,7 +63,7 @@ public class CreateAssignmentScreen {
      *
      * @param controller The controller.
      */
-    public CreateAssignmentScreen(AppController controller) {
+    public CreateAssignmentScreen(IAppController controller) {
         this.controller = controller;
         this.editableComponents = new HashMap<String, Component>();
 
@@ -57,17 +74,8 @@ public class CreateAssignmentScreen {
         setupConfirmationPanel();
 
         // Add the main panel and set visibility
-        createAssignmentScreen.add(createAssignmentScreenPanel);
-        createAssignmentScreen.setVisible(true);
-    }
-
-    /**
-     * Setup the assignment screen panel.
-     */
-    private void setupAssignmentScreenPanel() {
-        this.createAssignmentScreenPanel = new JPanel();
-        this.createAssignmentScreenPanel.setLayout(new BoxLayout(createAssignmentScreenPanel, BoxLayout.PAGE_AXIS));
-        this.createAssignmentScreenPanel.setBorder(BorderFactory.createEmptyBorder(20, 200, 20, 200));
+        this.createAssignmentScreen.add(createAssignmentScreenPanel);
+        this.createAssignmentScreen.setVisible(true);
     }
 
     /**
@@ -80,147 +88,30 @@ public class CreateAssignmentScreen {
 
         // Centre the screen
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = (screenSize.width - createAssignmentScreen.getWidth()) / 2;
-        int y = (screenSize.height - createAssignmentScreen.getHeight()) / 2;
-        createAssignmentScreen.setLocation(x, y);
+        int x = (screenSize.width - this.createAssignmentScreen.getWidth()) / 2;
+        int y = (screenSize.height - this.createAssignmentScreen.getHeight()) / 2;
+        this.createAssignmentScreen.setLocation(x, y);
     }
 
     /**
-     * Setup the heading style panel.
+     * Setup the assignment screen panel.
      */
-    private void setupHeadingStylePanel() {
-        // Create main panel
-        JPanel headingStylePanel = new JPanel();
-        headingStylePanel.setLayout(new BoxLayout(headingStylePanel, BoxLayout.LINE_AXIS));
-
-        // Set label
-        JPanel headingStyleLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JLabel headingStyleLabel = new JLabel("Heading style: ");
-        headingStyleLabelPanel.add(headingStyleLabel);
-
-        // Set size
-        headingStyleLabelPanel.setMaximumSize(new Dimension(200, 20));
-        headingStyleLabelPanel.setPreferredSize(new Dimension(200, 20));
-        headingStyleLabelPanel.setMinimumSize(new Dimension(200, 20));
-
-        // Set selectable values
-        JComboBox<String> selections = new JComboBox<String>();
-        HEADING_STYLES.keySet().forEach(selections::addItem);
-
-        // Store in components map
-        editableComponents.put("headingStyle", selections);
-
-        // Package up main panel
-        headingStylePanel.add(headingStyleLabelPanel);
-        headingStylePanel.add(selections);
-
-        // Add main panel to config form
-        configFormPanel.add(headingStylePanel);
+    private void setupAssignmentScreenPanel() {
+        this.createAssignmentScreenPanel = new JPanel();
+        this.createAssignmentScreenPanel.setLayout(new BoxLayout(this.createAssignmentScreenPanel, BoxLayout.PAGE_AXIS));
+        this.createAssignmentScreenPanel.setBorder(BorderFactory.createEmptyBorder(20, 200, 20, 200));
     }
 
     /**
-     * Setup the heading underline panel.
+     * Setup the title label.
      */
-    private void setupHeadingUnderlinePanel() {
-        // Create main panel
-        JPanel headingUnderlinePanel = new JPanel();
-        headingUnderlinePanel.setLayout(new BoxLayout(headingUnderlinePanel, BoxLayout.LINE_AXIS));
-
-        // Set label
-        JPanel headingUnderlineLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JLabel headingUnderlineLabel = new JLabel("Heading underline style:");
-        headingUnderlineLabelPanel.add(headingUnderlineLabel);
-
-        // Set size
-        headingUnderlineLabelPanel.setMaximumSize(new Dimension(200, 20));
-        headingUnderlineLabelPanel.setPreferredSize(new Dimension(200, 20));
-        headingUnderlineLabelPanel.setMinimumSize(new Dimension(200, 20));
-
-        // Set selectable values
-        JComboBox<String> selections = new JComboBox<String>();
-        UNDERLINE_STYLES.keySet().forEach(selections::addItem);
-
-        // Store in components map
-        editableComponents.put("headingUnderlineStyle", selections);
-
-        // Package up main panel
-        headingUnderlinePanel.add(headingUnderlineLabelPanel);
-        headingUnderlinePanel.add(selections);
-
-        // Add main panel to config form
-        configFormPanel.add(headingUnderlinePanel);
-    }
-
-    /**
-     * Setup heading line spacing panel.
-     */
-    private void setupHeadingLineSpacingPanel() {
-        // Create main panel
-        JPanel headingLineSpacingPanel = new JPanel();
-        headingLineSpacingPanel.setLayout(new BoxLayout(headingLineSpacingPanel, BoxLayout.LINE_AXIS));
-
-        // Set label
-        JPanel headingLineSpacingLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JLabel headingLineSpacingLabel = new JLabel("Line spacing after sections:");
-        headingLineSpacingLabelPanel.add(headingLineSpacingLabel);
-
-        // Set size
-        headingLineSpacingLabelPanel.setMaximumSize(new Dimension(200, 20));
-        headingLineSpacingLabelPanel.setPreferredSize(new Dimension(200, 20));
-        headingLineSpacingLabelPanel.setMinimumSize(new Dimension(200, 20));
-
-        // Set selectable values
-        JComboBox<Integer> selections = new JComboBox<Integer>();
-        selections.addItem(1);
-        selections.addItem(2);
-        selections.addItem(3);
-
-        // Store in components map
-        editableComponents.put("headingLineSpacing", selections);
-
-        // Package up main panel
-        headingLineSpacingPanel.add(headingLineSpacingLabelPanel);
-        headingLineSpacingPanel.add(selections);
-
-        // Add main panel to config form
-        configFormPanel.add(headingLineSpacingPanel);
-    }
-
-    /**
-     * Setup the line marker panel.
-     */
-    private void setupLineMarkerPanel() {
-        // Create main panel
-        JPanel lineMarkerPanel = new JPanel();
-        lineMarkerPanel.setLayout(new BoxLayout(lineMarkerPanel, BoxLayout.LINE_AXIS));
-
-        // Set label
-        JPanel lineMarkerLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JLabel lineMarkerLabel = new JLabel("Line marker style:");
-        lineMarkerLabelPanel.add(lineMarkerLabel);
-
-        // Set size
-        lineMarkerLabelPanel.setMaximumSize(new Dimension(200, 20));
-        lineMarkerLabelPanel.setPreferredSize(new Dimension(200, 20));
-        lineMarkerLabelPanel.setMinimumSize(new Dimension(200, 20));
-
-        // Set selectable values
-        JComboBox<String> selections = new JComboBox<String>();
-        selections.addItem("-");
-        selections.addItem("->");
-        selections.addItem("=>");
-        selections.addItem("*");
-        selections.addItem("+");
-
-        // Store in components map
-        editableComponents.put("lineMarker", selections);
-
-        // Package up main panel
-        lineMarkerPanel.add(lineMarkerLabelPanel);
-        lineMarkerPanel.add(selections);
-
-        // Add main panel to config form
-        configFormPanel.add(lineMarkerPanel);
+    public void setupTitleLabel() {
+        JLabel titleLabel = new JLabel();
+        titleLabel.setText("Assignment Configuration");
+        titleLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 28));
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        titleLabel.setBorder(BorderCreator.createEmptyBorderBottomOnly(BorderCreator.PADDING_20_PIXELS));
+        this.configFormPanel.add(titleLabel);
     }
 
     /**
@@ -229,7 +120,7 @@ public class CreateAssignmentScreen {
     private void setupConfigForm() {
         // Create the config panel
         this.configFormPanel = new JPanel();
-        configFormPanel.setLayout(new BoxLayout(configFormPanel, BoxLayout.PAGE_AXIS));
+        this.configFormPanel.setLayout(new BoxLayout(this.configFormPanel, BoxLayout.PAGE_AXIS));
 
         // Setup config components
         setupTitleLabel();
@@ -243,8 +134,8 @@ public class CreateAssignmentScreen {
         setupStudentManifestPanel();
 
         // Add config panel to the screen panel
-        configFormPanel.add(Box.createRigidArea(new Dimension(100, 50)));
-        createAssignmentScreenPanel.add(configFormPanel);
+        this.configFormPanel.add(Box.createRigidArea(new Dimension(100, 50)));
+        this.createAssignmentScreenPanel.add(this.configFormPanel);
     }
 
     /**
@@ -262,42 +153,42 @@ public class CreateAssignmentScreen {
         confirmButton.addActionListener(l -> {
 
             // Load all the user preferences
-            String assignmentTitle = ((JTextField) editableComponents.get("assignmentTitle")).getText();
-            String assignmentHeadings = ((JTextArea) editableComponents.get("assignmentHeadings")).getText();
-            String assignmentDirectoryPath = ((JTextField) editableComponents.get("assignmentDirectory")).getText();
-            String headingStyle = (String) ((JComboBox<String>) editableComponents.get("headingStyle")).getSelectedItem();
-            String headingUnderlineStyle = (String) ((JComboBox<String>) editableComponents.get("headingUnderlineStyle")).getSelectedItem();
-            int lineSpacing = (Integer) ((JComboBox<Integer>) editableComponents.get("headingLineSpacing")).getSelectedItem();
-            String lineMarker = (String) ((JComboBox<String>) editableComponents.get("lineMarker")).getSelectedItem();
+            String assignmentTitle = ((JTextField) this.editableComponents.get("assignmentTitle")).getText();
+            String assignmentHeadings = ((JTextArea) this.editableComponents.get("assignmentHeadings")).getText();
+            String assignmentDirectoryPath = ((JTextField) this.editableComponents.get("assignmentDirectory")).getText();
+            String headingStyle = (String) ((JComboBox<String>) this.editableComponents.get("headingStyle")).getSelectedItem();
+            String headingUnderlineStyle = (String) ((JComboBox<String>) this.editableComponents.get("headingUnderlineStyle")).getSelectedItem();
+            int lineSpacing = (Integer) ((JComboBox<Integer>) this.editableComponents.get("headingLineSpacing")).getSelectedItem();
+            String lineMarker = (String) ((JComboBox<String>) this.editableComponents.get("lineMarker")).getSelectedItem();
 
             // Ensure student list exists before creating the feedback screen
-            if (studentManifestFile != null && studentManifestFile.exists()) {
+            if (this.studentManifestFile != null && this.studentManifestFile.exists()) {
                 // Setup assignment and db for it
                 new Thread(LoadingScreens::showLoadingScreen).start();
-                createAssignmentScreen.dispose();
+                this.createAssignmentScreen.dispose();
 
                 // Create the assignment
-                Assignment assignment = controller.createAssignment(assignmentTitle, assignmentHeadings, studentManifestFile, assignmentDirectoryPath);
-                controller.setAssignmentPreferences(HEADING_STYLES.get(headingStyle), UNDERLINE_STYLES.get(headingUnderlineStyle), lineSpacing, lineMarker);
-                controller.saveAssignment(assignment, assignment.getAssignmentTitle()
+                Assignment assignment = this.controller.createAssignment(assignmentTitle, assignmentHeadings, this.studentManifestFile, assignmentDirectoryPath);
+                this.controller.setAssignmentPreferences(HEADING_STYLES.get(headingStyle), UNDERLINE_STYLES.get(headingUnderlineStyle), lineSpacing, lineMarker);
+                this.controller.saveAssignment(assignment, assignment.getAssignmentTitle()
                         .toLowerCase()
                         .replace(" ", "-"));
 
                 // Create the feedback screen
-                new FeedbackScreen(controller, assignment);
+                new FeedbackScreen(this.controller, assignment);
             } else {
-                JOptionPane.showMessageDialog(createAssignmentScreen, "Please select a student manifest form!", "Error!", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this.createAssignmentScreen, "Please select a student manifest form!", "Error!", JOptionPane.ERROR_MESSAGE);
             }
         });
 
         // On back button press go back to the setup options screen
         backButton.addActionListener(e -> {
-            new SetupOptionsScreen(controller);
-            createAssignmentScreen.dispose();
+            new SetupOptionsScreen(this.controller);
+            this.createAssignmentScreen.dispose();
         });
 
         // Add the confirmation panel to the main screen panel
-        createAssignmentScreenPanel.add(confirmationPanel);
+        this.createAssignmentScreenPanel.add(confirmationPanel);
     }
 
     /**
@@ -325,14 +216,14 @@ public class CreateAssignmentScreen {
         assignmentTitleTextField.setColumns(30);
 
         // Store in components map
-        editableComponents.put("assignmentTitle", assignmentTitleTextField);
+        this.editableComponents.put("assignmentTitle", assignmentTitleTextField);
 
         // Package up main panel
         assignmentTitlePanel.add(assignmentTitleLabelPanel);
         assignmentTitlePanel.add(assignmentTitleTextField);
 
         // Add main panel to config form
-        configFormPanel.add(assignmentTitlePanel);
+        this.configFormPanel.add(assignmentTitlePanel);
     }
 
     /**
@@ -358,26 +249,14 @@ public class CreateAssignmentScreen {
         assignmentDirectoryTextField.setColumns(30);
 
         // Store in components map
-        editableComponents.put("assignmentDirectory", assignmentDirectoryTextField);
+        this.editableComponents.put("assignmentDirectory", assignmentDirectoryTextField);
 
         // Package up main panel
         assignmentDirectoryPanel.add(assignmentDirectoryLabelPanel);
         assignmentDirectoryPanel.add(assignmentDirectoryTextField);
 
         // Add main panel to config form
-        configFormPanel.add(assignmentDirectoryPanel);
-    }
-
-    /**
-     * Setup the title label.
-     */
-    public void setupTitleLabel() {
-        JLabel titleLabel = new JLabel();
-        titleLabel.setText("Assignment Configuration");
-        titleLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 28));
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        titleLabel.setBorder(BorderCreator.createEmptyBorderBottomOnly(BorderCreator.PADDING_20_PIXELS));
-        configFormPanel.add(titleLabel);
+        this.configFormPanel.add(assignmentDirectoryPanel);
     }
 
     /**
@@ -402,14 +281,14 @@ public class CreateAssignmentScreen {
         assignmentHeadingsTextArea.setBorder(BorderCreator.createAllSidesEmptyBorder(BorderCreator.PADDING_10_PIXELS));
 
         // Store in components map
-        editableComponents.put("assignmentHeadings", assignmentHeadingsTextArea);
+        this.editableComponents.put("assignmentHeadings", assignmentHeadingsTextArea);
 
         // Package up main panel
         assignmentHeadingsPanel.add(assignmentHeadingsLabelPanel);
         assignmentHeadingsPanel.add(new JScrollPane(assignmentHeadingsTextArea));
 
         // Add main panel to config form
-        configFormPanel.add(assignmentHeadingsPanel);
+        this.configFormPanel.add(assignmentHeadingsPanel);
     }
 
     /**
@@ -452,7 +331,7 @@ public class CreateAssignmentScreen {
             String assignmentFilePath = null;
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 assignmentFilePath = fileChooser.getSelectedFile().getPath();
-                studentManifestFile = new File(assignmentFilePath);
+                this.studentManifestFile = new File(assignmentFilePath);
             }
         });
 
@@ -461,6 +340,145 @@ public class CreateAssignmentScreen {
         studentManifestPanel.add(studentManifestFileButton);
 
         // Add main panel to config form
-        configFormPanel.add(studentManifestPanel);
+        this.configFormPanel.add(studentManifestPanel);
     }
+
+    /**
+     * Setup the heading style panel.
+     */
+    private void setupHeadingStylePanel() {
+        // Create main panel
+        JPanel headingStylePanel = new JPanel();
+        headingStylePanel.setLayout(new BoxLayout(headingStylePanel, BoxLayout.LINE_AXIS));
+
+        // Set label
+        JPanel headingStyleLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JLabel headingStyleLabel = new JLabel("Heading style: ");
+        headingStyleLabelPanel.add(headingStyleLabel);
+
+        // Set size
+        headingStyleLabelPanel.setMaximumSize(new Dimension(200, 20));
+        headingStyleLabelPanel.setPreferredSize(new Dimension(200, 20));
+        headingStyleLabelPanel.setMinimumSize(new Dimension(200, 20));
+
+        // Set selectable values
+        JComboBox<String> selections = new JComboBox<String>();
+        HEADING_STYLES.keySet().forEach(selections::addItem);
+
+        // Store in components map
+        this.editableComponents.put("headingStyle", selections);
+
+        // Package up main panel
+        headingStylePanel.add(headingStyleLabelPanel);
+        headingStylePanel.add(selections);
+
+        // Add main panel to config form
+        this.configFormPanel.add(headingStylePanel);
+    }
+
+    /**
+     * Setup the heading underline panel.
+     */
+    private void setupHeadingUnderlinePanel() {
+        // Create main panel
+        JPanel headingUnderlinePanel = new JPanel();
+        headingUnderlinePanel.setLayout(new BoxLayout(headingUnderlinePanel, BoxLayout.LINE_AXIS));
+
+        // Set label
+        JPanel headingUnderlineLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JLabel headingUnderlineLabel = new JLabel("Heading underline style:");
+        headingUnderlineLabelPanel.add(headingUnderlineLabel);
+
+        // Set size
+        headingUnderlineLabelPanel.setMaximumSize(new Dimension(200, 20));
+        headingUnderlineLabelPanel.setPreferredSize(new Dimension(200, 20));
+        headingUnderlineLabelPanel.setMinimumSize(new Dimension(200, 20));
+
+        // Set selectable values
+        JComboBox<String> selections = new JComboBox<String>();
+        UNDERLINE_STYLES.keySet().forEach(selections::addItem);
+
+        // Store in components map
+        this.editableComponents.put("headingUnderlineStyle", selections);
+
+        // Package up main panel
+        headingUnderlinePanel.add(headingUnderlineLabelPanel);
+        headingUnderlinePanel.add(selections);
+
+        // Add main panel to config form
+        this.configFormPanel.add(headingUnderlinePanel);
+    }
+
+    /**
+     * Setup heading line spacing panel.
+     */
+    private void setupHeadingLineSpacingPanel() {
+        // Create main panel
+        JPanel headingLineSpacingPanel = new JPanel();
+        headingLineSpacingPanel.setLayout(new BoxLayout(headingLineSpacingPanel, BoxLayout.LINE_AXIS));
+
+        // Set label
+        JPanel headingLineSpacingLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JLabel headingLineSpacingLabel = new JLabel("Line spacing after sections:");
+        headingLineSpacingLabelPanel.add(headingLineSpacingLabel);
+
+        // Set size
+        headingLineSpacingLabelPanel.setMaximumSize(new Dimension(200, 20));
+        headingLineSpacingLabelPanel.setPreferredSize(new Dimension(200, 20));
+        headingLineSpacingLabelPanel.setMinimumSize(new Dimension(200, 20));
+
+        // Set selectable values
+        JComboBox<Integer> selections = new JComboBox<Integer>();
+        selections.addItem(1);
+        selections.addItem(2);
+        selections.addItem(3);
+
+        // Store in components map
+        this.editableComponents.put("headingLineSpacing", selections);
+
+        // Package up main panel
+        headingLineSpacingPanel.add(headingLineSpacingLabelPanel);
+        headingLineSpacingPanel.add(selections);
+
+        // Add main panel to config form
+        this.configFormPanel.add(headingLineSpacingPanel);
+    }
+
+    /**
+     * Setup the line marker panel.
+     */
+    private void setupLineMarkerPanel() {
+        // Create main panel
+        JPanel lineMarkerPanel = new JPanel();
+        lineMarkerPanel.setLayout(new BoxLayout(lineMarkerPanel, BoxLayout.LINE_AXIS));
+
+        // Set label
+        JPanel lineMarkerLabelPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JLabel lineMarkerLabel = new JLabel("Line marker style:");
+        lineMarkerLabelPanel.add(lineMarkerLabel);
+
+        // Set size
+        lineMarkerLabelPanel.setMaximumSize(new Dimension(200, 20));
+        lineMarkerLabelPanel.setPreferredSize(new Dimension(200, 20));
+        lineMarkerLabelPanel.setMinimumSize(new Dimension(200, 20));
+
+        // Set selectable values
+        JComboBox<String> selections = new JComboBox<String>();
+        selections.addItem("-");
+        selections.addItem("->");
+        selections.addItem("=>");
+        selections.addItem("*");
+        selections.addItem("+");
+
+        // Store in components map
+        this.editableComponents.put("lineMarker", selections);
+
+        // Package up main panel
+        lineMarkerPanel.add(lineMarkerLabelPanel);
+        lineMarkerPanel.add(selections);
+
+        // Add main panel to config form
+        this.configFormPanel.add(lineMarkerPanel);
+    }
+
 }

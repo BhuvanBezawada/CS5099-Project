@@ -1,18 +1,30 @@
 package view;
 
-import controller.AppController;
+import controller.IAppController;
 
-import javax.swing.*;
-
+/**
+ * App View Class.
+ */
 public class AppView implements IAppView {
 
-    private AppController controller;
+    // Instance variable
+    private final IAppController controller;
 
-    public AppView(AppController controller) {
+    /**
+     * Constructor.
+     *
+     * @param controller The controller.
+     */
+    public AppView(IAppController controller) {
         this.controller = controller;
     }
 
+    /**
+     * Start the app.
+     */
+    @Override
     public void start() {
-        HomeScreen homeScreen = new HomeScreen(controller);
+        new HomeScreen(controller);
     }
+
 }
