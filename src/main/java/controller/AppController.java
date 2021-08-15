@@ -465,8 +465,8 @@ public class AppController {
      * @param lineSpacing    The line spacing after each section.
      * @param lineMarker     The line marker for each new line.
      */
-    public void setAssignmentPreferences(Assignment assignment, String headingStyle, String underlineStyle, int lineSpacing, String lineMarker) {
-        appModel.setAssignmentPreferences(assignment, headingStyle, underlineStyle, lineSpacing, lineMarker);
+    public void setAssignmentPreferences(String headingStyle, String underlineStyle, int lineSpacing, String lineMarker) {
+        appModel.setAssignmentPreferences(headingStyle, underlineStyle, lineSpacing, lineMarker);
     }
 
     /**

@@ -263,7 +263,7 @@ public class Assignment implements Serializable {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Something went wrong when loading the file: " + studentManifestFile);
         }
     }
 

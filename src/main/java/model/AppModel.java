@@ -393,7 +393,7 @@ public class AppModel implements IAppModel {
 
             // Create the assignment and set style preferences
             Assignment assignment = createAssignment(title, headingsString.toString(), studentManifestFile, assignmentLocation);
-            setAssignmentPreferences(assignment, headingMarker, headingUnderlineStyle, (int) numLinesAfterSectionEnds, lineMarker);
+            setAssignmentPreferences(headingMarker, headingUnderlineStyle, (int) numLinesAfterSectionEnds, lineMarker);
             this.assignment = assignment;
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -405,17 +405,16 @@ public class AppModel implements IAppModel {
     /**
      * Set the style preferences for an assignment's exports.
      *
-     * @param assignment     The assignment the preferences are for.
      * @param headingStyle   The heading style.
      * @param underlineStyle The heading underline style.
      * @param lineSpacing    The line spacing after each section.
      * @param lineMarker     The line marker for each new line.
      */
-    public void setAssignmentPreferences(Assignment assignment, String headingStyle, String underlineStyle, int lineSpacing, String lineMarker) {
-        assignment.setHeadingStyle(headingStyle);
-        assignment.setUnderlineStyle(underlineStyle);
-        assignment.setLineSpacing(lineSpacing);
-        assignment.setLineMarker(lineMarker);
+    public void setAssignmentPreferences(String headingStyle, String underlineStyle, int lineSpacing, String lineMarker) {
+        this.assignment.setHeadingStyle(headingStyle);
+        this.assignment.setUnderlineStyle(underlineStyle);
+        this.assignment.setLineSpacing(lineSpacing);
+        this.assignment.setLineMarker(lineMarker);
     }
 
     /**

@@ -278,7 +278,7 @@ public class CreateAssignmentScreen {
 
                 // Create the assignment
                 Assignment assignment = controller.createAssignment(assignmentTitle, assignmentHeadings, studentManifestFile, assignmentDirectoryPath);
-                controller.setAssignmentPreferences(assignment, HEADING_STYLES.get(headingStyle), UNDERLINE_STYLES.get(headingUnderlineStyle), lineSpacing, lineMarker);
+                controller.setAssignmentPreferences(HEADING_STYLES.get(headingStyle), UNDERLINE_STYLES.get(headingUnderlineStyle), lineSpacing, lineMarker);
                 controller.saveAssignment(assignment, assignment.getAssignmentTitle()
                         .toLowerCase()
                         .replace(" ", "-"));
