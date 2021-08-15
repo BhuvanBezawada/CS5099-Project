@@ -8,17 +8,38 @@ import view.PhraseType;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.*;
-import java.util.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * App Model Class.
+ */
 public class AppModel implements IAppModel {
 
+    // Messages
     private final String PHRASE_PANEL_CHANGE_MESSAGE = "phrasePanelChange";
     private final String OLD_VALUE_DUMMY_MESSAGE = "oldValue";
     private final String ASSIGNMENT_MESSAGE = "assignment";
     private final String CREATED_MESSAGE = "created";
-
+    private final String DOC_VIEW_CHANGE_MESSAGE = "docViewChange";
+    private final String ERROR_MESSAGE = "error";
+    private final String INSERT_PHRASE_MESSAGE = "insertPhrase";
+    private final String NEW_PHRASE_MESSAGE = "newPhrase";
+    private final String NEW_CUSTOM_PHRASE_MESSAGE = "newCustomPhrase";
+    private final String NEW_LINKED_PHRASES_MESSAGE = "newLinkedPhrases";
+    private final String UPDATE_PHRASE_COUNTER_MESSAGE = "updatePhraseCounter";
+    private final String DELETE_PHRASE_MESSAGE = "deletePhrase";
+    private final String RESET_PHRASES_PANEL_MESSAGE = "resetPhrasesPanel";
 
     // Instance variables
     private Assignment assignment;
@@ -41,15 +62,8 @@ public class AppModel implements IAppModel {
         this.previousHeadingAndUsedPhrases = new HashMap<String, List<Phrase>>();
     }
 
-    /**
-     * Set the phrase panel the user is currently viewing.
-     *
-     * @param currentPhrasePanelInView The phrase panel type.
-     */
-    public void setCurrentPhrasePanelInView(PhraseType currentPhrasePanelInView) {
-        this.currentPhrasePanelInView = currentPhrasePanelInView;
-        notifySubscribers(PHRASE_PANEL_CHANGE_MESSAGE, currentPhrasePanelInView);
-    }
+
+    /* SUBSCRIBER METHODS */
 
     /**
      * Allow an observer to subscribe for changes to the model.
@@ -81,6 +95,8 @@ public class AppModel implements IAppModel {
     }
 
 
+    /* ASSIGNMENT METHODS */
+
     /**
      * Create an assignment.
      *
@@ -108,270 +124,6 @@ public class AppModel implements IAppModel {
         notifySubscribers(ASSIGNMENT_MESSAGE, CREATED_MESSAGE);
         this.assignment = assignment;
         return this.assignment;
-    }
-
-    /**
-     * Load an assignment from an FHT file.
-     *
-     * @param assignmentFilePath The location of the assignment FHT file.
-     * @return The Assignment object for the assignment.
-     */
-    public Assignment loadAssignment(String assignmentFilePath) {
-        this.assignment = Assignment.loadAssignment(assignmentFilePath);
-        return this.assignment;
-    }
-
-    /**
-     * Get the document ID of the current document being edited.
-     *
-     * @return The current document's ID.
-     */
-    public String getCurrentDocumentInView() {
-        return this.currentStudentId;
-    }
-
-    /**
-     * Update the model with the current ID of the document that is being edited.
-     *
-     * @param studentId The current document's ID.
-     */
-    public void setCurrentDocumentInView(String studentId, boolean changeDoc) {
-        this.lastStudentId = this.currentStudentId;
-        this.currentStudentId = studentId;
-        if (changeDoc) {
-            notifySubscribers("docViewChange", studentId);
-        }
-    }
-
-    /**
-     * Get the last document ID that was edited.
-     *
-     * @return The last document's ID.
-     */
-    public String getLastDocumentInView() {
-        return this.lastStudentId;
-    }
-
-
-    /**
-     * Export the grades of an assignment as a text file.
-     *
-     * @param assignment The assignment grades to export.
-     */
-    public void exportGrades(Assignment assignment) {
-        // Create the output directory if it does not exist
-        File outputDirectory = new File(assignment.getAssignmentDirectoryPath() + File.separator + assignment.getAssignmentTitle().trim().replace(" ", "-"));
-        if (!outputDirectory.exists()) {
-            outputDirectory.mkdir();
-        }
-
-        // Write out the student ids and grades, one per line
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputDirectory + File.separator + "grades.txt"))) {
-            for (FeedbackDocument feedbackDocument : assignment.getFeedbackDocuments()) {
-                writer.write(feedbackDocument.getStudentId() + "," + feedbackDocument.getGrade());
-                writer.newLine();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            notifySubscribers("error", "Something went wrong during grade export!");
-        }
-    }
-
-    /**
-     * Create an ordered list of grades.
-     *
-     * @param assignment The assignment the grades are for.
-     * @return A list of grades.
-     */
-    public List<Integer> getGrades(Assignment assignment) {
-        // Create a linked hashmap of grades and their counts
-        Map<Double, Integer> gradeAndNumber = new LinkedHashMap<Double, Integer>();
-        for (double i = 0.0; i <= 20.0; i += 0.5) {
-            gradeAndNumber.put(i, 0);
-        }
-
-        // Count the number of students that got each grade
-        assignment.getFeedbackDocuments().forEach(feedbackDocument -> {
-            // Round the grade to the nearest 0.5
-            // Rounding code adapted from: https://stackoverflow.com/questions/23449662/java-round-to-nearest-5
-            double grade = feedbackDocument.getGrade();
-            grade = Math.round(grade * 2) / 2.0;
-            int currentCount = gradeAndNumber.get(grade);
-            gradeAndNumber.put(grade, currentCount + 1);
-        });
-
-        // Return order list of grades
-        return new ArrayList<>(gradeAndNumber.values());
-    }
-
-    /**
-     * Export the feedback documents.
-     *
-     * @param assignment The assignment the feedback documents belong to.
-     */
-    public void exportFeedbackDocuments(Assignment assignment) {
-        // Create the output directory if it does not exist
-        File outputDirectory = new File(assignment.getAssignmentDirectoryPath() + File.separator + assignment.getAssignmentTitle().trim().replace(" ", "-"));
-        if (!outputDirectory.exists()) {
-            outputDirectory.mkdir();
-        }
-
-        // Write out each feedback document as a text file
-        assignment.getFeedbackDocuments().forEach(feedbackDocument -> {
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputDirectory + File.separator + feedbackDocument.getStudentId() + ".txt"))) {
-                for (String heading : feedbackDocument.getHeadings()) {
-                    // Heading
-                    writer.write(assignment.getHeadingStyle() + heading);
-                    writer.newLine();
-
-                    // Underline heading if required
-                    String underlineStyle = assignment.getUnderlineStyle();
-                    if (!underlineStyle.isEmpty()) {
-                        for (int i = 0; i < assignment.getHeadingStyle().length() + heading.length(); i++) {
-                            writer.write(underlineStyle);
-                        }
-                    }
-
-                    // Data
-                    writer.newLine();
-                    String headingData = feedbackDocument.getHeadingData(heading);
-                    List<String> dataAsList = Arrays.stream(headingData.split("\n")).collect(Collectors.toList());
-                    for (String line: dataAsList) {
-                        if (!line.trim().equals(getLineMarker().trim())) {
-                            writer.write(line);
-                            writer.newLine();
-                        }
-                    }
-
-                    // End section spacing
-                    for (int i = 0; i < assignment.getLineSpacing(); i++) {
-                        writer.newLine();
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                notifySubscribers("error", "Something went wrong during grade export!");
-            }
-        });
-    }
-
-    /**
-     * Insert a phrase into the current feedback box being edited.
-     *
-     * @param phrase The string representation of the phrase to be inserted.
-     */
-    public void insertPhraseIntoCurrentFeedbackBox(String phrase) {
-        notifySubscribers("insertPhrase", phrase);
-    }
-
-    /**
-     * Get the current feedback box heading being edited.
-     *
-     * @return The current heading being edited.
-     */
-    public String getCurrentHeadingBeingEdited() {
-        return this.currentHeadingBeingEdited;
-    }
-
-    /**
-     * Set the current feedback box heading being edited.
-     *
-     * @param currentHeadingBeingEdited The current heading being edited.
-     */
-    public void setCurrentHeadingBeingEdited(String currentHeadingBeingEdited) {
-        this.previousHeadingBeingEdited = this.currentHeadingBeingEdited;
-        this.currentHeadingBeingEdited = currentHeadingBeingEdited;
-    }
-
-    /**
-     * Get the previous feedback box heading that was edited.
-     *
-     * @return The previous heading that was edited.
-     */
-    public String getPreviousHeadingBeingEdited() {
-        return this.previousHeadingBeingEdited;
-    }
-
-    /**
-     * Add new phrase.
-     *
-     * @param phrase The phrase to add.
-     */
-    public void addNewPhraseToView(Phrase phrase) {
-        notifySubscribers("newPhrase", phrase);
-    }
-
-    /**
-     * Add new custom phrase.
-     *
-     * @param phrase The custom phrase to add.
-     */
-    public void addNewCustomPhraseToView(Phrase phrase) {
-        notifySubscribers("newCustomPhrase", phrase);
-    }
-
-    /**
-     * Add new linked phrase.
-     *
-     * @param linkedPhrases The linked phrases to add.
-     */
-    public void addNewLinkedPhrasesToView(LinkedPhrases linkedPhrases) {
-        notifySubscribers("newLinkedPhrases", linkedPhrases);
-    }
-
-    /**
-     * Update the counter on a phrase.
-     *
-     * @param phrase The phrase to update.
-     */
-    public void updatePhraseCounterInView(Phrase phrase) {
-        notifySubscribers("updatePhraseCounter", phrase);
-    }
-
-    /**
-     * Remove a phrase.
-     *
-     * @param phrase The phrase to remove.
-     */
-    public void removePhraseFromView(Phrase phrase) {
-        notifySubscribers("deletePhrase", phrase);
-    }
-
-    /**
-     * Reset the phrases panel.
-     */
-    public void resetPhrasesPanel(PhraseType phraseType) {
-        notifySubscribers("resetPhrasesPanel", phraseType);
-    }
-
-    /**
-     * Get the list of phrases for a given heading.
-     *
-     * @param heading The heading the phrases are for.
-     * @return A list of phrases for the given heading.
-     */
-    public List<Phrase> getCurrentPhraseSet(String heading) {
-        return this.currentHeadingAndUsedPhrases.get(heading);
-    }
-
-    /**
-     * Set the list of phrases for a given heading.
-     *
-     * @param heading The heading the phrases are for.
-     * @param phrases A list of phrases for the given heading.
-     */
-    public void setCurrentHeadingPhraseSet(String heading, List<Phrase> phrases) {
-        this.currentHeadingAndUsedPhrases.put(heading, phrases);
-    }
-
-    /**
-     * Set the list of phrases for a given heading.
-     *
-     * @param heading The heading the phrases are for.
-     * @param phrases A list of phrases for the given heading.
-     */
-    public void setPreviousHeadingPhraseSet(String heading, List<Phrase> phrases) {
-        this.previousHeadingAndUsedPhrases.put(heading, phrases);
     }
 
     /**
@@ -434,6 +186,17 @@ public class AppModel implements IAppModel {
     }
 
     /**
+     * Load an assignment from an FHT file.
+     *
+     * @param assignmentFilePath The location of the assignment FHT file.
+     * @return The Assignment object for the assignment.
+     */
+    public Assignment loadAssignment(String assignmentFilePath) {
+        this.assignment = Assignment.loadAssignment(assignmentFilePath);
+        return this.assignment;
+    }
+
+    /**
      * Get the line marker to use for denoting new lines.
      *
      * @return The line marker.
@@ -467,6 +230,280 @@ public class AppModel implements IAppModel {
      */
     public int getLineSpacing() {
         return assignment.getLineSpacing();
+    }
+
+
+    /* FEEDBACK DOCUMENT METHODS */
+
+    /**
+     * Get the last document ID that was edited.
+     *
+     * @return The last document's ID.
+     */
+    public String getLastDocumentInView() {
+        return this.lastStudentId;
+    }
+
+    /**
+     * Get the document ID of the current document being edited.
+     *
+     * @return The current document's ID.
+     */
+    public String getCurrentDocumentInView() {
+        return this.currentStudentId;
+    }
+
+    /**
+     * Update the model with the current ID of the document that is being edited.
+     *
+     * @param studentId The current document's ID.
+     */
+    public void setCurrentDocumentInView(String studentId, boolean changeDoc) {
+        this.lastStudentId = this.currentStudentId;
+        this.currentStudentId = studentId;
+        if (changeDoc) {
+            notifySubscribers(DOC_VIEW_CHANGE_MESSAGE, studentId);
+        }
+    }
+
+
+    /* HEADING MANAGEMENT METHODS */
+
+    /**
+     * Get the current feedback box heading being edited.
+     *
+     * @return The current heading being edited.
+     */
+    public String getCurrentHeadingBeingEdited() {
+        return this.currentHeadingBeingEdited;
+    }
+
+    /**
+     * Set the current feedback box heading being edited.
+     *
+     * @param currentHeadingBeingEdited The current heading being edited.
+     */
+    public void setCurrentHeadingBeingEdited(String currentHeadingBeingEdited) {
+        this.previousHeadingBeingEdited = this.currentHeadingBeingEdited;
+        this.currentHeadingBeingEdited = currentHeadingBeingEdited;
+    }
+
+    /**
+     * Get the previous feedback box heading that was edited.
+     *
+     * @return The previous heading that was edited.
+     */
+    public String getPreviousHeadingBeingEdited() {
+        return this.previousHeadingBeingEdited;
+    }
+
+
+    /* USER EXPORTS AND OPERATIONS */
+
+    /**
+     * Export the feedback documents.
+     *
+     * @param assignment The assignment the feedback documents belong to.
+     */
+    public void exportFeedbackDocuments(Assignment assignment) {
+        // Create the output directory if it does not exist
+        File outputDirectory = new File(assignment.getAssignmentDirectoryPath() + File.separator + assignment.getAssignmentTitle().trim().replace(" ", "-"));
+        if (!outputDirectory.exists()) {
+            outputDirectory.mkdir();
+        }
+
+        // Write out each feedback document as a text file
+        assignment.getFeedbackDocuments().forEach(feedbackDocument -> {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputDirectory + File.separator + feedbackDocument.getStudentId() + ".txt"))) {
+                for (String heading : feedbackDocument.getHeadings()) {
+                    // Heading
+                    writer.write(assignment.getHeadingStyle() + heading);
+                    writer.newLine();
+
+                    // Underline heading if required
+                    String underlineStyle = assignment.getUnderlineStyle();
+                    if (!underlineStyle.isEmpty()) {
+                        for (int i = 0; i < assignment.getHeadingStyle().length() + heading.length(); i++) {
+                            writer.write(underlineStyle);
+                        }
+                    }
+
+                    // Data
+                    writer.newLine();
+                    String headingData = feedbackDocument.getHeadingData(heading);
+                    List<String> dataAsList = Arrays.stream(headingData.split("\n")).collect(Collectors.toList());
+                    for (String line : dataAsList) {
+                        if (!line.trim().equals(getLineMarker().trim())) {
+                            writer.write(line);
+                            writer.newLine();
+                        }
+                    }
+
+                    // End section spacing
+                    for (int i = 0; i < assignment.getLineSpacing(); i++) {
+                        writer.newLine();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                notifySubscribers(ERROR_MESSAGE, "Something went wrong during grade export!");
+            }
+        });
+    }
+
+    /**
+     * Export the grades of an assignment as a text file.
+     *
+     * @param assignment The assignment grades to export.
+     */
+    public void exportGrades(Assignment assignment) {
+        // Create the output directory if it does not exist
+        File outputDirectory = new File(assignment.getAssignmentDirectoryPath() + File.separator + assignment.getAssignmentTitle().trim().replace(" ", "-"));
+        if (!outputDirectory.exists()) {
+            outputDirectory.mkdir();
+        }
+
+        // Write out the student ids and grades, one per line
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputDirectory + File.separator + "grades.txt"))) {
+            for (FeedbackDocument feedbackDocument : assignment.getFeedbackDocuments()) {
+                writer.write(feedbackDocument.getStudentId() + "," + feedbackDocument.getGrade());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            notifySubscribers(ERROR_MESSAGE, "Something went wrong during grade export!");
+        }
+    }
+
+    /**
+     * Create an ordered list of grades.
+     *
+     * @param assignment The assignment the grades are for.
+     * @return A list of grades.
+     */
+    public List<Integer> getGrades(Assignment assignment) {
+        // Create a linked hashmap of grades and their counts
+        Map<Double, Integer> gradeAndNumber = new LinkedHashMap<Double, Integer>();
+        for (double i = 0.0; i <= 20.0; i += 0.5) {
+            gradeAndNumber.put(i, 0);
+        }
+
+        // Count the number of students that got each grade
+        assignment.getFeedbackDocuments().forEach(feedbackDocument -> {
+            // Round the grade to the nearest 0.5
+            // Rounding code adapted from: https://stackoverflow.com/questions/23449662/java-round-to-nearest-5
+            double grade = feedbackDocument.getGrade();
+            grade = Math.round(grade * 2) / 2.0;
+            int currentCount = gradeAndNumber.get(grade);
+            gradeAndNumber.put(grade, currentCount + 1);
+        });
+
+        // Return order list of grades
+        return new ArrayList<>(gradeAndNumber.values());
+    }
+
+
+    /* PHRASE MANAGEMENT METHODS */
+
+    /**
+     * Insert a phrase into the current feedback box being edited.
+     *
+     * @param phrase The string representation of the phrase to be inserted.
+     */
+    public void insertPhraseIntoCurrentFeedbackBox(String phrase) {
+        notifySubscribers(INSERT_PHRASE_MESSAGE, phrase);
+    }
+
+    /**
+     * Add new phrase.
+     *
+     * @param phrase The phrase to add.
+     */
+    public void addNewPhraseToView(Phrase phrase) {
+        notifySubscribers(NEW_PHRASE_MESSAGE, phrase);
+    }
+
+    /**
+     * Add new custom phrase.
+     *
+     * @param phrase The custom phrase to add.
+     */
+    public void addNewCustomPhraseToView(Phrase phrase) {
+        notifySubscribers(NEW_CUSTOM_PHRASE_MESSAGE, phrase);
+    }
+
+    /**
+     * Add new linked phrase.
+     *
+     * @param linkedPhrases The linked phrases to add.
+     */
+    public void addNewLinkedPhrasesToView(LinkedPhrases linkedPhrases) {
+        notifySubscribers(NEW_LINKED_PHRASES_MESSAGE, linkedPhrases);
+    }
+
+    /**
+     * Update the counter on a phrase.
+     *
+     * @param phrase The phrase to update.
+     */
+    public void updatePhraseCounterInView(Phrase phrase) {
+        notifySubscribers(UPDATE_PHRASE_COUNTER_MESSAGE, phrase);
+    }
+
+    /**
+     * Remove a phrase.
+     *
+     * @param phrase The phrase to remove.
+     */
+    public void removePhraseFromView(Phrase phrase) {
+        notifySubscribers(DELETE_PHRASE_MESSAGE, phrase);
+    }
+
+    /**
+     * Reset the phrases panel.
+     */
+    public void resetPhrasesPanel(PhraseType phraseType) {
+        notifySubscribers(RESET_PHRASES_PANEL_MESSAGE, phraseType);
+    }
+
+    /**
+     * Get the list of phrases for a given heading.
+     *
+     * @param heading The heading the phrases are for.
+     * @return A list of phrases for the given heading.
+     */
+    public List<Phrase> getCurrentPhraseSet(String heading) {
+        return this.currentHeadingAndUsedPhrases.get(heading);
+    }
+
+    /**
+     * Set the list of phrases for a given heading.
+     *
+     * @param heading The heading the phrases are for.
+     * @param phrases A list of phrases for the given heading.
+     */
+    public void setCurrentHeadingPhraseSet(String heading, List<Phrase> phrases) {
+        this.currentHeadingAndUsedPhrases.put(heading, phrases);
+    }
+
+    /**
+     * Set the list of phrases for a given heading.
+     *
+     * @param heading The heading the phrases are for.
+     * @param phrases A list of phrases for the given heading.
+     */
+    public void setPreviousHeadingPhraseSet(String heading, List<Phrase> phrases) {
+        this.previousHeadingAndUsedPhrases.put(heading, phrases);
+    }
+
+    /**
+     * Set the phrase panel the user is currently viewing.
+     *
+     * @param currentPhrasePanelInView The phrase panel type.
+     */
+    public void setCurrentPhrasePanelInView(PhraseType currentPhrasePanelInView) {
+        this.currentPhrasePanelInView = currentPhrasePanelInView;
+        notifySubscribers(PHRASE_PANEL_CHANGE_MESSAGE, currentPhrasePanelInView);
     }
 
 }
