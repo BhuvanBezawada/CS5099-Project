@@ -5,15 +5,25 @@ import database.GraphDatabaseManager;
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.CoreSentence;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import model.*;
+import model.AppModel;
+import model.Assignment;
+import model.FeedbackDocument;
+import model.LinkedPhrases;
+import model.Phrase;
+import model.Sentiment;
+import model.Utilities;
 import nlp.NLPPipline;
-import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.Str;
 import view.PhraseType;
 import visualisation.Visualisations;
 
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -38,6 +48,18 @@ public class AppController {
         this.graphDatabase = new GraphDatabaseManager();
         this.nlp = NLPPipline.getPipeline();
     }
+
+    /**
+     * Register as a subscriber of the model.
+     *
+     * @param propertyChangeListener The listener object to register with the model.
+     */
+    public void registerWithModel(PropertyChangeListener propertyChangeListener) {
+        appModel.subscribe(propertyChangeListener);
+    }
+
+
+    /* ASSIGNMENT METHODS */
 
     /**
      * Create an assignment in the model.
@@ -70,6 +92,45 @@ public class AppController {
     }
 
     /**
+     * Create an assignment from a configuration file.
+     *
+     * @param configFilePath The location of the configuration file.
+     * @return The newly created Assignment object.
+     */
+    public Assignment createAssignmentFromConfig(String configFilePath) {
+        // Create the assignment and save it to an FHT file
+        Assignment assignment = appModel.createAssignmentFromConfig(configFilePath);
+        assignment.saveAssignmentDetails(assignment.getAssignmentTitle()
+                .toLowerCase()
+                .replace(" ", "-")
+                .replace(".db", ""));
+
+        // Create the assignment database
+        documentDatabase.createDocumentDatabase(assignment.getAssignmentDirectoryPath() + File.separator + assignment.getDatabaseName());
+
+        // Create the feedback files for the assignment in the database
+        documentDatabase.createFeedbackDocuments(assignment);
+
+        // Setup the graph database
+        graphDatabase.createGraphDatabase(assignment.getAssignmentDirectoryPath() + File.separator + "graphDB" + File.separator + assignment.getDatabaseName());
+        graphDatabase.setUpGraphDbForAssignment(assignment.getAssignmentHeadings());
+
+        return assignment;
+    }
+
+    /**
+     * Set the style preferences for an assignment's exports.
+     *
+     * @param headingStyle   The heading style.
+     * @param underlineStyle The heading underline style.
+     * @param lineSpacing    The line spacing after each section.
+     * @param lineMarker     The line marker for each new line.
+     */
+    public void setAssignmentPreferences(String headingStyle, String underlineStyle, int lineSpacing, String lineMarker) {
+        appModel.setAssignmentPreferences(headingStyle, underlineStyle, lineSpacing, lineMarker);
+    }
+
+    /**
      * Load an assignment from an FHT file.
      *
      * @param assignmentFilePath The location of the assignment FHT file.
@@ -93,6 +154,45 @@ public class AppController {
     public void saveAssignment(Assignment assignment, String fileName) {
         assignment.saveAssignmentDetails(fileName);
     }
+
+    /**
+     * Get the line marker to use for denoting new lines.
+     *
+     * @return The line marker.
+     */
+    public String getLineMarker() {
+        return appModel.getLineMarker();
+    }
+
+    /**
+     * Get the heading style to use for headings when files are exported.
+     *
+     * @return The heading style.
+     */
+    public String getHeadingStyle() {
+        return appModel.getHeadingStyle();
+    }
+
+    /**
+     * Get the heading underline style to use for headings when files are exported.
+     *
+     * @return The heading underline style.
+     */
+    public String getUnderlineStyle() {
+        return appModel.getUnderlineStyle();
+    }
+
+    /**
+     * Get the number of line spaces to use between sections when files are exported.
+     *
+     * @return The number of line spaces.
+     */
+    public int getLineSpacing() {
+        return appModel.getLineSpacing();
+    }
+
+
+    /* FEEDBACK DOCUMENT METHODS */
 
     /**
      * Load the feedback documents for an assignment.
@@ -182,14 +282,69 @@ public class AppController {
     }
 
     /**
-     * Register as a subscriber of the model.
+     * Get the first line of a feedback document.
      *
-     * @param propertyChangeListener The listener object to register with the model.
+     * @param assignment The assignment the document belongs to.
+     * @param studentId  The student id of the document.
+     * @return The first line of the document if it exists or a default message.
      */
-    public void registerWithModel(PropertyChangeListener propertyChangeListener) {
-        appModel.subscribe(propertyChangeListener);
+    public String getFirstLineFromDocument(Assignment assignment, String studentId) {
+        // Set the default text
+        String returnString = "<no preview available>";
+
+        // Get the student's feedback document
+        FeedbackDocument feedbackDocumentForStudent = assignment.getFeedbackDocumentForStudent(studentId);
+
+        // Find the first line of the document
+        for (String heading : feedbackDocumentForStudent.getHeadings()) {
+            if (!feedbackDocumentForStudent.getHeadingData(heading).isEmpty()) {
+                List<String> dataAsList = Arrays
+                        .stream(feedbackDocumentForStudent.getHeadingData(heading).split("\n"))
+                        .filter(line -> line.startsWith(getLineMarker()))
+                        .collect(Collectors.toList());
+
+                // Get the line and remove the line marker
+                if (dataAsList.size() > 0) {
+                    return heading + ": " + dataAsList.get(0).replace(getLineMarker(), "");
+                }
+            }
+        }
+
+        return returnString;
     }
 
+
+    /* HEADING MANAGEMENT METHODS */
+
+    /**
+     * Notify the model of the current feedback box heading being edited.
+     *
+     * @param currentHeadingBeingEdited The current heading being edited.
+     */
+    public void updateCurrentHeadingBeingEdited(String currentHeadingBeingEdited) {
+        appModel.setCurrentHeadingBeingEdited(currentHeadingBeingEdited);
+    }
+
+    /**
+     * Get the current feedback box heading being edited.
+     *
+     * @return The current heading being edited.
+     */
+    public String getCurrentHeadingBeingEdited() {
+        return appModel.getCurrentHeadingBeingEdited();
+    }
+
+    /**
+     * Determine whether the user has navigated to a new feedback box.
+     *
+     * @return True if a new heading is being edited, false otherwise.
+     */
+    public boolean headingChanged() {
+        return !appModel.getCurrentHeadingBeingEdited().equals(appModel.getPreviousHeadingBeingEdited());
+    }
+
+
+    /* USER EXPORTS AND OPERATIONS */
 
     /**
      * Export the feedback documents.
@@ -215,7 +370,6 @@ public class AppController {
         appModel.exportGrades(assignment);
     }
 
-
     /**
      * Create a bar chart visualisation of the grades.
      *
@@ -230,33 +384,38 @@ public class AppController {
         Visualisations.createBarChart(grades);
     }
 
-
     /**
-     * Notify the model of the current feedback box heading being edited.
+     * Get a summary of all the feedback documents.
      *
-     * @param currentHeadingBeingEdited The current heading being edited.
+     * @param assignment The assignment to summarise.
+     * @return A map of headings and the 3 most used phrases for those headings.
      */
-    public void updateCurrentHeadingBeingEdited(String currentHeadingBeingEdited) {
-        appModel.setCurrentHeadingBeingEdited(currentHeadingBeingEdited);
+    public Map<String, List<String>> getSummary(Assignment assignment) {
+        Map<String, List<String>> summary = new HashMap<String, List<String>>();
+
+        // Get the 3 most used phrases for a given heading
+        assignment.getAssignmentHeadings().forEach(heading -> {
+            summary.put(heading, new ArrayList<>());
+
+            // Get the phrases
+            List<Phrase> phrasesForHeading = graphDatabase.getPhrasesForHeading(heading);
+            Collections.sort(phrasesForHeading);
+
+            // Only store phrases if there are 3 or more
+            if (phrasesForHeading.size() >= 3) {
+                List<String> phrases = new ArrayList<String>();
+                for (int i = 0; i < 3; i++) {
+                    phrases.add(phrasesForHeading.get(i).getPhraseAsString());
+                }
+                summary.put(heading, phrases);
+            }
+        });
+
+        return summary;
     }
 
-    /**
-     * Insert a phrase into the current feedback box being edited.
-     *
-     * @param phrase The string representation of the phrase to be inserted.
-     */
-    public void insertPhraseIntoCurrentFeedbackBox(String phrase) {
-        appModel.insertPhraseIntoCurrentFeedbackBox(phrase);
-    }
 
-    /**
-     * Get the current feedback box heading being edited.
-     *
-     * @return The current heading being edited.
-     */
-    public String getCurrentHeadingBeingEdited() {
-        return appModel.getCurrentHeadingBeingEdited();
-    }
+    /* SENTIMENT METHODS */
 
     /**
      * Get the sentiment of a phrase.
@@ -291,6 +450,34 @@ public class AppController {
         return coreDocument;
     }
 
+
+    /* PHRASE MANAGEMENT METHODS */
+
+    /**
+     * Insert a phrase into the current feedback box being edited.
+     *
+     * @param phrase The string representation of the phrase to be inserted.
+     */
+    public void insertPhraseIntoCurrentFeedbackBox(String phrase) {
+        appModel.insertPhraseIntoCurrentFeedbackBox(phrase);
+    }
+
+    /**
+     * Show all the frequently used phrases for a given heading.
+     *
+     * @param heading The heading the phrases are for.
+     */
+    public void showPhrasesForHeading(String heading) {
+        System.out.println("IN SHOW PHRASES FOR HEADING");
+        List<Phrase> currentPhraseSet = appModel.getCurrentPhraseSet(heading);
+        System.out.println("CURRENT PHRASE SET: " + heading + " : " + currentPhraseSet);
+        if (currentPhraseSet != null) {
+            currentPhraseSet.forEach(phrase -> {
+                appModel.addNewPhraseToView(phrase);
+            });
+        }
+    }
+
     /**
      * Add a custom phrase from the GUI.
      *
@@ -316,16 +503,6 @@ public class AppController {
      */
     public void managePhraseLinks(String heading, List<String> previousBoxContents, List<String> currentBoxContents) {
         graphDatabase.managePhraseLinks(heading, previousBoxContents, currentBoxContents);
-    }
-
-    /**
-     * Get a list of linked phrases for a given heading.
-     *
-     * @param heading The heading the linked phrases are for.
-     * @return A list of linked phrases for the given heading.
-     */
-    public List<LinkedPhrases> getLinkedPhrasesForHeading(String heading) {
-        return graphDatabase.getLinkedPhrases(heading);
     }
 
     /**
@@ -386,119 +563,6 @@ public class AppController {
     }
 
     /**
-     * Determine whether the user has navigated to a new feedback box.
-     *
-     * @return True if a new heading is being edited, false otherwise.
-     */
-    public boolean headingChanged() {
-        return !appModel.getCurrentHeadingBeingEdited().equals(appModel.getPreviousHeadingBeingEdited());
-    }
-
-    /**
-     * Show all the frequently used phrases for a given heading.
-     *
-     * @param heading The heading the phrases are for.
-     */
-    public void showPhrasesForHeading(String heading) {
-        System.out.println("IN SHOW PHRASES FOR HEADING");
-        List<Phrase> currentPhraseSet = appModel.getCurrentPhraseSet(heading);
-        System.out.println("CURRENT PHRASE SET: " + heading + " : " + currentPhraseSet);
-        if (currentPhraseSet != null) {
-            currentPhraseSet.forEach(phrase -> {
-                appModel.addNewPhraseToView(phrase);
-            });
-        }
-    }
-
-    /**
-     * Show the user an error message.
-     *
-     * @param errorMessage The error message to show.
-     */
-    public void error(String errorMessage) {
-        appModel.notifySubscribers("error", errorMessage);
-    }
-
-    public String getFirstLineFromDocument(Assignment assignment, String studentId) {
-        String returnString = "<no preview available>";
-        FeedbackDocument feedbackDocumentForStudent = assignment.getFeedbackDocumentForStudent(studentId);
-
-        for (String heading : feedbackDocumentForStudent.getHeadings()) {
-            if (!feedbackDocumentForStudent.getHeadingData(heading).isEmpty()) {
-                List<String> dataAsList = Arrays
-                        .stream(feedbackDocumentForStudent.getHeadingData(heading).split("\n"))
-                        .filter(line -> line.startsWith(getLineMarker()))
-                        .collect(Collectors.toList());
-
-                if (dataAsList.size() > 0) {
-                    return heading + ": " + dataAsList.get(0).replace(getLineMarker(), "");
-                }
-            }
-        }
-
-        return returnString;
-    }
-
-
-    /**
-     * Create an assignment from a configuration file.
-     *
-     * @param configFilePath The location of the configuration file.
-     * @return The newly created Assignment object.
-     */
-    public Assignment createAssignmentFromConfig(String configFilePath) {
-        // Create the assignment and save it to an FHT file
-        Assignment assignment = appModel.createAssignmentFromConfig(configFilePath);
-        assignment.saveAssignmentDetails(assignment.getAssignmentTitle()
-                .toLowerCase()
-                .replace(" ", "-")
-                .replace(".db", ""));
-
-        // Create the assignment database
-        documentDatabase.createDocumentDatabase(assignment.getAssignmentDirectoryPath() + File.separator + assignment.getDatabaseName());
-
-        // Create the feedback files for the assignment in the database
-        documentDatabase.createFeedbackDocuments(assignment);
-
-        // Setup the graph database
-        graphDatabase.createGraphDatabase(assignment.getAssignmentDirectoryPath() + File.separator + "graphDB" + File.separator + assignment.getDatabaseName());
-        graphDatabase.setUpGraphDbForAssignment(assignment.getAssignmentHeadings());
-
-        return assignment;
-    }
-
-    /**
-     * Set the style preferences for an assignment's exports.
-     *
-     * @param assignment     The assignment the preferences are for.
-     * @param headingStyle   The heading style.
-     * @param underlineStyle The heading underline style.
-     * @param lineSpacing    The line spacing after each section.
-     * @param lineMarker     The line marker for each new line.
-     */
-    public void setAssignmentPreferences(String headingStyle, String underlineStyle, int lineSpacing, String lineMarker) {
-        appModel.setAssignmentPreferences(headingStyle, underlineStyle, lineSpacing, lineMarker);
-    }
-
-    /**
-     * Get the line marker to use for denoting new lines.
-     *
-     * @return The line marker.
-     */
-    public String getLineMarker() {
-        return appModel.getLineMarker();
-    }
-
-    /**
-     * Set the phrase panel the user is currently viewing.
-     *
-     * @param currentPhrasePanelInView The phrase panel type.
-     */
-    public void setCurrentPhrasePanelInView(PhraseType currentPhrasePanelInView) {
-        appModel.setCurrentPhrasePanelInView(currentPhrasePanelInView);
-    }
-
-    /**
      * Get the custom phrases and display them.
      */
     public void showCustomPhrases() {
@@ -515,51 +579,20 @@ public class AppController {
     }
 
     /**
-     * Get the heading style to use for headings when files are exported.
+     * Set the phrase panel the user is currently viewing.
      *
-     * @return The heading style.
+     * @param currentPhrasePanelInView The phrase panel type.
      */
-    public String getHeadingStyle() {
-        return appModel.getHeadingStyle();
+    public void setCurrentPhrasePanelInView(PhraseType currentPhrasePanelInView) {
+        appModel.setCurrentPhrasePanelInView(currentPhrasePanelInView);
     }
 
     /**
-     * Get the heading underline style to use for headings when files are exported.
+     * Show the user an error message.
      *
-     * @return The heading underline style.
+     * @param errorMessage The error message to show.
      */
-    public String getUnderlineStyle() {
-        return appModel.getUnderlineStyle();
-    }
-
-    /**
-     * Get the number of line spaces to use between sections when files are exported.
-     *
-     * @return The number of line spaces.
-     */
-    public int getLineSpacing() {
-        return appModel.getLineSpacing();
-    }
-
-    public Map<String, List<String>> getSummary(Assignment assignment) {
-        Map<String, List<String>> summary = new HashMap<String, List<String>>();
-
-        assignment.getAssignmentHeadings().forEach(heading -> {
-            summary.put(heading, new ArrayList<>());
-
-            List<Phrase> phrasesForHeading = graphDatabase.getPhrasesForHeading(heading);
-            Collections.sort(phrasesForHeading);
-
-            if (phrasesForHeading.size() > 3) {
-                List<String> phrases = new ArrayList<String>();
-                for (int i = 0; i < 3; i++) {
-                    phrases.add(phrasesForHeading.get(i).getPhraseAsString());
-                }
-
-                summary.put(heading, phrases);
-            }
-        });
-
-        return summary;
+    public void error(String errorMessage) {
+        appModel.notifySubscribers("error", errorMessage);
     }
 }
