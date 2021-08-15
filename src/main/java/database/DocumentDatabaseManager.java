@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Document Database Manager Class.
  */
-public class DocumentDatabaseManager {
+public class DocumentDatabaseManager implements IDocumentDatabase {
 
     // Database variable
     private Nitrite databaseConnection;
@@ -26,6 +26,7 @@ public class DocumentDatabaseManager {
      * @param collectionName The name of the collection to create.
      * @return The newly created collection.
      */
+    @Override
     public NitriteCollection createCollection(String collectionName) {
         return databaseConnection.getCollection(collectionName);
     }
@@ -35,6 +36,7 @@ public class DocumentDatabaseManager {
      *
      * @return True if open/ready, false otherwise.
      */
+    @Override
     public boolean documentDatabaseIsReady() {
         return !databaseConnection.isClosed();
     }
@@ -45,6 +47,7 @@ public class DocumentDatabaseManager {
      * @param databasePath The database file to open.
      * @return True if the database was successfully opened, false otherwise.
      */
+    @Override
     public boolean openDocumentDatabase(String databasePath) {
         this.databaseConnection = Nitrite.builder()
                 .compressed()
@@ -60,6 +63,7 @@ public class DocumentDatabaseManager {
      * @param databasePath The database file to create.
      * @return True if the database was successfully opened, false otherwise.
      */
+    @Override
     public boolean createDocumentDatabase(String databasePath) {
         return openDocumentDatabase(databasePath);
     }
@@ -70,6 +74,7 @@ public class DocumentDatabaseManager {
      * @param assignment The assignment the database is for.
      * @return True if the documents were created, false otherwise.
      */
+    @Override
     public boolean createFeedbackDocuments(Assignment assignment) {
         // Store the assignment's feedback documents into the database
         NitriteCollection assignmentCollection = databaseConnection.getCollection(assignment.getDatabaseCollectionName());
@@ -104,6 +109,7 @@ public class DocumentDatabaseManager {
      * @param assignment The assignment to load the feedback documents for.
      * @return A list of feedback documents for the given assignment.
      */
+    @Override
     public List<FeedbackDocument> loadFeedbackDocumentsForAssignment(Assignment assignment) {
         if (documentDatabaseIsReady()) {
             // Get the collection name and check if it exists
@@ -149,6 +155,7 @@ public class DocumentDatabaseManager {
      * @param grade           The grade assigned to the feedback document.
      * @return True id the document was saved, false otherwise.
      */
+    @Override
     public boolean saveFeedbackDocument(Assignment assignment, String studentId, Map<String, String> headingsAndData, double grade) {
         // Check the collection exists
         if (databaseConnection.hasCollection(assignment.getDatabaseCollectionName())) {
@@ -181,6 +188,7 @@ public class DocumentDatabaseManager {
      * @param assignment The assignment the feedback document belongs to.
      * @param studentId  The student ID of the feedback document.
      */
+    @Override
     public void updateFeedbackDocument(Assignment assignment, String studentId) {
         // Check if the collection exists
         if (databaseConnection.hasCollection(assignment.getDatabaseCollectionName())) {

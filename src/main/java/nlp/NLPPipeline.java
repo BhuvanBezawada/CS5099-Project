@@ -11,9 +11,9 @@ import java.util.Properties;
 public class NLPPipline {
 
     // Instance variables
-    private static StanfordCoreNLP stanfordCoreNLP;
     private static final Properties properties;
     private static final String PROPERTY_NAMES = "tokenize, ssplit, parse, pos, lemma, ner, sentiment";
+    private static StanfordCoreNLP stanfordCoreNLP;
 
     // Static initialisation of properties - only occurs once
     static {
@@ -23,6 +23,7 @@ public class NLPPipline {
 
     /**
      * Get the NLP pipeline.
+     *
      * @return The NLP pipeline.
      */
     public static StanfordCoreNLP getPipeline() {

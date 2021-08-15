@@ -2,65 +2,78 @@ package database;
 
 import model.Assignment;
 import model.FeedbackDocument;
-import org.dizitart.no2.Document;
+import org.dizitart.no2.NitriteCollection;
 
-import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Document Database Interface.
- * <p>
- * Allows application to open/close the embedded database and perform CRUD operations.
  */
 public interface IDocumentDatabase {
+    /**
+     * Create a collection in the database.
+     *
+     * @param collectionName The name of the collection to create.
+     * @return The newly created collection.
+     */
+    NitriteCollection createCollection(String collectionName);
 
+    /**
+     * Check if the database connection is open.
+     *
+     * @return True if open/ready, false otherwise.
+     */
     boolean documentDatabaseIsReady();
 
     /**
-     * Open a connection to the embedded document database.
+     * Open the database.
      *
-     * @param databasePath The path of the required database file.
-     * @return True if connection was successful, False otherwise.
+     * @param databasePath The database file to open.
+     * @return True if the database was successfully opened, false otherwise.
      */
     boolean openDocumentDatabase(String databasePath);
 
     /**
-     * Close a connection to the embedded document database.
+     * Create a database.
      *
-     * @return True if connection was closed successfully, False otherwise.
+     * @param databasePath The database file to create.
+     * @return True if the database was successfully opened, false otherwise.
      */
-    boolean closeDocumentDatabaseConnection();
+    boolean createDocumentDatabase(String databasePath);
 
     /**
-     * Create feedback documents for a given assignment.
+     * Create the feedback documents in the database.
      *
-     * @param assignment      - The assignment the feedback documents are for.
-     * @param studentManifest - A file containing the matriculation numbers of students to be marked.
-     * @return True if documents were created successfully, False otherwise.
+     * @param assignment The assignment the database is for.
+     * @return True if the documents were created, false otherwise.
      */
-    boolean createFeedbackDocuments(Assignment assignment, File studentManifest);
+    boolean createFeedbackDocuments(Assignment assignment);
 
     /**
-     * Load all the feedback documents for a given assignment.
+     * Load the feedback documents for a given assignment.
      *
-     * @param assignment - The assignment the feedback document belongs to.
-     * @return A list of the feedback documents belonging to the assignment.
+     * @param assignment The assignment to load the feedback documents for.
+     * @return A list of feedback documents for the given assignment.
      */
-    List<Document> loadFeedbackDocumentsForAssignment(Assignment assignment);
+    List<FeedbackDocument> loadFeedbackDocumentsForAssignment(Assignment assignment);
 
     /**
-     * Save a feedback document to the database.
+     * Save a feedback document.
      *
-     * @param feedbackDocument - The feedback document to be saved.
-     * @return True if the save was successful, false otherwise.
+     * @param assignment      The assignment the feedback document belongs to.
+     * @param studentId       The student ID of the feedback document.
+     * @param headingsAndData The data of the feedback document.
+     * @param grade           The grade assigned to the feedback document.
+     * @return True id the document was saved, false otherwise.
      */
-    boolean saveFeedbackDocument(FeedbackDocument feedbackDocument);
+    boolean saveFeedbackDocument(Assignment assignment, String studentId, Map<String, String> headingsAndData, double grade);
 
     /**
-     * Update a feedback document on the database.
+     * Update a feedback document.
      *
-     * @param feedbackDocument - The feedback document to be updated.
-     * @return True if the update was successful, false otherwise.
+     * @param assignment The assignment the feedback document belongs to.
+     * @param studentId  The student ID of the feedback document.
      */
-    boolean updateFeedbackDocument(FeedbackDocument feedbackDocument);
+    void updateFeedbackDocument(Assignment assignment, String studentId);
 }

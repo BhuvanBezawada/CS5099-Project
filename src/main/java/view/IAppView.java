@@ -1,4 +1,2 @@
-package view;
-
-public interface IAppView {
+package view;public interface IAppView {
 }

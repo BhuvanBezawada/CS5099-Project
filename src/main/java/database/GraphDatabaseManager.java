@@ -1,17 +1,30 @@
 package database;
 
-import model.Pair;
-import model.Utilities;
 import model.LinkedPhrases;
+import model.Pair;
 import model.Phrase;
-import org.neo4j.graphdb.*;
+import model.Utilities;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Result;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.TransactionFailureException;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-public class GraphDatabaseManager {
+/**
+ * Graph Database Manager Class.
+ */
+public class GraphDatabaseManager implements IGraphDatabase {
 
     // Graph database variable
     private GraphDatabaseService graphDb;
@@ -22,6 +35,7 @@ public class GraphDatabaseManager {
      * @param databasePath The database file to open.
      * @return True if the database was successfully opened, false otherwise.
      */
+    @Override
     public boolean openGraphDatabase(String databasePath) {
         graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(new File(databasePath));
         return graphDb != null;
@@ -33,256 +47,60 @@ public class GraphDatabaseManager {
      * @param databasePath The database file to create.
      * @return True if the database was successfully opened, false otherwise.
      */
+    @Override
     public boolean createGraphDatabase(String databasePath) {
         return openGraphDatabase(databasePath);
     }
 
-
     /**
      * Setup the graph database for an assignment.
+     *
      * @param headings A list of headings to be used in the assignment feedback documents.
      */
-    public void setUpGraphDbForAssignment(List<String> headings) {
+    @Override
+    public void setUpGraphDatabaseForAssignment(List<String> headings) {
+        // Run the transaction
         try (Transaction tx = graphDb.beginTx()) {
-
             // Setup nodes for the headings
             for (int i = 0; i < headings.size(); i++) {
+                // Current heading
                 String currentHeading = headings.get(i);
-
                 String nextHeading;
+
+                // Figure out next heading
                 if (i + 1 >= headings.size()) {
                     nextHeading = "null";
                 } else {
                     nextHeading = headings.get(i + 1);
                 }
 
+                // Create heading nodes with properties
                 Node node = graphDb.createNode();
                 node.addLabel(Label.label("Heading"));
                 node.setProperty("heading", currentHeading);
                 node.setProperty("followed_by", nextHeading);
-
-                // TODO does this match the report?
             }
 
             // Setup a node for the custom phrases
             createCustomPhrasesNode();
 
+            // Commit
             tx.success();
         } catch (TransactionFailureException e) {
             e.printStackTrace();
         }
     }
 
+
+    /* PHRASE MANAGEMENT OPERATIONS */
+
     /**
-     * Manage the links between phrases in the graph databases.
-     * @param heading The heading the phrases are for.
-     * @param oldList The old set of phrases.
-     * @param newList The new set of phrases.
+     * Add a new node.
+     *
+     * @param phrase The phrase to add.
      */
-    public void managePhraseLinks(String heading, List<String> oldList, List<String> newList) {
-        
-        List<Pair<String>> oldPairs = Utilities.getPairs(oldList);
-        List<Pair<String>> newPairs = Utilities.getPairs(newList);
-
-        List<Pair<String>> pairsToRemove = Utilities.getPairsToRemove(oldPairs, newPairs);
-        List<Pair<String>> pairsToAdd = Utilities.getPairsToAdd(oldPairs, newPairs);
-
-        System.out.println("Pairs to remove/update: " + pairsToRemove);
-        System.out.println("Pairs to add: " + pairsToAdd);
-
-        pairsToRemove.forEach(pair -> {
-            if (linkExists(heading, pair.getFirst(), pair.getSecond())) {
-                updateLinkUsageCount(heading, pair.getFirst(), pair.getSecond(), -1);
-            } // else the node has been deleted, so no need to do anything
-        });
-
-        pairsToAdd.forEach(pair -> {
-            if (linkExists(heading, pair.getFirst(), pair.getSecond())) {
-                updateLinkUsageCount(heading, pair.getFirst(), pair.getSecond(), 1);
-            } else {
-                createFollowedByLink(heading, pair.getFirst(), pair.getSecond());
-            }
-        });
-    }
-
-    private void updateLinkUsageCount(String heading, String first, String second, int update) {
-        Map<String, Object> params = new HashMap<>();
-        params.put( "heading", heading);
-        params.put( "phrase1", first);
-        params.put( "phrase2", second);
-        params.put( "update", update);
-
-        String query =
-                "MATCH (h:Heading {heading: $heading}) " +
-                "MATCH (p1:Phrase {phrase: $phrase1}) -[rel:FOLLOWED_BY]-> (p2:Phrase {phrase: $phrase2}) " +
-                "SET rel.usage = rel.usage + $update";
-
-        try (Transaction tx = graphDb.beginTx()){
-            graphDb.execute(query, params);
-
-            tx.success();
-
-            System.out.println("Linked phrases with followed_by relationship");
-        }
-    }
-
-    private boolean linkExists(String heading, String first, String second) {
-        Map<String, Object> params = new HashMap<>();
-        params.put( "heading", heading);
-        params.put( "phrase1", first);
-        params.put( "phrase2", second);
-
-        String query =
-                "MATCH (h:Heading {heading: $heading}) " +
-                "MATCH (p1:Phrase {phrase: $phrase1}) -[rel:FOLLOWED_BY]-> (p2:Phrase {phrase: $phrase2})" +
-                "RETURN p1.phrase, p2.phrase";
-
-        boolean retVal = false;
-
+    private void addNewPhrase(Phrase phrase) {
         try (Transaction tx = graphDb.beginTx()) {
-            Result results = graphDb.execute(query, params);
-
-            retVal = results.hasNext();
-
-            System.out.println("LINK EXISTENCE CHECK : \n" + results.resultAsString());
-        }
-
-        return retVal;
-    }
-
-    private void createFollowedByLink(String heading, String first, String second) {
-        Map<String, Object> params = new HashMap<>();
-        params.put( "heading", heading);
-        params.put( "phrase1", first);
-        params.put( "phrase2", second);
-
-        String query =
-                "MATCH (h:Heading {heading: $heading}) " +
-                "MATCH (p1:Phrase {phrase: $phrase1}) " +
-                "MATCH (p2:Phrase {phrase: $phrase2}) " +
-                "CREATE (p1)-[rel:FOLLOWED_BY]->(p2)" +
-                "SET rel.usage = 1";
-
-        try (Transaction tx = graphDb.beginTx()){
-            graphDb.execute(query, params);
-
-            tx.success();
-
-            System.out.println("Linked phrases with followed_by relationship");
-        }
-    }
-
-    public List<LinkedPhrases> getLinkedPhrases(String heading) {
-        Map<String, Object> params = new HashMap<>();
-        params.put( "heading", heading);
-
-        String query = "MATCH (h:Heading {heading: $heading})" +
-                "MATCH (p1:Phrase) -[rel:FOLLOWED_BY]-> (p2:Phrase)" +
-                "RETURN h, p1, p2, rel";
-
-        List<LinkedPhrases> linkedPhrasesList = new ArrayList<LinkedPhrases>();
-
-        try (Transaction tx = graphDb.beginTx()) {
-            Result results = graphDb.execute(query, params);
-
-//            System.out.println("LINKED PHRASES RESULTS : \n" + results.resultAsString());
-
-            results.stream().forEach(result -> {
-                System.out.println("result" + result);
-                Node p1 = (Node) result.get("p1");
-                Node p2 = (Node) result.get("p2");
-                Relationship rel = (Relationship) result.get("rel");
-
-                Phrase phrase1 = new Phrase(p1.getProperty("phrase").toString());
-                phrase1.setUsageCount(Integer.parseInt(p1.getProperty("usageCount").toString()));
-
-                Phrase phrase2 = new Phrase(p2.getProperty("phrase").toString());
-                phrase2.setUsageCount(Integer.parseInt(p2.getProperty("usageCount").toString()));
-
-                int usage = Integer.parseInt(rel.getProperty("usage").toString());
-
-                LinkedPhrases linkedPhrases = new LinkedPhrases(phrase1, phrase2, usage);
-
-                linkedPhrasesList.add(linkedPhrases);
-            });
-        }
-
-        return linkedPhrasesList;
-    }
-
-
-    private void createCustomPhrasesNode() {
-        Node node = graphDb.createNode();
-        node.addLabel(Label.label("Custom"));
-        node.setProperty("nodeName", "customPhrases");
-    }
-
-    public void addPhraseToCustomNode(Phrase phrase) {
-        // Put custom phrase into the db
-        addNewNode(phrase);
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("nodeName", "customPhrases");
-        params.put("phrase", phrase.getPhraseAsString());
-        params.put("usageCount", phrase.getUsageCount());
-
-        String query = "MATCH (n:Custom {nodeName: $nodeName}) " +
-                "MATCH (p:Phrase {phrase: $phrase, usageCount: $usageCount}) " +
-                "CREATE (n)-[rel:CONTAINS]->(p)";
-
-        try (Transaction tx = graphDb.beginTx()){
-            graphDb.execute(query, params);
-
-            tx.success();
-
-            System.out.println("Linked phrase to custom phrases node.");
-        }
-    }
-
-    // Get custom phrases
-    public List<Phrase> getCustomPhrases() {
-
-        Map<String, Object> params = new HashMap<>();
-        params.put( "nodeName", "customPhrases");
-
-        String query = "MATCH (n:Custom {nodeName: $nodeName})" +
-                "-[rel:CONTAINS]->(p:Phrase)" +
-                "RETURN n, p";
-
-        try (Transaction tx = graphDb.beginTx()) {
-            Result results = graphDb.execute(query, params);
-
-            List<Phrase> customPhrasesList = new ArrayList<>();
-            //System.out.println("CUSTOM PHRASES RESULTS :" + results.resultAsString());
-
-            results.stream().forEach(result -> {
-                System.out.println("result" + result);
-                Node node = (Node) result.get("p");
-                Phrase phrase = new Phrase(node.getProperty("phrase").toString());
-                phrase.setUsageCount(Integer.parseInt(node.getProperty("usageCount").toString()));
-                customPhrasesList.add(phrase);
-            });
-
-            // Sort phrases into ascending order
-            Collections.sort(customPhrasesList);
-
-            System.out.println("custom phrases list: " + customPhrasesList);
-
-            return customPhrasesList;
-        }
-    }
-
-
-
-
-
-
-
-
-
-    private void addNewNode(Phrase phrase) {
-        try (Transaction tx = graphDb.beginTx()) {
-
             Node phraseNode = graphDb.createNode();
             phraseNode.addLabel(Label.label("Phrase"));
             phraseNode.setProperty("phrase", phrase.getPhraseAsString());
@@ -291,23 +109,75 @@ public class GraphDatabaseManager {
         }
     }
 
+    /**
+     * Update phrase.
+     *
+     * @param heading The heading the phrase belongs to.
+     * @param phrase  The phrase to update.
+     */
+    @Override
+    public void updatePhrase(String heading, Phrase phrase) {
+        // Store parameters
+        Map<String, Object> params = new HashMap<>();
+        params.put("heading", heading);
+        params.put("phrase", phrase.getPhraseAsString());
+        params.put("usageCount", phrase.getUsageCount());
 
+        // Create query
+        String query =
+                "MATCH (h:Heading {heading: $heading}) " +
+                        "MATCH (p:Phrase {phrase: $phrase}) " +
+                        "SET p.usageCount = $usageCount";
+
+        // Execute the query
+        try (Transaction tx = graphDb.beginTx()) {
+            graphDb.execute(query, params);
+            tx.success();
+        }
+    }
+
+    /**
+     * Remove a phrase.
+     *
+     * @param heading The heading the phrase belongs to.
+     * @param phrase  The phrase to remove.
+     */
+    @Override
+    public void removePhrase(String heading, String phrase) {
+        // Store parameters
+        Map<String, Object> params = new HashMap<>();
+        params.put("heading", heading);
+        params.put("phrase", phrase);
+
+        // Create query
+        String query =
+                "MATCH (h:Heading {heading: $heading}) " +
+                        "MATCH (p:Phrase {phrase: $phrase})" +
+                        "DETACH DELETE p";
+
+        // Execute the query
+        try (Transaction tx = graphDb.beginTx()) {
+            graphDb.execute(query, params);
+            tx.success();
+        }
+    }
+
+    /**
+     * Update the phrases for a given heading.
+     *
+     * @param heading    The heading to update.
+     * @param oldPhrases The list of old phrases.
+     * @param newPhrases The list of new phrases.
+     */
+    @Override
     public void updatePhrasesForHeading(String heading, List<String> oldPhrases, List<String> newPhrases) {
         // Get the current phrases for the heading
-        // Find which phrases have been removed and added
-            // If the usage count of the phrase was 1 and it has been removed, delete it from the database
-            // Otherwise another document is using the phrase so leave it in
-        // Make those changes to the database
-
-
         List<Phrase> phrasesForHeading = getPhrasesForHeading(heading);
-        phrasesForHeading.addAll(getCustomPhrases()); // add custom phrases, so we can search if they are being used?
+        phrasesForHeading.addAll(getCustomPhrases()); // add custom phrases, so we can search if they are being used
 
+        // Find which phrases have been removed and added
         List<String> removedPhrases = Utilities.getRemovalsFromList(oldPhrases, newPhrases);
         List<String> addedPhrases = Utilities.getAdditionsToList(oldPhrases, newPhrases);
-
-        System.out.println("[DEBUG] phrases to remove: " + removedPhrases);
-        System.out.println("[DEBUG] phrases to be added: " + addedPhrases);
 
         // Filter out phrases we have identified as those to remove
         List<Phrase> filteredForRemoval = phrasesForHeading
@@ -317,13 +187,11 @@ public class GraphDatabaseManager {
 
         // Check the usage count of the phrases to remove
         filteredForRemoval.forEach(phraseToRemove -> {
-            System.out.println("This needs to be removed: " + phraseToRemove);
-            System.out.println("num usages: " + phraseToRemove.getUsageCount());
             if (phraseToRemove.getUsageCount() == 1) {
-                System.out.println("removing for good");
+                // Remove for good
                 removePhrase(heading, phraseToRemove.getPhraseAsString());
             } else {
-                System.out.println("decrementing usage");
+                // Decrement usage count
                 phraseToRemove.decrementUsageCount();
                 updatePhrase(heading, phraseToRemove);
             }
@@ -349,94 +217,66 @@ public class GraphDatabaseManager {
             Phrase phrase = new Phrase(phraseToAdd);
             phrase.incrementUsageCount();
             addPhraseForHeading(heading, phrase);
-            System.out.println("[DEBUG] added new phrase: p: " + phrase + " c:" + phrase.getUsageCount());
         });
-
-        System.out.println("[DEBUG] updated phrases for heading: " + heading);
     }
 
-
-    public void updatePhrase(String heading, Phrase phrase) {
-
-        Map<String, Object> params = new HashMap<>();
-        params.put( "heading", heading);
-        params.put("phrase", phrase.getPhraseAsString());
-        params.put("usageCount", phrase.getUsageCount());
-
-        String query = "MATCH (h:Heading {heading: $heading}) " +
-                "MATCH (p:Phrase {phrase: $phrase}) " +
-                "SET p.usageCount = $usageCount";
-
-
-        try (Transaction tx = graphDb.beginTx()){
-            graphDb.execute(query, params);
-
-            tx.success();
-
-            System.out.println("[DEBUG] updated phrase usage count: " + phrase + " - count = " + phrase.getUsageCount());
-        }
-    }
-
-
-    public void removePhrase(String heading, String phrase) {
-        Map<String, Object> params = new HashMap<>();
-        params.put( "heading", heading);
-        params.put("phrase", phrase);
-
-        String query = "MATCH (h:Heading {heading: $heading}) " +
-                "MATCH (p:Phrase {phrase: $phrase})" +
-                "DETACH DELETE p";
-
-        try (Transaction tx = graphDb.beginTx()){
-            graphDb.execute(query, params);
-
-            tx.success();
-
-            System.out.println("[DEBUG] deleted phrase: '" + phrase + "' from heading: " + heading);
-        }
-    }
-
+    /**
+     * Add a phrase for a given heading.
+     *
+     * @param heading The heading the phrase belongs to.
+     * @param phrase  The phrase to add.
+     */
+    @Override
     public void addPhraseForHeading(final String heading, Phrase phrase) {
-        addNewNode(phrase);
+        // Create a phrase node
+        addNewPhrase(phrase);
 
+        // Store parameters
         Map<String, Object> params = new HashMap<>();
-        params.put( "heading", heading);
+        params.put("heading", heading);
         params.put("phrase", phrase.getPhraseAsString());
         params.put("usageCount", phrase.getUsageCount());
 
-        String query = "MATCH (h:Heading {heading: $heading}) " +
-                "MATCH (p:Phrase {phrase: $phrase, usageCount: $usageCount}) " +
-                "CREATE (h)-[rel:CONTAINS]->(p)";
+        // Create query
+        String query =
+                "MATCH (h:Heading {heading: $heading}) " +
+                        "MATCH (p:Phrase {phrase: $phrase, usageCount: $usageCount}) " +
+                        "CREATE (h)-[rel:CONTAINS]->(p)";
 
-        try (Transaction tx = graphDb.beginTx()){
+        // Execute the query
+        try (Transaction tx = graphDb.beginTx()) {
             graphDb.execute(query, params);
-
             tx.success();
-
-            System.out.println("Linked phrase to heading.");
         }
     }
 
+    /**
+     * Get the phrases for a given heading.
+     *
+     * @param heading The heading the phrases are for.
+     * @return A list of phrases for the given heading.
+     */
+    @Override
     public List<Phrase> getPhrasesForHeading(String heading) {
-
+        // Store parameters
         Map<String, Object> params = new HashMap<>();
-        params.put( "heading", heading);
+        params.put("heading", heading);
 
-        String query = "MATCH (h:Heading {heading: $heading}) " +
-                "-[rel:CONTAINS]->(p:Phrase)" +
-                "RETURN h, p";
+        // Create query
+        String query =
+                "MATCH (h:Heading {heading: $heading}) -[rel:CONTAINS]-> (p:Phrase)" +
+                        "RETURN h, p";
 
+        // List of phrases to populate
+        List<Phrase> phrasesForHeading = new ArrayList<>();
+
+        // Execute the query
         try (Transaction tx = graphDb.beginTx()) {
+            // Get the results
             Result results = graphDb.execute(query, params);
 
-            //System.out.println("[DEBUG] results found for heading: " + heading + " = " + results.resultAsString());
-
-            List<Phrase> phrasesForHeading = new ArrayList<>();
-
-            //System.out.println("In get phrases for heading RESULTS :"  + results.resultAsString());
-
+            // Pull out nodes
             results.stream().forEach(result -> {
-                System.out.println("result" + result);
                 Node node = (Node) result.get("p");
                 Phrase phrase = new Phrase(node.getProperty("phrase").toString());
                 phrase.setUsageCount(Integer.parseInt(node.getProperty("usageCount").toString()));
@@ -445,10 +285,267 @@ public class GraphDatabaseManager {
 
             // Sort phrases into ascending order
             Collections.sort(phrasesForHeading);
-
-            System.out.println("phrases for heading: '" + heading + "' list: " + phrasesForHeading);
-
             return phrasesForHeading;
         }
     }
+
+
+    /* CUSTOM PHRASE METHODS */
+
+    /**
+     * Create the custom phrases node.
+     */
+    private void createCustomPhrasesNode() {
+        Node node = graphDb.createNode();
+        node.addLabel(Label.label("Custom"));
+        node.setProperty("nodeName", "customPhrases");
+    }
+
+    /**
+     * Add a phrase to the custom node.
+     *
+     * @param phrase The phrase to add.
+     */
+    @Override
+    public void addPhraseToCustomNode(Phrase phrase) {
+        // Put custom phrase into the db
+        addNewPhrase(phrase);
+
+        // Store parameters
+        Map<String, Object> params = new HashMap<>();
+        params.put("nodeName", "customPhrases");
+        params.put("phrase", phrase.getPhraseAsString());
+        params.put("usageCount", phrase.getUsageCount());
+
+        // Create query
+        String query =
+                "MATCH (n:Custom {nodeName: $nodeName}) " +
+                        "MATCH (p:Phrase {phrase: $phrase, usageCount: $usageCount}) " +
+                        "CREATE (n)-[rel:CONTAINS]->(p)";
+
+        // Execute the query
+        try (Transaction tx = graphDb.beginTx()) {
+            graphDb.execute(query, params);
+            tx.success();
+        }
+    }
+
+    /**
+     * Get a list of the custom phrases.
+     *
+     * @return The list of custom phrases.
+     */
+    @Override
+    public List<Phrase> getCustomPhrases() {
+        // Store parameters
+        Map<String, Object> params = new HashMap<>();
+        params.put("nodeName", "customPhrases");
+
+        // Create query
+        String query =
+                "MATCH (n:Custom {nodeName: $nodeName}) -[rel:CONTAINS]-> (p:Phrase)" +
+                        "RETURN n, p";
+
+        // List of phrases to populate
+        List<Phrase> customPhrasesList = new ArrayList<>();
+
+        // Execute the query
+        try (Transaction tx = graphDb.beginTx()) {
+            // Get the results
+            Result results = graphDb.execute(query, params);
+
+            // Pull out objects from the results
+            results.stream().forEach(result -> {
+                Node node = (Node) result.get("p");
+                Phrase phrase = new Phrase(node.getProperty("phrase").toString());
+                phrase.setUsageCount(Integer.parseInt(node.getProperty("usageCount").toString()));
+                customPhrasesList.add(phrase);
+            });
+
+            // Sort phrases into ascending order
+            Collections.sort(customPhrasesList);
+        }
+
+        return customPhrasesList;
+    }
+
+
+    /* LINKED PHRASE METHODS */
+
+    /**
+     * Update the link usage count.
+     *
+     * @param heading The heading the phrases belong to.
+     * @param first   The first phrase in the pair.
+     * @param second  The second phrase in the pair.
+     * @param update  The update value.
+     */
+    private void updateLinkUsageCount(String heading, String first, String second, int update) {
+        // Store parameters
+        Map<String, Object> params = new HashMap<>();
+        params.put("heading", heading);
+        params.put("phrase1", first);
+        params.put("phrase2", second);
+        params.put("update", update);
+
+        // Create query
+        String query =
+                "MATCH (h:Heading {heading: $heading}) " +
+                        "MATCH (p1:Phrase {phrase: $phrase1}) -[rel:FOLLOWED_BY]-> (p2:Phrase {phrase: $phrase2}) " +
+                        "SET rel.usage = rel.usage + $update";
+
+        // Execute query
+        try (Transaction tx = graphDb.beginTx()) {
+            graphDb.execute(query, params);
+            tx.success();
+        }
+    }
+
+    /**
+     * Check if a link exists between two phrases.
+     *
+     * @param heading The heading the phrases are for.
+     * @param first   The first phrase in the pair.
+     * @param second  The second phrase in the pair.
+     * @return True if the link exists, false otherwise.
+     */
+    private boolean linkExists(String heading, String first, String second) {
+        // Store parameters
+        Map<String, Object> params = new HashMap<>();
+        params.put("heading", heading);
+        params.put("phrase1", first);
+        params.put("phrase2", second);
+
+        // Create query
+        String query =
+                "MATCH (h:Heading {heading: $heading}) " +
+                        "MATCH (p1:Phrase {phrase: $phrase1}) -[rel:FOLLOWED_BY]-> (p2:Phrase {phrase: $phrase2})" +
+                        "RETURN p1.phrase, p2.phrase";
+
+        // Execute the query
+        boolean retVal = false;
+        try (Transaction tx = graphDb.beginTx()) {
+            Result results = graphDb.execute(query, params);
+            retVal = results.hasNext();
+        }
+
+        return retVal;
+    }
+
+    /**
+     * Create a link between two phrases.
+     *
+     * @param heading The heading the phrases are for.
+     * @param first   The first phrase of the pair.
+     * @param second  The second phrase of the pair.
+     */
+    private void createFollowedByLink(String heading, String first, String second) {
+        // Store parameters
+        Map<String, Object> params = new HashMap<>();
+        params.put("heading", heading);
+        params.put("phrase1", first);
+        params.put("phrase2", second);
+
+        // Create query
+        String query =
+                "MATCH (h:Heading {heading: $heading}) " +
+                        "MATCH (p1:Phrase {phrase: $phrase1}) " +
+                        "MATCH (p2:Phrase {phrase: $phrase2}) " +
+                        "CREATE (p1)-[rel:FOLLOWED_BY]->(p2)" +
+                        "SET rel.usage = 1";
+
+        // Execute the query
+        try (Transaction tx = graphDb.beginTx()) {
+            graphDb.execute(query, params);
+            tx.success();
+        }
+    }
+
+    /**
+     * Manage the links between phrases in the graph databases.
+     *
+     * @param heading The heading the phrases are for.
+     * @param oldList The old set of phrases.
+     * @param newList The new set of phrases.
+     */
+    @Override
+    public void managePhraseLinks(String heading, List<String> oldList, List<String> newList) {
+        // Get pairs for old and new lists
+        List<Pair<String>> oldPairs = Utilities.getPairs(oldList);
+        List<Pair<String>> newPairs = Utilities.getPairs(newList);
+
+        // Get lists of pairs to remove and add
+        List<Pair<String>> pairsToRemove = Utilities.getPairsToRemove(oldPairs, newPairs);
+        List<Pair<String>> pairsToAdd = Utilities.getPairsToAdd(oldPairs, newPairs);
+
+        // Remove pairs
+        pairsToRemove.forEach(pair -> {
+            if (linkExists(heading, pair.getFirst(), pair.getSecond())) {
+                updateLinkUsageCount(heading, pair.getFirst(), pair.getSecond(), -1);
+            } // else the node has been deleted, so no need to do anything
+        });
+
+        // Add pairs
+        pairsToAdd.forEach(pair -> {
+            if (linkExists(heading, pair.getFirst(), pair.getSecond())) {
+                updateLinkUsageCount(heading, pair.getFirst(), pair.getSecond(), 1);
+            } else {
+                createFollowedByLink(heading, pair.getFirst(), pair.getSecond());
+            }
+        });
+    }
+
+    /**
+     * Get a list of linked phrases.
+     *
+     * @param heading The heading the linked phrases are for.
+     * @return A list of linked phrases for the given heading.
+     */
+    @Override
+    public List<LinkedPhrases> getLinkedPhrases(String heading) {
+        // Store parameters
+        Map<String, Object> params = new HashMap<>();
+        params.put("heading", heading);
+
+        // Create query
+        String query =
+                "MATCH (h:Heading {heading: $heading}) " +
+                        "MATCH (p1:Phrase) -[rel:FOLLOWED_BY]-> (p2:Phrase) " +
+                        "RETURN h, p1, p2, rel";
+
+        // List of linked phrases to populate
+        List<LinkedPhrases> linkedPhrasesList = new ArrayList<LinkedPhrases>();
+
+        // Execute the query
+        try (Transaction tx = graphDb.beginTx()) {
+            // Get the results
+            Result results = graphDb.execute(query, params);
+
+            // Pull out objects from the results
+            results.stream().forEach(result -> {
+                // Pull out nodes and relationship
+                Node p1 = (Node) result.get("p1");
+                Node p2 = (Node) result.get("p2");
+                Relationship rel = (Relationship) result.get("rel");
+
+                // Construct phrase 1
+                Phrase phrase1 = new Phrase(p1.getProperty("phrase").toString());
+                phrase1.setUsageCount(Integer.parseInt(p1.getProperty("usageCount").toString()));
+
+                // Construct phrase 2
+                Phrase phrase2 = new Phrase(p2.getProperty("phrase").toString());
+                phrase2.setUsageCount(Integer.parseInt(p2.getProperty("usageCount").toString()));
+
+                // Get the usage count
+                int usage = Integer.parseInt(rel.getProperty("usage").toString());
+
+                // Create the linked phrases object and store it
+                LinkedPhrases linkedPhrases = new LinkedPhrases(phrase1, phrase2, usage);
+                linkedPhrasesList.add(linkedPhrases);
+            });
+        }
+
+        return linkedPhrasesList;
+    }
+
 }
