@@ -137,15 +137,14 @@ public class SetupOptionsScreen {
         this.setupOptionsScreenPanel.setBorder(BorderCreator.createEmptyBorderLeavingBottom(50));
 
         // Add all the components
-        Component spacer = Box.createRigidArea(new Dimension(100, 20));
         this.setupOptionsScreenPanel.add(this.titleLabel);
-        this.setupOptionsScreenPanel.add(spacer);
+        this.setupOptionsScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
         this.setupOptionsScreenPanel.add(this.instructions);
-        this.setupOptionsScreenPanel.add(spacer);
+        this.setupOptionsScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
         this.setupOptionsScreenPanel.add(this.useConfigFileButton);
-        this.setupOptionsScreenPanel.add(spacer);
+        this.setupOptionsScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
         this.setupOptionsScreenPanel.add(this.useManualSetupButton);
-        this.setupOptionsScreenPanel.add(spacer);
+        this.setupOptionsScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
         this.setupOptionsScreenPanel.add(this.backButton);
     }
 

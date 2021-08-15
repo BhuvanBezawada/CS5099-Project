@@ -64,15 +64,14 @@ public class HomeScreen {
      */
     public void displayHomeScreen() {
         // Add components
-        Component spacer = Box.createRigidArea(new Dimension(100, 20));
         this.homeScreenPanel.add(this.titleLabel);
-        this.homeScreenPanel.add(spacer);
+        this.homeScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
         this.homeScreenPanel.add(this.descriptionLabel);
-        this.homeScreenPanel.add(spacer);
+        this.homeScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
         this.homeScreenPanel.add(this.startNewButton);
-        this.homeScreenPanel.add(spacer);
+        this.homeScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
         this.homeScreenPanel.add(this.loadButton);
-        this.homeScreenPanel.add(spacer);
+        this.homeScreenPanel.add(Box.createRigidArea(new Dimension(100, 20)));
 
         // Centre the screen
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
