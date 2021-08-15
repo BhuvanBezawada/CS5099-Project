@@ -265,14 +265,17 @@ public class AppController {
      * @return The sentiment of the phrase.
      */
     public String getPhraseSentiment(String phrase) {
+        // Get the annotated version of the phrase
         CoreDocument coreDocument = new CoreDocument(phrase);
         nlp.annotate(coreDocument);
 
+        // Check if multiple sentences need to be evaluated
         List<CoreSentence> sentenceList = coreDocument.sentences();
-        sentenceList.forEach(e -> System.out.println(e + " - " + e.sentiment()));
+        if (sentenceList.size() > 1) {
+            return Sentiment.getOverallSentimentOfSentences(sentenceList).sentimentAsString;
+        }
 
-        // TODO: Change the algorithm.
-
+        // Single sentence, so return the first value
         return sentenceList.get(0).sentiment();
     }
 
