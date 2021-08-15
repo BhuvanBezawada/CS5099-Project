@@ -233,13 +233,17 @@ public class FeedbackScreen implements PropertyChangeListener {
         // Export documents option
         exportDocsOption.addActionListener(l -> {
             controller.exportFeedbackDocuments(assignment);
-            JOptionPane.showMessageDialog(feedbackScreen, "Exporting assignment...");
+            JOptionPane.showMessageDialog(feedbackScreen,
+                    "Exporting feedback documents... \n" +
+                            "Please check the directory: " + assignment.getAssignmentDirectoryPath());
         });
 
         // Export grades option
         exportGradesOption.addActionListener(l -> {
             controller.exportGrades(assignment);
-            JOptionPane.showMessageDialog(feedbackScreen, "Exporting assignment grades...");
+            JOptionPane.showMessageDialog(feedbackScreen,
+                    "Exporting assignment grades... \n" +
+                            "Please check the directory: " + assignment.getAssignmentDirectoryPath());
         });
 
         // Visualise grades option

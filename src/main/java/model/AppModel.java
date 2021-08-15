@@ -10,6 +10,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class AppModel implements IAppModel {
 
@@ -233,13 +234,19 @@ public class AppModel implements IAppModel {
 
                     // Data
                     writer.newLine();
-                    writer.write(feedbackDocument.getHeadingData(heading));
+                    String headingData = feedbackDocument.getHeadingData(heading);
+                    List<String> dataAsList = Arrays.stream(headingData.split("\n")).collect(Collectors.toList());
+                    for (String line: dataAsList) {
+                        if (!line.trim().equals(getLineMarker().trim())) {
+                            writer.write(line);
+                            writer.newLine();
+                        }
+                    }
 
                     // End section spacing
                     for (int i = 0; i < assignment.getLineSpacing(); i++) {
                         writer.newLine();
                     }
-                    writer.newLine();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
