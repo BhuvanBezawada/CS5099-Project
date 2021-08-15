@@ -304,6 +304,15 @@ public class AppModel implements IAppModel {
     }
 
     /**
+     * Add new linked phrase.
+     *
+     * @param linkedPhrases The linked phrases to add.
+     */
+    public void addNewLinkedPhrasesToView(LinkedPhrases linkedPhrases) {
+        notifySubscribers("newLinkedPhrases", linkedPhrases);
+    }
+
+    /**
      * Update the counter on a phrase.
      *
      * @param phrase The phrase to update.
@@ -324,8 +333,8 @@ public class AppModel implements IAppModel {
     /**
      * Reset the phrases panel.
      */
-    public void resetPhrasesPanel() {
-        notifySubscribers("resetPhrasesPanel", "");
+    public void resetPhrasesPanel(PhraseType phraseType) {
+        notifySubscribers("resetPhrasesPanel", phraseType);
     }
 
     /**

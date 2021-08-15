@@ -114,7 +114,7 @@ public class FeedbackBox extends JPanel {
 
                 // If heading being edited has changed, show all the phrases for that heading
                 if (controller.headingChanged()) {
-                    controller.resetPhrasesPanel();
+                    controller.resetPhrasesPanel(PhraseType.FREQUENTLY_USED);
                     controller.showPhrasesForHeading(heading);
                 }
 

@@ -197,7 +197,7 @@ public class GraphDatabaseManager {
                 phrase1.setUsageCount(Integer.parseInt(p1.getProperty("usageCount").toString()));
 
                 Phrase phrase2 = new Phrase(p2.getProperty("phrase").toString());
-                phrase1.setUsageCount(Integer.parseInt(p2.getProperty("usageCount").toString()));
+                phrase2.setUsageCount(Integer.parseInt(p2.getProperty("usageCount").toString()));
 
                 int usage = Integer.parseInt(rel.getProperty("usage").toString());
 

@@ -35,6 +35,8 @@ public class FeedbackScreen implements PropertyChangeListener {
     private Assignment assignment;
     private AppController controller;
 
+    private static final int INSIGHT_LEVEL = 3;
+
     /**
      * Constructor.
      *
@@ -300,10 +302,13 @@ public class FeedbackScreen implements PropertyChangeListener {
                 performUpdatePhrase(event);
                 break;
             case "resetPhrasesPanel":
-                performResetPanel();
+                performResetPanel(event);
                 break;
             case "newCustomPhrase":
                 performAddNewPhrase(event, PhraseType.CUSTOM);
+                break;
+            case "newLinkedPhrases":
+                performAddNewLinkedPhrase(event);
                 break;
             case "phrasePanelChange":
                 performPhrasePanelChange(event);
@@ -345,10 +350,8 @@ public class FeedbackScreen implements PropertyChangeListener {
             }
 
             if (panelInView == PhraseType.INSIGHTS) {
-                List<LinkedPhrases> linkedPhrasesForHeading = controller.getLinkedPhrasesForHeading(controller.getCurrentHeadingBeingEdited());
-                linkedPhrasesForHeading.forEach(linkedPhrases -> {
-                    phrasesSection.addInsightToInsightPanel(linkedPhrases);
-                });
+                controller.resetPhrasesPanel(PhraseType.INSIGHTS);
+                controller.showInsights();
             }
         }
     }
@@ -356,9 +359,10 @@ public class FeedbackScreen implements PropertyChangeListener {
     /**
      * Reset the panels. // TODO need to know which panel to reset.
      */
-    private void performResetPanel() {
+    private void performResetPanel(PropertyChangeEvent event) {
         System.out.println("removing all phrases from panel");
-        phrasesSection.resetPhrasesPanel(PhraseType.FREQUENTLY_USED);
+        PhraseType phrasePanel = (PhraseType) event.getNewValue();
+        phrasesSection.resetPhrasesPanel(phrasePanel);
     }
 
     /**
@@ -369,6 +373,8 @@ public class FeedbackScreen implements PropertyChangeListener {
     private void performUpdatePhrase(PropertyChangeEvent event) {
         Phrase phraseToUpdate = (Phrase) event.getNewValue();
         phrasesSection.updatePhraseCounter(PhraseType.FREQUENTLY_USED, phraseToUpdate.getPhraseAsString(), phraseToUpdate.getUsageCount());
+        phrasesSection.updatePhraseCounter(PhraseType.CUSTOM, phraseToUpdate.getPhraseAsString(), phraseToUpdate.getUsageCount());
+        phrasesSection.updatePhraseCounter(PhraseType.INSIGHTS, phraseToUpdate.getPhraseAsString(), phraseToUpdate.getUsageCount());
     }
 
     /**
@@ -390,6 +396,18 @@ public class FeedbackScreen implements PropertyChangeListener {
     private void performAddNewPhrase(PropertyChangeEvent event, PhraseType phraseType) {
         Phrase newPhrase = (Phrase) event.getNewValue();
         phrasesSection.addPhraseToPanel(newPhrase.getPhraseAsString(), newPhrase.getUsageCount(), phraseType);
+    }
+
+    /**
+     * Add a phrase to the given panel.
+     *
+     * @param event      The event notification from the model.
+     */
+    private void performAddNewLinkedPhrase(PropertyChangeEvent event) {
+        LinkedPhrases newLinkedPhrases = (LinkedPhrases) event.getNewValue();
+        if (newLinkedPhrases.getCount() >= INSIGHT_LEVEL) {
+            phrasesSection.addInsightToInsightPanel(newLinkedPhrases);
+        }
     }
 
     /**

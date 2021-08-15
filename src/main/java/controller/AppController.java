@@ -368,13 +368,21 @@ public class AppController {
         stayedSameList.forEach(phrase -> {
             appModel.updatePhraseCounterInView(phrase);
         });
+
+        // Update counts on custom panel
+        resetPhrasesPanel(PhraseType.CUSTOM);
+        showCustomPhrases();
+
+        // Update insights panel
+        resetPhrasesPanel(PhraseType.INSIGHTS);
+        showInsights();
     }
 
     /**
      * Ask the model to reset the phrases panel.
      */
-    public void resetPhrasesPanel() {
-        appModel.resetPhrasesPanel();
+    public void resetPhrasesPanel(PhraseType phrasePanel) {
+        appModel.resetPhrasesPanel(phrasePanel);
     }
 
     /**
@@ -496,6 +504,14 @@ public class AppController {
     public void showCustomPhrases() {
         List<Phrase> customPhrases = graphDatabase.getCustomPhrases();
         customPhrases.forEach(appModel::addNewCustomPhraseToView);
+    }
+
+    /**
+     * Get the custom phrases and display them.
+     */
+    public void showInsights() {
+        List<LinkedPhrases> linkedPhrases = graphDatabase.getLinkedPhrases(getCurrentHeadingBeingEdited());
+        linkedPhrases.forEach(appModel::addNewLinkedPhrasesToView);
     }
 
     /**
