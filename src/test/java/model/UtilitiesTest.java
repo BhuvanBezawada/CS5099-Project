@@ -78,4 +78,5 @@ public class UtilitiesTest extends TestCase {
         assertEquals("new-1", pairsToAdd.get(1).getFirst());
         assertEquals("new-2", pairsToAdd.get(1).getSecond());
     }
+
 }

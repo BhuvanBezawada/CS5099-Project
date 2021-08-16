@@ -13,6 +13,7 @@ import java.util.Map;
  * App Controller Interface.
  */
 public interface IAppController {
+
     /**
      * Register as a subscriber of the model.
      *
@@ -281,4 +282,5 @@ public interface IAppController {
      * @param errorMessage The error message to show.
      */
     void error(String errorMessage);
+
 }

@@ -27,4 +27,9 @@ public class PairTest extends TestCase {
     public void testPhraseGetSecond() {
         assertEquals("phrase 2", phrasePair.getSecond().getPhraseAsString());
     }
+
+    public void testToString() {
+        assertEquals("Pair{first=phrase 1, second=phrase 2}", phrasePair.toString());
+    }
+
 }

@@ -30,4 +30,5 @@ public enum PhraseType {
     public String getPhraseTypeAsString() {
         return phraseTypeAsString;
     }
+
 }

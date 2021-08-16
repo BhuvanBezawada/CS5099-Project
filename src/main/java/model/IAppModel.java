@@ -10,6 +10,7 @@ import java.util.List;
  * App Model Interface.
  */
 public interface IAppModel {
+
     /**
      * Allow an observer to subscribe for changes to the model.
      *
@@ -239,4 +240,5 @@ public interface IAppModel {
      * @param currentPhrasePanelInView The phrase panel type.
      */
     void setCurrentPhrasePanelInView(PhraseType currentPhrasePanelInView);
+
 }

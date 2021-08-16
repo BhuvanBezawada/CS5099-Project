@@ -11,7 +11,7 @@ import java.awt.Toolkit;
  */
 public class LoadingScreens {
 
-    // Image file paths
+    // Image file paths - both images are custom made, so no licence is needed
     private static final String SPLASH_SCREEN = "/splashscreen.png";
     private static final String LOADING_SCREEN = "/loadingscreen.png";
 

@@ -64,7 +64,7 @@ public class PreviewBox extends JPanel implements Comparable<PreviewBox> {
     /**
      * Set the assignment.
      *
-     * @param assignment The assignment. // TODO is this really needed here?
+     * @param assignment The assignment.
      */
     public void setAssignment(Assignment assignment) {
         this.assignment = assignment;

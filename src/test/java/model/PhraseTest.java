@@ -40,4 +40,24 @@ public class PhraseTest extends TestCase {
         phrase.decrementUsageCount();
         assertEquals(0, phrase.getUsageCount());
     }
+
+    public void testEquals() {
+        Phrase newPhrase = new Phrase("New phrase");
+        assertTrue(phrase.equals(phrase));
+        assertFalse(phrase.equals(newPhrase));
+    }
+
+    public void testCompare() {
+        Phrase newPhrase = new Phrase("New phrase");
+        newPhrase.incrementUsageCount();
+
+        // Other phrase usage count is 0, newPhrase usage count is 1
+        // 0-1 = -1,
+        assertEquals(-1, newPhrase.compareTo(phrase));
+    }
+
+    public void testToString() {
+        assertEquals("This is a phrase", phrase.toString());
+    }
+
 }

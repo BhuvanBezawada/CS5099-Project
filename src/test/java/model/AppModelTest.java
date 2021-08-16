@@ -33,6 +33,14 @@ public class AppModelTest extends TestCase {
         assignment = model.createAssignment("Test", "Heading 1 \n Heading 2 \n Heading 3", new File("Empty file"), "Example-Directory");
     }
 
+    @Override
+    protected void tearDown() throws Exception {
+        File file = new File("Example-Directory");
+        if (file.exists()) {
+            file.delete();
+        }
+    }
+
     public void testSetCurrentPhrasePanelInView() {
         model.setCurrentPhrasePanelInView(PhraseType.FREQUENTLY_USED);
         model.setCurrentPhrasePanelInView(PhraseType.CUSTOM);
@@ -44,6 +52,12 @@ public class AppModelTest extends TestCase {
         assertEquals("Test-2", createdAssignment.getAssignmentTitle());
         assertEquals(3, createdAssignment.getAssignmentHeadings().size());
         assertEquals("Test-Directory", createdAssignment.getAssignmentDirectoryPath());
+
+        // Remove file
+        File file = new File("Test-Directory");
+        if (file.exists()) {
+            file.delete();
+        }
     }
 
     public void testSetAndGetCurrentDocumentInView() {
@@ -115,4 +129,5 @@ public class AppModelTest extends TestCase {
         assertEquals(3, model.getLineSpacing());
         assertEquals("=> ", model.getLineMarker());
     }
+
 }

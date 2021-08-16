@@ -37,4 +37,5 @@ public class Visualisations {
         // Display the visualisation
         Plot.show(VerticalBarPlot.create("Grade distribution", dataTable, "gradeLabels", "gradeValues"));
     }
+
 }

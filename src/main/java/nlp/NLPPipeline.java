@@ -32,5 +32,5 @@ public class NLPPipeline {
         }
         return stanfordCoreNLP;
     }
-}
 
+}

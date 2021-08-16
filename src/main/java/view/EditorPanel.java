@@ -174,4 +174,5 @@ public class EditorPanel extends JPanel {
     public double getGrade() {
         return this.gradeBox.getGrade();
     }
+
 }

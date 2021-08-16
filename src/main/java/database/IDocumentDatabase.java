@@ -11,6 +11,7 @@ import java.util.Map;
  * Document Database Interface.
  */
 public interface IDocumentDatabase {
+
     /**
      * Create a collection in the database.
      *
@@ -76,4 +77,5 @@ public interface IDocumentDatabase {
      * @param studentId  The student ID of the feedback document.
      */
     void updateFeedbackDocument(Assignment assignment, String studentId);
+
 }

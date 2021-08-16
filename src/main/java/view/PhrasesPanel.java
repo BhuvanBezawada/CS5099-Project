@@ -47,7 +47,7 @@ public class PhrasesPanel extends JPanel {
     /**
      * Add a phrase to the panel.
      *
-     * @param phrase      The phrase to add. // TODO: replace with phrase object?
+     * @param phrase      The phrase to add.
      * @param phraseCount The usage count of the phrase.
      */
     public void addPhrase(String phrase, int phraseCount) {

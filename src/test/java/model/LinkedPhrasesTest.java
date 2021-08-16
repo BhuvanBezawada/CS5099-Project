@@ -25,4 +25,5 @@ public class LinkedPhrasesTest extends TestCase {
     public void testGetCount() {
         assertEquals(1, linkedPhrases.getCount());
     }
+
 }

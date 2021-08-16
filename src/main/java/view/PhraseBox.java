@@ -44,6 +44,8 @@ public class PhraseBox extends JPanel implements Comparable<PhraseBox> {
 
         // Following resize code is adapted from:
         // https://stackoverflow.com/questions/6714045/how-to-resize-jlabel-imageicon
+        // Green arrow image from: https://commons.wikimedia.org/wiki/File:Eo_circle_green_arrow-left.svg
+        // Green arrow image has a creative commons license
         this.insertButton = new JButton(
                 new ImageIcon(new ImageIcon(
                         this.getClass().getResource("/green_arrow.png")).getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT)));
@@ -78,6 +80,7 @@ public class PhraseBox extends JPanel implements Comparable<PhraseBox> {
         URL emojiFilePath = null;
 
         // Pick the relevant emoji
+        // Emoji images are custom made on powerpoint - no licence needed.
         if (this.phraseSentiment.equals(Sentiment.NEUTRAL.getSentimentAsString())) {
             emojiFilePath = this.getClass().getResource("/neutral.png");
         } else if (this.phraseSentiment.equals(Sentiment.POSITIVE.getSentimentAsString()) || this.phraseSentiment.equals(Sentiment.VERY_POSITIVE.getSentimentAsString())) {
