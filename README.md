@@ -1,5 +1,6 @@
-# CS5099-Project
-CS 5099 Project - Feedback Helper Tool
+# Feedback Helper Tool
+by Bhuvan Bezawada
+Originally written as part of a CS5099 project at the University of St Andrews
 
 ## Project Overview
 This tool was developed as part of the project component of the MSc Computer Science degree at the University of St Andrews.
