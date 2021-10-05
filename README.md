@@ -1,5 +1,7 @@
-# CS5099-Project
-CS 5099 Project - Feedback Helper Tool
+# Feedback Helper Tool
+by Bhuvan Bezawada
+
+Originally written as part of a CS5099 project at the University of St Andrews
 
 ## Project Overview
 This tool was developed as part of the project component of the MSc Computer Science degree at the University of St Andrews.
@@ -35,3 +37,6 @@ Then follow the [instructions on how to install Maven](https://maven.apache.org/
 
 ## User Guide 
 - The user guide can be found at [this link](https://drive.google.com/file/d/1UgDoxDrzht1C-oGnEB52T9OMwwsOnGq9/view).
+
+## Copyright
+Copyright (C) 2020-21 by Bhuvan Bezawada
